@@ -2,10 +2,10 @@
 
 No active task.
 
-Next READY task: **M0-T02 — Python project and developer tooling baseline**.
+Next READY task: **M0-T03 — Configuration foundation**.
 
-Prerequisite: M0-T01 DONE. Read AGENTS, PROJECT_STATE, this file, and the full M0-T02 specification in PLAN before starting; then complete the remaining startup sequence and working-tree prerequisite gate.
+Prerequisites: M0-T01 and M0-T02 DONE. Follow the full AGENTS startup sequence and verify the working tree before beginning the M0-T03 specification in PLAN.
 
-M0-T02 establishes pyproject metadata (Python >=3.12), package/build configuration, Ruff/Mypy/Pytest/coverage, development dependency strategy, .gitignore, and a non-scanning console placeholder. Document exact complete validation commands in `docs/testing-strategy.md`. No reconnaissance or Groq execution belongs in that task.
+M0-T03 will establish typed configuration, defaults/file/environment precedence and separate secrets. No configuration implementation exists yet. The standard development environment and full validation commands are documented in README and docs/testing-strategy.md.
 
-This bootstrap stops at M0-T01. M0-T02 is READY and has not started.
+M0-T02 is closed. M0-T03 is READY and has not started; no later task is active.

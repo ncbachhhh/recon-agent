@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: design intent only; source directories currently contain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic planned for typed domain/configuration boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent only. M0-T02 adds setuptools packaging and an inert console placeholder; all other source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic planned for typed domain/configuration boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -55,7 +55,7 @@ Planned JSON, human-readable terminal summaries, and HTML reports. Reports separ
 
 ## CLI layer — `cli/`
 
-The operator interface will validate configuration/scope, start/resume sessions, show tools/status, diagnose the environment, generate reports, and cancel safely. Configuration and explicit scope approval belong here, not in planner-derived text. Planned commands are specifications in PLAN, not available today.
+The operator interface will validate configuration/scope, start/resume sessions, show tools/status, diagnose the environment, generate reports, and cancel safely. Configuration and explicit scope approval belong here, not in planner-derived text. M0-T02 installs `recon-agent` only as a status-printing placeholder with no command framework or reconnaissance behavior. The planned operator commands are specifications in PLAN and are not available today.
 
 ## Architectural constraints
 

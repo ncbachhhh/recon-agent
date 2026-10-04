@@ -47,3 +47,43 @@ M0-T01 acceptance mapping:
 | No credentials/unrelated work | Text/credential-pattern inspection and exact staged addition set passed; original directory was empty |
 | Idle closure | PROJECT_STATE active None; CURRENT_TASK explicitly says no active task; history/changelog reconciled |
 | Single focused commit/no push | Authorized initial commit is the one containing this entry; actual hash and post-commit clean tree verified in final handoff; no push action performed |
+
+
+## 2026-10-05 — M0-T02 — Python project and developer tooling baseline
+
+Status: DONE
+
+Objective: Establish a standard installable Python >=3.12 package and trustworthy developer validation without reconnaissance functionality.
+
+Changes: Created pyproject.toml, .gitignore, src/recon_agent/cli/main.py and tests/unit/test_cli.py. Updated README, architecture/testing docs, CHANGELOG and task/state files. Existing package markers and M0-T01 history are preserved. Startup verified a clean tree/index, no active task, M0-T01 DONE at `cbb978c24f148372229a1c956bcdd1cafc180248`, M0-T02 READY, and all later tasks NOT STARTED before recording M0-T02 IN PROGRESS.
+
+Decisions: setuptools build backend; initial version 0.1.0; zero runtime dependencies; five developer tools with compatible ranges and no transitive/exact pins or dependency-manager requirement; no invented license/author metadata; Ruff lint/import sorting/format; strict production-only Mypy; standalone package/branch coverage without an artificial minimum; unit-only default collection plus strict external/network markers. No CLI framework, version API or ADR was needed. Full resolved tool versions are in testing strategy; validation used Python 3.14.6, not a separate Python 3.12 run.
+
+### Executed validation
+
+Commands use the repository root and local .venv:
+
+| Check | Actual command/result |
+| --- | --- |
+| Environment | `python --version`, `python -m venv .venv`, `.venv/bin/python --version`: Python 3.14.6; environment creation succeeded |
+| Editable install | `.venv/bin/python -m pip install -e ".[dev]"`: succeeded; `.venv/bin/python -m pip check`: no broken requirements |
+| Import/console | `.venv/bin/python -c "import recon_agent; print(recon_agent)"` and `.venv/bin/recon-agent`: succeeded; placeholder message/status accurate |
+| Lint/format | `.venv/bin/python -m ruff check .` and `.venv/bin/python -m ruff format --check .`: passed; initial format check flagged trailing CLI blank line, corrected using targeted Ruff formatting and rechecked |
+| Types | `.venv/bin/python -m mypy src/recon_agent`: no issues in 12 source files; strict config without broad suppression |
+| Focused/default tests | `.venv/bin/python -m pytest tests/unit/test_cli.py` and `.venv/bin/python -m pytest`: one test passed; default tests also ran with GROQ_API_KEY removed |
+| Coverage | `.venv/bin/python -m coverage run -m pytest` and `.venv/bin/python -m coverage report`: succeeded; 3 statements, 0 missing, 100%; 11 empty markers skipped in display; no test code counted |
+| Standard build | `.venv/bin/python -m build`: produced sdist and wheel; wheel built from sdist with isolated setuptools 84.0.0; final README/CLI included |
+| Clean wheel | Fresh temporary venv outside checkout; pip `install --no-index --no-deps` of built wheel; isolated import verified site-packages/version 0.1.0; console returned 0 with expected output and no stderr; temporary environment cleaned |
+| Offline boundary | Temporary wrapper removed GROQ_API_KEY and blocked socket connection/DNS functions; actual placeholder unit test passed |
+| Marker selection | Temporary non-network fixtures selected 1 offline/2 deselected by default; explicit external-or-network selection selected 2/1 deselected; no real integrations run |
+| Hygiene/security/docs | Temporary validator inspected TOML, source AST/unchanged markers, credential patterns, Markdown links, append-only history, Git ignore rules and archive metadata/contents; passed. `git diff --check` passed; reviewed task-owned diff |
+
+Security/scope: Source contains only existing docstrings plus a print/return CLI; no shell=True, imports of process/network/provider code, subprocess/scanner execution, HTTP/DNS traffic, Groq calls, API keys, .env or later-task functionality. Unit tests are deterministic/offline and need no credentials or reconnaissance binaries. Dependency provisioning and isolated build-backend installation accessed the package index; this is separate from the offline package/test/CLI behavior. Generated environments, caches, coverage and dist/egg-info output are ignored and excluded from the commit.
+
+### Acceptance and closeout
+
+All six PLAN criteria verified: src package metadata/install/build; installed inert console; full lint/format/type/offline test/build baseline; package coverage and explicit integration marker selection; documented standard dependency/environment workflow with tested versions; ignore rules protecting generated/local secrets while retaining required source/docs/fixtures/config files. README/configuration reality and architecture boundaries reconciled. No configuration/Groq/scanner support is claimed. PLAN closes M0-T02 and makes M0-T03 READY; remaining 89 tasks NOT STARTED; no active task; blockers none. Follow-up: M0-T03 only, not started in this run.
+
+Commit reference: the single focused commit containing this entry, titled `chore(project): establish Python development baseline`. Resolve its actual hash after creation with `git log -1 --format=%H --grep="^chore(project): establish Python development baseline$"`. Following M0-T01 precedent, no circular hash is invented and no amendment/second commit is used; the final handoff reports the actual full hash and post-commit tree result. No push.
+
+Final staged gate: exact 12-file task-owned index verified; staged bytes matched inspected files; no unrelated, unstaged or untracked nonignored work. PLAN differs from M0-T01 only in M0-T02 DONE and M0-T03 READY. Final state/README/history were re-read and reconciled. Initial staged whitespace review found extra blank EOF lines in new pyproject/.gitignore (untracked files were absent from earlier unstaged diff checks); stripped them and successfully re-ran both Git whitespace checks and both Ruff checks. No configuration semantics changed.

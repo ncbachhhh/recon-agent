@@ -1,12 +1,12 @@
 # Planned architecture
 
-Status: product architecture is design intent only. M0-T02 adds setuptools packaging and an inert console placeholder; all other source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic planned for typed domain/configuration boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. Other source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and planned for domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
 Pure data models with no process, network, provider, CLI, or database dependencies. Planned models include Target, Scope, Asset, Host, Service, Endpoint, Observation, Finding, Evidence, ActionRequest, ActionResult, ReconSession, ReconState, and PlannerDecision. Observations describe collected facts; findings interpret evidence; planner recommendations are neither facts nor executable instructions. See [data model](data-model.md).
 
-`core/` will house shared error/result and audit primitives without becoming a catch-all for subsystem logic.
+`core/config/` now provides strict typed section models, an explicit TOML/environment/programmatic loader and separate redacted provider secrets. See [configuration](configuration.md) and [ADR 0001](decisions/0001-configuration-sources.md). Loading only constructs contracts: scope authorization, budget enforcement and subsystem startup remain future work. `core/` will also house shared error/result and audit primitives without becoming a catch-all for subsystem logic.
 
 ## Policy layer — `policy/`
 

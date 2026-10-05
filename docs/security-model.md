@@ -1,6 +1,6 @@
 # Security model
 
-Status: planned controls and mandatory architectural constraints; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. No operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -33,6 +33,10 @@ This hierarchy determines provenance and authority; trusted operator configurati
 | State → storage/reports | Facts, interpretations, remote text | Evidence lineage, local access controls, escaping, redaction, bounded retention |
 
 Remote reconnaissance content may be sensitive even when authorized to collect. Before hosted-provider use, configuration must govern which evidence is sent; credentials and unnecessary raw content are excluded. A Groq key stays in a secret mechanism, never prompts, state, report, logs, exceptions, fixtures, or Git.
+
+## Implemented configuration boundary
+
+M0-T03 rejects unknown keys and invalid effective types/limits in trusted configuration. The explicit loader performs no runtime startup. Scope preferences contain no targets or authorization grants; enabling tools/planner/persistence only sets preferences. `GROQ_API_KEY` is loaded separately into an excluded `SecretStr` field, never ordinary configuration or diagnostic dumps. Displayed validation errors hide raw inputs; diagnostic callers of Pydantic structured errors must omit input values. No arbitrary commands, argv or policy-bypass options exist. See [configuration](configuration.md) for sources, precedence and failure behavior. These contracts do not implement scope enforcement, capability policy, budgets, logging or provider communication.
 
 ## Untrusted inputs
 

@@ -2,10 +2,10 @@
 
 No active task.
 
-Next READY task: **M0-T03 — Configuration foundation**.
+Next READY task: **M0-T04 — Core domain model foundation**.
 
-Prerequisites: M0-T01 and M0-T02 DONE. Follow the full AGENTS startup sequence and verify the working tree before beginning the M0-T03 specification in PLAN.
+Prerequisites: M0-T01, M0-T02 and M0-T03 DONE. Follow the full AGENTS startup sequence and inspect the working tree before beginning M0-T04 in PLAN.
 
-M0-T03 will establish typed configuration, defaults/file/environment precedence and separate secrets. No configuration implementation exists yet. The standard development environment and full validation commands are documented in README and docs/testing-strategy.md.
+Typed configuration contracts, explicit loading, separate redacted secrets and offline tests now exist. No domain models, scope engine, runner, adapters, Groq, planner, database or operational reports exist. The CLI remains inert.
 
-M0-T02 is closed. M0-T03 is READY and has not started; no later task is active.
+M0-T04 is READY and has not started; all later tasks remain NOT STARTED. Known blockers: None.

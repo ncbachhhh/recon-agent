@@ -87,3 +87,59 @@ All six PLAN criteria verified: src package metadata/install/build; installed in
 Commit reference: the single focused commit containing this entry, titled `chore(project): establish Python development baseline`. Resolve its actual hash after creation with `git log -1 --format=%H --grep="^chore(project): establish Python development baseline$"`. Following M0-T01 precedent, no circular hash is invented and no amendment/second commit is used; the final handoff reports the actual full hash and post-commit tree result. No push.
 
 Final staged gate: exact 12-file task-owned index verified; staged bytes matched inspected files; no unrelated, unstaged or untracked nonignored work. PLAN differs from M0-T01 only in M0-T02 DONE and M0-T03 READY. Final state/README/history were re-read and reconciled. Initial staged whitespace review found extra blank EOF lines in new pyproject/.gitignore (untracked files were absent from earlier unstaged diff checks); stripped them and successfully re-ran both Git whitespace checks and both Ruff checks. No configuration semantics changed.
+
+## 2026-10-05 — M0-T03 — Configuration foundation
+
+Status: DONE
+
+Objective: Establish typed validated configuration contracts, deterministic explicit sources and separate credentials without implementing operational subsystems.
+
+Startup: Read the ordered governance/state/PLAN/docs/ADR/history/tooling/source evidence and maintenance skill/references. Verified M0-T01/M0-T02 DONE, M0-T03 READY, all later tasks NOT STARTED, no active task/blockers, clean tree/index, and HEAD `a9bca2b760ded7b06de115ad9d3d63537f605bdd`. Recorded only M0-T03 IN PROGRESS before implementation; no unrelated work was present.
+
+### Changes and decisions
+
+Added `src/recon_agent/core/config/{__init__,models,loader}.py`, `tests/unit/test_config.py`, `config.example.toml` and `docs/decisions/0001-configuration-sources.md`. Updated pyproject.toml, README.md, docs/configuration.md, docs/architecture.md, docs/security-model.md, docs/testing-strategy.md, CHANGELOG.md, PLAN.md, PROJECT_STATE.md, CURRENT_TASK.md and this append-only history. Existing CLI and all subsystem package markers remain unchanged.
+
+Architecture: AppConfig composes strict scope, execution, planner, tools, persistence, logging and reporting models. Unknown fields fail; booleans are not numeric limits, seconds must be positive/finite, counts positive, default timeout must fit the session-duration budget, supported log levels/formats are explicit and formats unique. Planner/tools/persistence default disabled; enabling a planner preference requires an operator-selected model string. Scope contains preferences only, with no targets or grants. Tools contains only enabled: no commands, executable selection, argv, extra arguments or policy bypass.
+
+ADR 0001 records TOML via standard-library tomllib, no automatic discovery/includes/dotenv, explicit defaults < file < namespaced environment < programmatic overrides, and effective merged validation. Environment uses RECON_AGENT_SECTION__FIELD, raw string/path values and typed JSON for boolean/numeric/list fields. Unknown/malformed namespaced variables fail. Paths stay relative without resolution/creation. Native OSError/ValidationError plus one narrow ConfigLoadError suffice; no M0-T05 hierarchy is introduced.
+
+Pydantic `>=2.12,<3` is the sole added direct runtime dependency, used for actual model validation/serialization and SecretStr. No pydantic-settings/YAML/provider/network/scanner/persistence libraries are needed. Separate ProviderSecrets reads GROQ_API_KEY explicitly; absent/empty is acceptable, the field is hidden from repr and excluded from dumps. Normal configuration rejects credential fields; displayed errors omit raw input. Structured Pydantic error consumers are documented to use include_input=False.
+
+### Executed validation
+
+Commands ran from the repository root using the M0-T02 .venv unless noted:
+
+| Check | Actual result |
+| --- | --- |
+| Interpreter | `python --version` and `.venv/bin/python --version`: Python 3.14.6 |
+| Editable install | `.venv/bin/python -m pip install -e ".[dev]"` succeeded; resolved Pydantic 2.13.5 / pydantic-core 2.46.5; `.venv/bin/python -m pip check` passed |
+| Focused tests | `.venv/bin/python -m pytest tests/unit/test_config.py`: 65 passed |
+| Lint/format | `.venv/bin/python -m ruff check .` and `.venv/bin/python -m ruff format --check .`: passed |
+| Types | `.venv/bin/python -m mypy src/recon_agent`: passed, 15 source files |
+| Full tests | `.venv/bin/python -m pytest`: 66 passed |
+| Coverage | `.venv/bin/python -m coverage run -m pytest`: 66 passed; `.venv/bin/python -m coverage report`: 100%, 142 statements / 34 branches, none missing |
+| Build | `.venv/bin/python -m build`: sdist and wheel built successfully, isolated setuptools 84.0.0 |
+| CLI | `.venv/bin/recon-agent`: unchanged placeholder, success |
+| Fresh wheel | Created temporary venv outside checkout, installed built wheel with runtime dependencies, verified import under `python -I` from site-packages, explicit configuration loading with enabled preferences, no credential requirement, CLI placeholder and pip check; all passed |
+| Offline/side effects | Temporary socket-blocking wrapper ran all 66 unit tests successfully. Fresh wheel audit blocked network/process/database/directory creation, application Path.open and logging startup while importing/loading; passed. Ordinary installed dependency entry-point metadata reads were allowed |
+| Security/archives | Temporary AST/archive inspection verified no process/network/SQLite/Groq imports, unchanged docstring-only subsystem markers, packaged config modules, Python >=3.12 metadata, only Pydantic as direct runtime requirement, and no environment/secrets/caches in archives |
+| Git/documentation | Inspected all changed/new source/tests/docs/examples; Git diff/check and staged/closure checks passed. Generated artifacts remain ignored; history prefix and local documentation links/statuses checked |
+
+Initial focused JSON round-trip validation exposed strict Path handling in JSON mode; corrected and re-tested. Initial lint/type checks exposed import ordering and a default-factory literal annotation; corrected and passed. A first fresh-import guard blocked ordinary Pydantic installed-package entry-point metadata reads; inspected installed dependency code and refined the guard to permit only those metadata reads while still rejecting application file/runtime activity. No production side-effect allowance or acceptance requirement was weakened.
+
+Python 3.12 was not separately executed. Dependency provisioning/build isolation accessed the package index; configuration, tests and CLI perform no network activity. No live target, external reconnaissance binary or real credential was used. Only a synthetic redaction-test value exists in tests; no .env/API keys were supplied.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Deterministic sources/precedence | Defaults/file/environment/override tests show concurrency 1 < 2 < 3 < 4; partial merge retains independent file/default settings; input mappings remain unchanged |
+| Malformed/unknown settings fail | Invalid types/limits/logs/formats, malformed TOML/UTF-8, section structures, typo max_concurency, missing files and unknown/ambiguous environment tests pass |
+| Absent scope cannot authorize | ScopeConfig contains only two false-default preferences; targets/grants rejected; no target selection or authorization implementation exists |
+| Separate secret supplied safely | Separate loader presence/absence and SecretStr tests prove raw credential absent from config/secret repr, JSON/Python dumps and displayed errors; no network validation |
+| No network/tool loading activity | Socket-blocked full suite, guarded fresh imports/enabled-preference loading, temporary filesystem/logging guard and source inspection pass |
+
+All additional packaging/quality/docs/scope requirements passed. No M0-T04 entities, M0-T05 taxonomy, M0-T06 audit logger, M1 scope engine, process runner, adapters, Groq client, planner, SQLite state or operational reports were implemented. Configuration contracts do not enforce operational policy/budgets. PLAN closes M0-T03, makes only M0-T04 READY, leaves remaining 88 tasks NOT STARTED and CURRENT_TASK idle. No blockers or new follow-up work; stop here.
+
+Commit reference: the single focused commit containing this entry, titled `feat(config): establish typed configuration foundation`; resolve with `git log -1 --format=%H --grep="^feat(config): establish typed configuration foundation$"`. Following prior-task convention, no circular hash is invented, amendment or second task commit is made. Actual hash and clean post-commit tree are reported in the final handoff. No push.

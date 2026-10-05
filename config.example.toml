@@ -1,0 +1,35 @@
+# Explicitly load this file with load_config("config.example.toml").
+# Preferences only: no targets, authorization grants, credentials or commands.
+[scope]
+allow_subdomains = false
+allow_private_ips = false
+
+[execution]
+default_timeout_seconds = 30.0
+max_concurrency = 1
+max_output_bytes = 1048576
+max_actions = 100
+max_duration_seconds = 600.0
+
+[planner]
+enabled = false
+provider = "groq"
+# An operator must select a model before enabling the future planner.
+model = ""
+max_iterations = 10
+
+[tools]
+enabled = false
+
+[persistence]
+enabled = false
+# Relative paths stay relative; loading does not create files or directories.
+database_path = "recon-agent.sqlite3"
+
+[logging]
+level = "INFO"
+structured = true
+
+[reporting]
+output_directory = "reports"
+default_formats = ["json"]

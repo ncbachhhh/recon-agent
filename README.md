@@ -6,7 +6,7 @@ The problem is coordinating discovery, follow-up metadata collection, and eviden
 
 ## Current status
 
-**Foundation/developer baseline only.** M0-T01 provides governance and design; M0-T02 provides an installable Python >=3.12 package, developer tooling, and an inert `recon-agent` console entry point. The command only prints `recon-agent is not yet implemented (development baseline only).` and exits successfully. There is no configuration system, scope engine, scanner adapter, process runner, Groq client, planner, database, or reporting implementation. Pydantic models, SQLite and Groq remain planned; conceptual examples below describe future behavior.
+**Foundation/configuration only.** M0-T01 provides governance and design; M0-T02 provides an installable Python >=3.12 package, developer tooling, and an inert `recon-agent` console entry point. M0-T03 adds typed Pydantic configuration with defaults, explicit TOML loading, environment/programmatic overrides and separate redacted credentials. See the [configuration reference](docs/configuration.md) and [safe example](config.example.toml). The command still only prints `recon-agent is not yet implemented (development baseline only).` and exits successfully. Domain models, scope enforcement, scanner adapters, process runner, Groq client, planner, database and operational reporting remain unimplemented; conceptual examples below describe future behavior.
 
 ## Adaptive architecture
 
@@ -46,14 +46,14 @@ TASK_HISTORY.md        Append-only completed work
 CHANGELOG.md           User-visible changes
 .codex/skills/         Repository maintenance workflow
 pyproject.toml         Package/build and developer tool configuration
-src/recon_agent/       Future package boundaries plus inert CLI placeholder
+src/recon_agent/       Typed core/config plus future boundaries and inert CLI
   core/ domain/ policy/ execution/ tools/ providers/
   orchestration/ persistence/ reporting/ cli/
 tests/                 unit/, integration/, fixtures/
 docs/                  Architecture, contracts, security, testing, configuration, ADRs
 ```
 
-Start repository work with the startup sequence in [AGENTS.md](AGENTS.md). See [PLAN.md](PLAN.md) for the roadmap, [PROJECT_STATE.md](PROJECT_STATE.md) for implementation reality, and [testing strategy](docs/testing-strategy.md) for phase-specific validation. Current next READY task: M0-T03; it has not started. Development proceeds one implementation task at a time.
+Start repository work with the startup sequence in [AGENTS.md](AGENTS.md). See [PLAN.md](PLAN.md) for the roadmap, [PROJECT_STATE.md](PROJECT_STATE.md) for implementation reality, and [testing strategy](docs/testing-strategy.md) for phase-specific validation. Current next READY task after M0-T03: M0-T04; it has not started. Development proceeds one implementation task at a time.
 
 ## Development baseline
 
@@ -82,6 +82,6 @@ Run complete validation:
 
 The build produces `dist/recon_agent-0.1.0.tar.gz` and `dist/recon_agent-0.1.0-py3-none-any.whl`. Environments, caches, coverage and build outputs are ignored by Git. Installation and isolated build-backend provisioning may access the package index; the installed package, CLI and default tests perform no network activity and need no credentials or reconnaissance binaries.
 
-Runtime dependencies are empty. The `dev` extra contains Ruff, Mypy, Pytest, coverage and build with compatible version ranges; no transitive dependencies are pinned. Standard pip/venv and the [setuptools backend](https://setuptools.pypa.io/en/stable/userguide/pyproject_config.html) keep setup independent of a dependency manager. No lockfile is introduced at this stage: these commands reproduce the workflow, while exact resolved versions may change. Tested versions and the full validation contract are recorded in [testing strategy](docs/testing-strategy.md).
+Pydantic is the sole direct runtime dependency, supplying configuration validation, serialization and redacted credential types. The explicit loader uses standard-library TOML/JSON parsing; no settings framework, provider/scanner library or YAML parser is needed. The `dev` extra contains Ruff, Mypy, Pytest, coverage and build with compatible version ranges; no transitive dependencies are pinned. Standard pip/venv and the [setuptools backend](https://setuptools.pypa.io/en/stable/userguide/pyproject_config.html) keep setup independent of a dependency manager. No lockfile is introduced at this stage: these commands reproduce the workflow, while exact resolved versions may change. Tested versions and the full validation contract are recorded in [testing strategy](docs/testing-strategy.md).
 
-Ruff handles lint/import sorting and formatting; Mypy checks production code strictly. Default Pytest collects `tests/unit` only and excludes `external`/`network` markers. Integration tests must be selected explicitly and obey the same marker/authorization rules. Coverage measures `recon_agent`, reports missing lines and has no minimum gate while the package contains only a placeholder. No license or author/ownership metadata has been invented.
+Ruff handles lint/import sorting and formatting; Mypy checks production code strictly. Default Pytest collects `tests/unit` only and excludes `external`/`network` markers. Integration tests must be selected explicitly and obey the same marker/authorization rules. Coverage measures `recon_agent`, reports missing lines and has no minimum percentage gate during foundation work. No license or author/ownership metadata has been invented.

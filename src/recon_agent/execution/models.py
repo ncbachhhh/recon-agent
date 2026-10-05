@@ -1,0 +1,81 @@
+"""Low-level process data, deliberately separate from planner/domain contracts."""
+
+from datetime import UTC, datetime
+from typing import Annotated
+
+from pydantic import (
+    AfterValidator,
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+)
+
+from recon_agent.core.config.models import PositiveSeconds
+
+
+class _ProcessData(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+        frozen=True,
+        validate_default=True,
+        revalidate_instances="always",
+        hide_input_in_errors=True,
+        allow_inf_nan=False,
+        ser_json_bytes="base64",
+        val_json_bytes="base64",
+    )
+
+
+class ProcessSpec(_ProcessData):
+    """Trusted adapter-owned executable plus literal arguments, never a command.
+
+    Not a planner input or authorization token. Never log/serialize this record
+    into diagnostics; arguments can contain sensitive data.
+    """
+
+    executable: str = Field(repr=False)
+    args: tuple[str, ...] = Field(default=(), repr=False)
+    timeout_seconds: PositiveSeconds | None = None
+
+    @field_validator("executable")
+    @classmethod
+    def executable_structure(cls, value: str) -> str:
+        if not value.strip() or "\x00" in value:
+            raise ValueError("executable must be non-blank and contain no NUL")
+        return value
+
+    @field_validator("args")
+    @classmethod
+    def literal_arguments(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if any("\x00" in argument for argument in value):
+            raise ValueError("arguments must contain no NUL")
+        return value
+
+
+def _utc(value: datetime) -> datetime:
+    return value.astimezone(UTC)
+
+
+_Timestamp = Annotated[AwareDatetime, AfterValidator(_utc)]
+
+
+class ProcessExecution(_ProcessData):
+    """Observed exit and bounded raw bytes; non-zero exit is still an outcome.
+
+    Output is untrusted evidence, excluded from repr, never automatically logged.
+    JSON explicitly encodes bytes as URL-safe base64, including malformed UTF-8.
+    No executable path or argv is copied into execution metadata.
+    """
+
+    argument_count: Annotated[int, Field(ge=0)]
+    return_code: int
+    stdout: bytes = Field(repr=False)
+    stderr: bytes = Field(repr=False)
+    stdout_truncated: bool
+    stderr_truncated: bool
+    started_at: _Timestamp
+    finished_at: _Timestamp
+    duration_seconds: Annotated[float, Field(ge=0)]

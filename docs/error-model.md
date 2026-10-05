@@ -28,7 +28,8 @@ Instantiate a concrete error with a short, sanitized message and optional typed
 Cancellation supplies the category for M0-T04's existing terminal status, rather
 than mislabeling cancellation as tool failure. It does not implement cancellation,
 child cleanup or orchestration. Configuration loading and M1-T01 scope membership are integrated boundaries;
-other operational boundaries in this table remain planned.
+M1-T03 integrates canonical tool unavailable/execution/timeout errors through the
+existing Failure contract; other operational boundaries remain planned.
 
 All errors default to `retryable=False`. A producer may explicitly set it to true
 for a known transient tool/provider failure. It means a retry **may** be useful;
@@ -154,3 +155,15 @@ requires full validation as well. M0-T05 introduced no logging behavior; M0-T06
 now implements the separate local sink. No new runtime dependency,
 process runner, tool registry, scanner, Groq/provider implementation,
 planner runtime, autonomous loop, database, report or CLI command is added.
+
+## Runner integration (M1-T03)
+
+The internal asynchronous runner returns OperationResult[ProcessExecution]. Missing
+or non-executable programs map to ToolUnavailableError, other OS spawn/capture or spawn encoding errors
+to ToolExecutionError and deadlines to ToolTimeoutError with effective timeout only.
+Fixed messages omit OS paths/argv/environment/output/native exception objects.
+Ordinary non-zero child exits return Success with the observed return code, leaving
+interpretation to future adapters. No competing error/result hierarchy is added.
+Failure has no payload, so bounded partial output is discarded on timeout/failure.
+Caller cancellation uses Python asyncio.CancelledError, re-raised after cleanup;
+it is not converted to the domain CancelledError. See [execution model](execution-model.md).

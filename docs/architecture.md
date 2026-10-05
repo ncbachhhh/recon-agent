@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; other source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. Registry/adapters and other operational source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -16,7 +16,26 @@ Scope must be checked when planning, immediately before execution, and before fo
 
 ## Execution layer — `execution/`
 
-A controlled process runner will accept adapter-generated argv arrays. No shell, `shell=True`, or arbitrary command strings. It will support timeouts, stdout/stderr capture, exit codes, cancellation and child cleanup, bounded output, and structured execution metadata. It cannot provide an alternate route around policy. Fake runners allow offline adapter tests. Approval is rechecked at dispatch so stale authorization or exhausted budgets cannot permit execution.
+M1-T03 implements `AsyncProcessRunner.run(ProcessSpec)` for trusted adapter-owned
+executable/literal argument tuples. It uses the existing OperationResult with
+ProcessExecution facts, per-stream bounded raw bytes, truncation flags, return code,
+UTC timestamps and monotonic duration. Non-zero exits remain observable outcomes;
+OS launch/capture failures and deadlines use canonical errors. Timeout and caller
+cancellation terminate/reap the direct child, escalating to kill after 0.5 seconds;
+cancellation propagates after cleanup. No shell, command-string API, planner access
+or automatic logging exists. See [execution model](execution-model.md) for precise
+failure, partial-output, injection and descendant-process limitations.
+
+```text
+Planner [future] → deterministic action policy [future]
+  → Tool Registry [M1-T04, future] → ToolAdapter [future]
+  → Execution Runner [M1-T03] → OS process
+```
+
+ProcessSpec grants no authority. Future dispatch must recheck approval/scope/budgets
+and select trusted adapters; no such registry/adapter/policy integration is claimed
+today. The execution-neutral ProcessRunner protocol allows future fixture runners;
+an internal injected spawn seam already drives deterministic fake-process tests.
 
 ## Tool adapters — `tools/`
 

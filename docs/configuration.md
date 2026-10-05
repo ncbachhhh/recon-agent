@@ -1,7 +1,8 @@
 # Configuration
 
 M0-T03 implements typed configuration contracts and explicit local loading in
-`recon_agent.core.config`. These settings do not operate the planned subsystems.
+`recon_agent.core.config`. Loading these settings does not start subsystems. M1-T03 explicitly consumes the
+execution default timeout and per-stream output cap in its internal process runner.
 The console entry point remains the inert M0-T02 placeholder.
 
 ## Application API and sources
@@ -189,7 +190,18 @@ Tests isolate environment sources and cover defaults, all sections, precedence,
 strict/unknown settings, file failures, secret exclusion, diagnostics and absence
 of runtime filesystem/logging side effects. See [testing strategy](testing-strategy.md)
 for mandatory complete validation. Domain data models now exist (M0-T04);
-process runners/adapters, Groq, AI planning, database persistence,
+adapters, Groq, AI planning, database persistence,
 operational reports and real CLI commands remain unimplemented. M0-T06 explicitly
 consumes LoggingConfig level/structured through configure_logging; loading settings
 still configures no handlers. See [logging and audit](logging-and-audit.md).
+
+## Execution consumption (M1-T03)
+
+AsyncProcessRunner snapshots explicitly supplied ExecutionConfig. An internal
+ProcessSpec timeout overrides default_timeout_seconds; no second global default is
+introduced. max_output_bytes now caps retained bytes **per stream**, so at most N
+stdout bytes plus N stderr bytes are retained while excess is drained/discarded.
+Truncation is explicit. max_concurrency, max_actions and max_duration_seconds remain
+future session budget/orchestration preferences, not runner-enforced limits.
+No per-request output override, env/cwd/stdin options or new config field is added.
+See [execution model](execution-model.md) for deadline/cleanup and direct-child limits.

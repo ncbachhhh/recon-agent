@@ -165,10 +165,16 @@ formats, event types, filters, repeated setup, error integration and safety.
 
 Future application/orchestration services explicitly emit events; pure domain
 records do not depend on logging. No scanner/provider/planner or policy audit producer,
-runner, registry, budget engine, autonomous loop, file/rotating sink,
+registry, budget engine, autonomous loop, file/rotating sink,
 database, log shipping, analytics, operational report or real CLI is implemented.
 The existing CLI remains inert and does not initialize logging.
 
 M1-T01 ScopeValidator returns structured results without emitting events. Future
 callers may select canonical matched-rule data or ErrorInfo.context.scope_reason
 for policy audit events; success alone is not broader action approval.
+
+M1-T03 implements an internal process runner without log/audit producers. It returns
+argument count, return code, duration/timestamps and truncation flags for future safe
+higher-layer events; no argv, environment or output dump is emitted automatically.
+ProcessSpec and raw ProcessExecution output dumps must not enter diagnostics. The
+runner cannot emit policy approval. See [execution model](execution-model.md).

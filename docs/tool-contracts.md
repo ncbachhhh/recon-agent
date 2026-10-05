@@ -1,6 +1,7 @@
 # Planned tool contracts
 
-This is a conceptual contract, not an implemented interface.
+Registry and ToolAdapter contracts remain conceptual. M1-T03 implements only the
+internal [execution primitive](execution-model.md), without scanner integration.
 
 ## Capability versus implementation
 
@@ -60,3 +61,21 @@ Identifiers are placeholders. Product text is tool evidence, not a verified vuln
 Keep execution success separate from parser validity and useful observation count. Preserve non-zero exit, timeout, cancellation, truncation, partial output, missing binary, and parser failure in structured results. Partial evidence must identify its limits. Never manufacture a successful fact from malformed output or silently switch to broader scans.
 
 Every adapter needs sanitized fixture parsers, argv checks, fake-runner tests, scope/limit rejection tests, and an explicit opt-in integration marker for real binaries. See [testing strategy](testing-strategy.md).
+
+## Implemented process boundary (M1-T03)
+
+Capability is not a command. Future ToolAdapter owns executable selection and
+literal argv construction after deterministic policy and registry dispatch.
+ExecutionRunner only launches that internal ProcessSpec; the planner never supplies
+executable names/argv or calls it directly. ActionRequest/PlannerDecision are unchanged.
+`ProcessRunner.run` is awaitable and returns existing OperationResult with bounded
+raw ProcessExecution facts; fixture runners can implement the same small protocol.
+No adapter interface/catalog/mapping is implemented in this task.
+
+Adapters must interpret non-zero exits, decode bytes, check independent stdout/stderr
+truncation flags, and convert facts into observations/ActionResult. The retained-byte
+cap is per stream; excess is drained/discarded. Timeout returns canonical Failure
+without partial output, since the existing Failure has no payload. Cancellation
+re-raises asyncio.CancelledError after direct-child cleanup. Descendant supervision
+is not supplied: tools spawning descendants require further containment before
+safe integration. Spec and output dumps are internal evidence, never automatic logs.

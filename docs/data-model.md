@@ -182,3 +182,16 @@ data or shared ErrorInfo, and raises ScopeRejectedError at the require boundary.
 Declaration IDs are preserved; source declarations are never rewritten. Host/CIDR
 canonicalization here is comparison policy, not asset identity/deduplication. See
 [scope semantics](scope-model.md) for exclusions, options and derived-address limits.
+
+## Internal process facts (M1-T03)
+
+The execution layer now defines ProcessSpec and ProcessExecution separately from
+pure domain data. ProcessSpec is trusted adapter-owned executable/literal argv and
+optional timeout; it is not ActionRequest or planner data. ProcessExecution carries
+bounded raw stdout/stderr bytes, truncation flags, observed return code, argument
+count, aware UTC timing and monotonic duration. It has no argv/executable metadata;
+JSON preserves bytes through URL-safe base64. Existing OperationResult handles
+normal exit versus canonical launch/capture/timeout Failure; non-zero exit remains
+an observed process outcome. Timeout/cancellation partial output is not returned.
+Future adapters normalize those facts into domain observations/ActionResult;
+ToolExecution remains staged. See [execution model](execution-model.md).

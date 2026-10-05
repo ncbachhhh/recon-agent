@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -113,7 +113,7 @@ If scope cannot be established reliably, **do not execute the action**. Malforme
 
 ## Controlled execution and resource limits
 
-Every executable operation maps to a registered capability and controlled adapter. The planner cannot supply executable paths, arbitrary arguments, shell strings, environment variables, or template paths. Adapters validate options and use argument arrays, guarding against option injection as well as shell injection. The runner uses no shell and supports timeouts, exit status, stdout/stderr capture, cancellation, process cleanup, bounded output, and audit metadata.
+Every executable operation maps to a registered capability and controlled adapter. The planner cannot supply executable paths, arbitrary arguments, shell strings, environment variables, or template paths. Adapters validate options and use argument arrays, guarding against option injection as well as shell injection. M1-T03 implements the internal runner with no shell or command-string API, per-stream bounded capture, deadlines, direct-child timeout/cancellation cleanup and safe outcome metadata. Higher dispatch enforcement remains future work.
 
 Enforce session action/time budgets, max concurrency, per-host limits, per-tool rate limits, crawl/content limits, and output-size caps. Reserve/check budgets atomically for concurrent work, recheck at dispatch, and stop retries when limits are reached. Exhaustion, cancellation, or timeout is an explicit recorded result. A failure does not justify a more intrusive fallback.
 
@@ -130,3 +130,27 @@ Rejections, planner decisions, execution outcomes, and lifecycle events must be 
 Offline tests use fake providers/runners and sanitized fixture output. Scope regression/property tests cover domain confusion, IPv4/IPv6/CIDRs, malformed URLs, and redirect/address changes. Prompt-injection tests assert both rejection and absence of execution. Concurrency tests assert atomic budget and scope enforcement. CI never silently contacts public targets. Real integration or lab testing requires explicit authorization and opt-in targets.
 
 Document controls as planned until implementation and test evidence support them. M13 security review reconciles this document with code before MVP declaration.
+
+## Concrete execution boundary (M1-T03)
+
+Only trusted adapter code may construct ProcessSpec executable/argv after future
+policy/registry approval. No direct planner-to-runner path exists; domain contracts
+are unchanged. The runner performs no target resolution, scope expansion, tool
+allowlisting or policy approval. It is not a public arbitrary-command feature.
+Production launch uses create_subprocess_exec with literal separated arguments,
+DEVNULL stdin and independent pipes, without shell parsing, expansion or TTY.
+
+Output retention is bounded while reading: ExecutionConfig.max_output_bytes caps
+each stream, concurrent readers discard excess and report independent truncation.
+Bytes remain untrusted evidence; no automatic argv/output/environment logging or
+policy/audit emission occurs. Returned metadata contains no argv/executable path.
+The child inherits environment/cwd; trusted callers must avoid command-line secrets.
+
+Timeout cleans up then returns ToolTimeoutError-derived Failure. Cancellation
+terminates/reaps the direct child and re-raises asyncio.CancelledError; shielded
+ownership also covers spawn and repeated cancellation races. Termination escalates
+to kill after a 0.5-second grace period. No descendant/process-group containment is
+implemented: descendants can survive or hold pipes open; pending OS spawn and reaping
+can extend cleanup beyond the deadline. Future adapters must account for this
+limitation before integrating tools with child processes. See
+[execution model](execution-model.md) for exact semantics and output/error limits.

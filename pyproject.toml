@@ -55,6 +55,7 @@ minversion = "8.4"
 testpaths = ["tests/unit"]
 addopts = ["--strict-config", "--strict-markers", "-m", "not external and not network"]
 markers = [
+    "local_process: harmless offline subprocess tests using only sys.executable",
     "integration: offline integration using fixtures and fakes, selected by explicit path",
     "external: requires external binaries or a lab environment; explicit opt-in only",
     "network: requires network connectivity, live targets, or provider APIs; explicit opt-in only",

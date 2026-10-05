@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 / scope authorization regression boundary validated
+Project phase: M1 / internal async process execution validated
 
 Completed:
 
@@ -12,12 +12,13 @@ Completed:
 - M0-T06 — Logging and audit-event foundation (DONE)
 - M1-T01 — Scope model and validator (DONE)
 - M1-T02 — Scope regression suite (DONE)
+- M1-T03 — Execution runner abstraction (DONE)
 
 Active task: None.
 
 Next READY:
 
-- M1-T03 — Execution runner abstraction (not started)
+- M1-T04 — Capability and Tool Registry (not started)
 
 ## Implementation reality
 
@@ -35,7 +36,24 @@ M1-T01 adds pure synchronous `policy/ScopeValidator` compiled from an explicit i
 
 M1-T02 adds 343 independent regression cases under tests/unit/policy, with socket/DNS guards, deterministic generated suffix/CIDR membership checks, rule permutations and test-only mock contact checks for redirects/discovery. No validator defect was demonstrated; production code and dependencies are unchanged. The corpus verifies the documented boundary, not future production contact enforcement.
 
-Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy/registry, runner, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T03 is READY; remaining 83 tasks are NOT STARTED.
+M1-T03 adds execution/ProcessSpec, ProcessExecution, ProcessRunner protocol and
+AsyncProcessRunner. The internal async primitive launches trusted adapter-owned
+executable/argument tuples through create_subprocess_exec, with DEVNULL stdin,
+separate raw byte streams, per-stream max_output_bytes retention while concurrently
+draining/discarding excess, explicit truncation, return code, UTC wall timestamps
+and monotonic duration. Non-zero exits remain Success process facts; canonical
+ToolUnavailableError/ToolExecutionError/ToolTimeoutError supply existing Failures.
+Spec timeout overrides the snapshotted configured default. Timeout/cancellation
+terminate/reap the direct child and escalate to kill after 0.5 seconds; shielded
+ownership handles spawn/repeated cancellation races. Python cancellation propagates.
+Failure has no partial-output payload; bytes are discarded on failure/cancellation.
+JSON raw bytes use URL-safe base64. No argv/executable/environment is returned as
+metadata, and the runner emits no logs/audit events or authorization. See
+[execution model](docs/execution-model.md) for descendant/OS cleanup limitations.
+No process-tree containment, registry/adapter, action policy, rate/concurrency/session
+budget runtime, scanner, provider/planner or command CLI was added.
+
+Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy/registry, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T04 is READY; remaining 82 tasks are NOT STARTED.
 
 ## Major architecture decisions
 
@@ -51,17 +69,22 @@ Audit events describe autonomous recon operations and confer no authorization. E
 
 ## Validation
 
-M1-T02: Python 3.14.6 / Pydantic 2.13.5; editable install and pip check passed.
-Dedicated corpus: 343 passed; full suite and coverage: 897 passed; full suite
-with socket contact/DNS blocked and Groq key absent: 897 passed. Ruff lint/format
-(60 Python files) and strict Mypy (27 production modules) passed. Coverage remains
-99% (781 statements / 216 branches), now with one uncovered defensive unsupported-kind
-line behind strict Target revalidation; no artificial private-parser bypass test added.
-Build, guarded external fresh-wheel cold imports, scope/manual high-risk checks,
-error/result JSON round trips, inert CLI and fresh-wheel pip check passed. Archive
-source/dependency parity, protected-source AST review, secret/artifact checks and
-Git whitespace/state reconciliation passed. Python 3.12 was not available locally
-and was not tested. See TASK_HISTORY for exact commands, limitations and acceptance
-mapping. No production fix, new dependency, ADR, scanner or runtime dispatch added.
+M1-T03: Python 3.14.6 / Pydantic 2.13.5; editable install and pip check passed.
+Focused execution: 69 passed (52 fake / 17 marked harmless local sys.executable
+cases). Full suite, coverage and network/DNS-blocked suite: each 966 passed, with
+Groq key absent in the guarded run. AF_UNIX event-loop self-pipes are permitted;
+Internet/loopback contact and DNS remain blocked in the parent. Child scripts
+contain no networking; the Python guard is not a child sandbox.
+Ruff lint/format, strict Mypy (29 production modules), build,
+fresh-wheel guarded cold imports/installed local execution, dependency/source/archive
+parity, inert CLI, static security/secret/artifact and Git whitespace checks passed.
+Coverage: 99% overall (914 statements / 234 branches), 100% for execution code;
+only the existing defensive scope unsupported-kind line/branch remains uncovered.
+Security regressions prove literal metacharacters/substitutions and absence of
+sentinel effects, simultaneous large stream capture/bounds, timeout/cancellation
+cleanup and direct-child reaping. No descendant-tree guarantee is claimed.
+Python 3.12 was not available locally and was not tested. See TASK_HISTORY for
+commands, acceptance mapping and temporary-check corrections. No new dependency,
+ADR, scanner integration, runtime dispatch or operational CLI was added.
 
 Known blockers: None.

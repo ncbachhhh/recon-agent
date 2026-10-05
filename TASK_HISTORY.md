@@ -429,3 +429,66 @@ M0-T01–M0-T06 and M1-T01–M1-T02 are DONE. M1-T03 prerequisites are satisfied
 Commit reference: the single focused commit containing this entry, titled `test(policy): harden scope authorization regressions`; resolve with `git log -1 --format=%H --grep="^test(policy): harden scope authorization regressions$"`. Established convention avoids an invented circular self-hash, amendment or second task commit. Final handoff reports the actual full hash and clean post-commit tree. No push.
 
 Closeout validation correction: temporary reconciliation checks initially parsed the multiword NOT STARTED status as one token, mistook historical `Success[int](5)` notation for a Markdown link, and decoded UTF-8 wheel README metadata through the email parser's ASCII text fallback. Corrected the temporary checks to read complete status lines, exclude code/type notation from links and compare original UTF-8 metadata bytes. Final checks passed: 8 DONE / 1 READY / 83 NOT STARTED, 63 local links, preserved historical prefix, and final wheel/sdist README/source parity. These were checker errors; repository states, documentation and artifacts required no correction.
+
+## 2026-10-05 — M1-T03 — Execution runner abstraction
+
+Status: DONE
+
+Objective: Supply a safe internal awaitable local process primitive for future trusted adapters, without creating a terminal, AI tool, generic command product feature or reconnaissance dispatch.
+
+Startup: Followed AGENTS/maintenance skill/references; read state/current task, complete M1-T03 and M1-T04 boundary, README and architecture/security/tool/error/data/logging/config/testing docs, ADRs and recent history, then Git/source/tests/pyproject. Verified clean working tree/index and predecessor HEAD/ancestor `c6c8669bb0940e65f0212b8d226e1581fccc8421`; M0-T01–M0-T06/M1-T01–M1-T02 DONE, only M1-T03 READY, no active task/blocker. Set only M1-T03 IN PROGRESS before implementation. No unrelated modifications existed.
+
+### Implementation and boundaries
+
+Added execution/models.py and runner.py with a small package API: strict frozen ProcessSpec (separate executable, tuple of literal argument strings, optional positive finite timeout), ProcessExecution (separate bounded raw stdout/stderr, truncation flags, return code, argument count, aware UTC timestamps and monotonic duration), ProcessRunner injection protocol and AsyncProcessRunner. No command string, parsing/splitting, shell, wrapper or planner-facing executable field. Empty executable/NUL/wrong argument types/invalid timeout/unknown fields fail structural validation before spawn; specs and configuration snapshots are revalidated. No new runtime dependency or ADR was needed.
+
+Async design matches the planned concurrent engine without scheduling it. Production uses create_subprocess_exec, DEVNULL stdin, separate pipes with explicit 64 KiB flow-control limit, no TTY and inherited environment/cwd. An internal trusted ProcessHandle/spawn seam supports deterministic fake processes. Future adapters can inject a fixture runner via the minimal execution-neutral ProcessRunner protocol; no ToolAdapter/registry interface, capability mapping or executable allowlist was implemented.
+
+ExecutionConfig.default_timeout_seconds is reused; a spec timeout overrides it. max_output_bytes is enforced while reading **per stream**: retain at most N stdout plus N stderr bytes, concurrently read in at most 16 KiB chunks, discard excess and set independent truncation flags. No communicate-then-truncate buffer exists. Bounded capture/conversion/transport overhead is documented; this is retention, not a total generated-byte/CPU/session budget. Raw bytes preserve malformed UTF-8; deliberate text decoding belongs to adapters and JSON uses URL-safe base64.
+
+Ordinary exits, including non-zero/negative codes, return existing Success[ProcessExecution]; future adapters interpret tool semantics and normalize into domain ActionResult/observations. Missing/permission-denied executable yields canonical ToolUnavailableError-derived Failure. Other OS/encoding spawn or capture failures yield ToolExecutionError-derived Failure with fixed messages. Deadline yields ToolTimeoutError-derived Failure carrying effective timeout only. No native paths, OS details, arguments, environment or output enter ErrorInfo. Existing Failure has no payload: bounded partial output on timeout/capture failure is deliberately discarded, never stuffed into diagnostic context or a new outcome hierarchy.
+
+On deadline/caller cancellation, lifecycle ownership is retained through spawn, terminate, up to 0.5-second graceful wait, kill escalation and direct-child reaping. Owned pipe/wait/stop tasks are cancelled/awaited where required; exit/signal races are handled. Shielding covers cancellation during spawn, repeated cancellation and cancellation during timeout cleanup. asyncio.CancelledError propagates after cleanup, never converted to successful execution or a domain failure. Direct-child guarantees are tested; no descendant/process-group containment or OS-stall hard deadline is claimed. Descendants may survive/hold pipes open, pending spawn must yield a handle/error, and reaping can extend cleanup time. Existing adapter reliability work/M11-T03 must account for these documented limits before integrating tools with descendants; no new future task was implemented.
+
+The runner emits no logs/audit events and cannot claim authorization. Result metadata contains no executable/argv/environment; spec executable/args and output are excluded from repr, while explicit internal dumps still require producer discipline. Capability is not command: planner intent → future policy → future registry → future trusted adapter argv → implemented runner → process. No direct AI/Groq path, scope duplication/resolution/expansion, scanners, action policy, session budget/rate/concurrency scheduler, provider/planner runtime, orchestration, persistence, report or real CLI added. Protected core/config/error/result/audit/logging, domain, policy, CLI and future subsystem source are unchanged.
+
+Files: added execution/models.py, execution/runner.py, tests/unit/execution/test_runner.py, test_local_process.py and docs/execution-model.md; updated execution exports, pyproject's local_process marker only, README/CHANGELOG and architecture/security/tool/data/error/config/logging/testing docs; reconciled PLAN/PROJECT_STATE/CURRENT_TASK and appended this history. No generated artifacts staged.
+
+### Executed validation
+
+Repository .venv used unless stated; Python 3.14.6 / Pydantic 2.13.5 only. Python 3.12 was not found on PATH or checked local interpreter locations and was not tested.
+
+| Check | Actual command/result |
+| --- | --- |
+| Setup | `python --version`, `python -m pip install -e ".[dev]"`, `python -m pip check`: passed |
+| Focused execution | `python -m pytest tests/unit/execution`: final 69 passed; initial 65/68 passed before additional cancellation/logging/concurrency/encoding coverage |
+| Marker isolation | Same path with `-m local_process`: 17 passed / 52 deselected; with `-m 'not local_process'`: 52 passed / 17 deselected |
+| Full suite | `python -m pytest`: final 966 passed |
+| Coverage | `python -m coverage run -m pytest`: 966 passed; `coverage report`: 99% overall, 914 statements / 234 branches; execution models/runner/exports 100% statement/branch coverage; only existing scope.py:112 defensive branch uncovered |
+| Offline full suite | Temporary `/tmp/recon-m1t03-validation/offline.py` blocks socket Internet/loopback contact/send/receive/bind/listen and DNS helpers, removes Groq key, checks guard rejection before pytest: final 966 passed. AF_UNIX event-loop self-pipes allowed; child scripts statically reviewed for no networking (guard is not a subprocess sandbox) |
+| Ruff/format/types | `ruff check .`, `ruff format --check .`: passed (formatter reported 65 files); `mypy src/recon_agent`: strict checks passed for 29 production modules; no weakened typing or ignores |
+| Build/CLI | `python -m build`: isolated setuptools 84.0.0 sdist/wheel succeeded; editable and fresh-wheel `recon-agent` emit unchanged inert placeholder and exit 0 |
+| Fresh wheel | External temporary venv installed final wheel; `python -I -B /tmp/recon-m1t03-validation/wheel_checks.py`: guarded cold imports resolve to site-packages, no startup/logging, spec/result JSON round trips, unchanged action/planner fields, literal argv/sentinel, malformed bytes, large simultaneous bounded streams, missing program and timeout all passed; `pip check` passed |
+| Import guards | Fresh-wheel script blocks socket/DNS/process/database/thread/directory/global logging startup, application Path access and writes; allows standard dependency metadata/import reads. No project logger created during imports/constructors |
+| Manual/static security | Literal `hello; SHOULD_NOT_EXECUTE`, `$HOME`, substitutions, wildcards, `foo && bar`, quotes/spaces/operators remain one argv each; Python/shell-looking sentinel commands have no side effect. Searches/AST review found no forbidden shell/command parsing/evaluation APIs, planner/provider/scope imports, scanners or communicate buffering in runner; protected source byte parity passed |
+| Resources | Fake timeout/kill/exit/spawn/capture/cancellation races and local timeout/cancellation direct-child tests passed. Local handle return codes and wait complete; POSIX waitpid raises ChildProcessError, proving reaped child. Large alternating stdout/stderr completes with each retained output <= configured cap and explicit truncation |
+| Packaging/security | Temporary inspect.py verifies wheel/sdist source and README byte parity, sole Pydantic runtime dependency, no generated/cache artifacts, no private-key/provider-token patterns in visible files, scanner/registry/future runtime absence and Git whitespace; passed |
+| Final review | Reviewed task-owned code/tests/docs, full working/index diff and each acceptance criterion; state/dependency/link/history/secret/artifact/staged path/whitespace reconciliation completed before the single commit |
+
+Development checks caught an unused test import and required Ruff formatting; corrected only task-owned files. Final review added canonical handling/test for OS spawn encoding failure. Temporary validation commands initially used a checkout-relative interpreter while cwd was /tmp and an unmatched zsh interpreter glob; corrected to absolute interpreter and Python pathlib searches. The first fresh-wheel guard overblocked Pydantic's legitimate site-packages entry-point metadata reads; narrowed only read access to dependency metadata while keeping application reads/writes/startup blocked. Final guarded checks passed. An initial patch attempt used two operations on the same export file and was rejected without source changes; reapplied as a single update. No acceptance relaxation or product defect remains from these tooling errors.
+
+Installation/build provisioning can access the package index; product imports/tests/local children/CLI require no network, credentials, live target or reconnaissance binary. No process-tree guarantee or Python 3.12 run is claimed.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Approved internal argv only, no shell | Strict spec plus create_subprocess_exec; future adapter/policy ownership documented; malformed/string API rejection and real literal-argv/no-sentinel regressions passed |
+| Bounded separate capture and status | Incremental concurrent readers, per-stream prefix caps/truncation, raw bytes and return-code/timing contracts; fake and marked local output/non-zero/invalid-byte/JSON cases passed |
+| Timeout/cancel cleanup and metadata | Existing timeout Failure/context; graceful terminate/kill/reap, shielded spawn/repeated-cancel ownership; caller cancellation propagated; fake/local handle and POSIX reaping evidence passed |
+| Unavailable/non-zero/overflow distinguished | Canonical unavailable/exec/timeout Failures versus Success exit facts and independent truncation flags; full matrix passed |
+| No planner-facing execution API | Domain/planner source unchanged; runner imports no AI/domain/policy and emits no approval/audit; no CLI/registry/scanner path added; static and wheel contract checks passed |
+
+M0-T01–M0-T06 and M1-T01–M1-T03 are DONE. M1-T04's prerequisite gate is satisfied and it alone becomes READY; all 82 later tasks remain NOT STARTED. CURRENT_TASK says No active task. Known blockers: none. Follow-up limits are documented under existing adapter/process reliability tasks; no new scope or future implementation begun. Stop after M1-T03.
+
+Commit reference: the single focused commit containing this entry, titled `feat(execution): add safe subprocess runner`; resolve with `git log -1 --format=%H --grep="^feat(execution): add safe subprocess runner$"`. Existing convention avoids inventing a circular self-hash, amendment or second task commit. Final handoff reports actual full hash and verified clean tree. No push.

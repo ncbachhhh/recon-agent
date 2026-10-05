@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -13,6 +13,21 @@ Pure data models with no process, network, provider, CLI, or database dependenci
 Deterministic authorization is independent of the model. Central responsibilities: scope validation; host/subdomain and IP/CIDR policy; URL/redirect validation; capability allowlist; parameter and planner-output validation; action deduplication; request budgets; rate/resource/execution limits. Policy defaults deny ambiguous or unknown requests. A scope change requires trusted operator input, never remote evidence or planner text.
 
 Scope must be checked when planning, immediately before execution, and before following redirects or scheduling newly discovered targets. Network-capable adapters must prevent tools from silently following out-of-scope redirects, DNS-derived addresses, crawl links, or secondary targets. M1-T01 implements pure synchronous ScopeValidator over explicit Scope snapshots, with canonical Target matches and the existing OperationResult/ErrorInfo/ScopeRejectedError boundary. Exclusions win; domain descendants are explicit; URLs use parsed authorities. No global settings or logging side effects exist. See [scope model](scope-model.md) and [ADR 0002](decisions/0002-scope-and-derived-addresses.md). Domain membership never authorizes DNS answers; future adapters must independently validate and constrain actual addresses before contact and revalidate changes. Rebinding/contact enforcement remains unimplemented; denial is the fallback.
+
+M1-T05 adds ActionPolicyValidator.validate(ActionRequest) using existing
+Success[ApprovedAction]/Failure/ErrorInfo. It consumes ToolRegistry's available
+metadata snapshot, the centralized ScopeValidator, registered strict parameter
+schemas and explicitly injected frozen capability/risk allowlists (empty by default).
+Trusted parameter_target_fields metadata identifies every secondary target; absent
+semantics deny, explicit () means no secondary network inputs. validate_value is a
+ScopeValidator text-classification entry point reusing its existing parser/matcher.
+Planner metadata never authorizes; registry facts and scope matches are insufficient
+alone. Budget/completed-action check interfaces default deny until M1-T06/M1-T08;
+permitting fakes exist only in tests. No counters, dedup identity, dispatch, provider,
+network or audit producer is implemented. Approval is current local eligibility,
+never a replay token: future dispatch revalidates and reserves atomically. See
+[policy contract](tool-contracts.md#action-policy-contract-m1-t05) and
+[ADR 0004](decisions/0004-action-eligibility-boundary.md).
 
 ## Execution layer — `execution/`
 
@@ -27,14 +42,14 @@ or automatic logging exists. See [execution model](execution-model.md) for preci
 failure, partial-output, injection and descendant-process limitations.
 
 ```text
-Planner [future] → deterministic action policy [future]
+Planner [future] → ActionPolicyValidator [M1-T05 local eligibility]
   → ToolRegistry [M1-T04] → ToolAdapter [interface; implementations future]
   → Execution Runner [M1-T03] → OS process
 ```
 
 ProcessSpec grants no authority. Future dispatch must recheck approval/scope/budgets
-and select trusted adapters. Registry lookup exists; action policy and operational
-adapter dispatch remain future work. The execution-neutral ProcessRunner protocol
+and select trusted adapters. Registry lookup and local action policy exist; operational
+adapter dispatch remains future work. The execution-neutral ProcessRunner protocol
 allows future fixture runners;
 an internal injected spawn seam already drives deterministic fake-process tests.
 

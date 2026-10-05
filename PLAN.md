@@ -417,7 +417,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T05`
 - **Title:** Action policy validator
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M1-T04`, `M1-T02`
 
@@ -455,7 +455,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T06`
 - **Title:** Execution budgets and rate limiting
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P0
 - **Dependencies:** `M1-T05`
 

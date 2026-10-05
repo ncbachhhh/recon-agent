@@ -180,3 +180,15 @@ known capability/adapter references may appear in existing ErrorContext fields.
 Successful schema lookup uses Success[AdapterDefinition]; successful resolution
 uses Success[InstanceOf[ToolAdapter]] with the trusted Python object. Internal lookup
 payloads are not planner serialization APIs; catalog() is the explicit safe boundary.
+
+## Action policy integration (M1-T05)
+
+ActionPolicyValidator uses existing Success[ApprovedAction]/Failure/ErrorInfo.
+Malformed requests, disallowed capability/risk, invalid parameters, missing target
+semantics or completed-action eligibility and malformed check results map to
+planner_validation_failed. Registry unknown capability also uses that code; missing
+or unavailable registrations retain tool_unavailable. Scope rejections retain
+scope_rejected/context; unavailable budget eligibility retains budget_exhausted.
+No new code/category, exception hierarchy or competing rejection envelope exists.
+Fixed policy messages omit planner reasons, raw inputs and native validation errors.
+Callers correlate Failure with the requested action; ApprovedAction includes action_id.

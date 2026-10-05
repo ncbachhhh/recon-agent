@@ -23,7 +23,7 @@ command or planner-supplied execution instruction.
 
 ```text
 Planner selects capability                 [future runtime]
-  → deterministic action policy            [M1-T05, future]
+  → deterministic action policy            [M1-T05, implemented local eligibility]
   → ToolRegistry selects trusted adapter    [implemented foundation]
   → ToolAdapter validates/prepares execution [interface; implementations future]
   → ProcessSpec → AsyncProcessRunner        [M1-T03, implemented]
@@ -48,8 +48,9 @@ trusted free text safe; producers own its contents.
 ASCII identifier, underscores/hyphens, at most 64 characters), descriptor,
 input_schema and output_schema. Schemas are trusted Pydantic model **classes**,
 required to be strict and extra-forbid. They are excluded from ordinary dumps/repr;
-lookup returns the classes internally so future policy/adapters can validate their
-contracts. Scanner-specific models and parameter enforcement remain future work.
+lookup returns the classes internally for policy/adapter validation. M1-T05 validates
+ActionRequest.parameters against input_schema; the primary target is checked
+separately. Scanner-specific models remain future adapter work.
 
 `ToolAdapter` is a minimal abstract base class with a read-only `definition`
 property. This task adds no execute, parse or binary-probing methods. Future adapter
@@ -92,6 +93,7 @@ metadata is snapshotted; adapter implementations must keep their definition stab
 | has_capability(name) | An adapter is registered for this capability, independent of availability |
 | has_adapter(id) | Adapter identity registered internally |
 | list_capabilities() / list_adapters() | Registered identities sorted lexicographically, immutable tuples |
+| capability_definition(name) | Available snapshotted AdapterDefinition facts without adapter access; canonical unknown/unavailable failures |
 | definition(id) | Existing OperationResult[AdapterDefinition], internal schema/metadata lookup |
 | resolve(name) | Existing OperationResult[InstanceOf[ToolAdapter]], selected trusted object or Failure |
 | catalog() | Sorted tuple of planner-safe CapabilityCatalogEntry values |
@@ -129,7 +131,7 @@ wire intent and provenance; well-formed unknown names may be represented as data
 Registry resolution interprets them only against CapabilityId. No unknown name
 becomes a program, dynamic import or newly constructed adapter. Top-level execution
 fields and nested reserved executable/import keys are rejected. Structured parameters
-still require future capability-specific validation and are never process flags.
+require ActionPolicyValidator capability-specific validation and are never process flags.
 
 ## Scope validation boundary
 
@@ -190,3 +192,62 @@ without partial output, since the existing Failure has no payload. Cancellation
 re-raises asyncio.CancelledError after direct-child cleanup. Descendant supervision
 is not supplied: tools spawning descendants require further containment before
 safe integration. Spec and output dumps are internal evidence, never automatic logs.
+
+## Action policy contract (M1-T05)
+
+```text
+Planner request
+  ↓
+ActionPolicyValidator.validate(ActionRequest)
+  ↓ only approved actions may continue; dispatch must revalidate
+ToolRegistry / trusted Adapter / Runner [dispatch and adapters future]
+```
+
+The validator consumes immutable registry metadata, not adapter instances, plus an
+explicit ScopeValidator and frozen ActionPolicyConfig. Empty capability/risk
+allowlists deny all. Finite CapabilityId/RiskClass values prevent introducing arbitrary
+operations. ToolsConfig.enabled is not consumed here and grants no permission.
+Registry availability must be confirmed; registration/availability alone cannot
+approve anything. Scope membership alone is also insufficient.
+
+Parameters are validated with the registered strict extra-forbid input_schema,
+never converted to flags. ActionRequest is revalidated to reject mutated/copied or
+constructed malformed records and reserved nested executable/import keys. Fixed
+errors omit raw parameter values and native validation errors. Trusted schemas must
+validate defaults and preserve strict nested contracts; schema validators are pure
+local application code, never network or execution hooks.
+
+AdapterDefinition.parameter_target_fields is trusted internal metadata, absent from
+planner catalog. None defaults to unestablished semantics and denies policy approval.
+An explicit () asserts that the parameter schema introduces no secondary network
+targets. Otherwise every declared unique input field must contain a validated string
+or list/tuple of strings. Defaults are checked too. Each value passes centralized
+ScopeValidator.validate_value. Nested or other target representations reject; no
+scanner-specific schema is introduced. Schema owners must declare every target
+input; opaque non-target strings must never later be used as destinations. The
+current ActionRequest always requires a primary target; there is no target-less
+capability contract or exemption. See [ADR 0004](decisions/0004-action-eligibility-boundary.md).
+
+ActionPolicyValidator.validate returns existing Success[ApprovedAction] or Failure.
+Success is a current eligibility decision with action_id/capability, canonical primary
+ScopeMatch, secondary matches and the trusted typed parameter model (excluded from
+dumps/repr). It is internal data, not a reusable execution token or automatic audit
+payload. Failure carries canonical ErrorInfo: planner_validation_failed for malformed,
+unsupported, disallowed or schema-invalid intent; scope_rejected for scope failures;
+tool_unavailable for missing/unavailable registrations; budget_exhausted for missing
+budget eligibility. Callers correlate rejections with the supplied request; no new
+failure envelope/taxonomy exists. Reasons are fixed policy text, never planner reasons.
+
+Two injected ActionEligibility.check(ActionRequest) services return OperationResult[None]
+for budget and completed-action eligibility. Missing services deny; allowing fakes
+exist only in offline tests. Returned malformed outcomes also reject. This adds no
+budget accounting, reservations, clock/rate checks or deduplication logic. M1-T06 and
+M1-T08 own those implementations. No production permitting stub exists.
+
+Future dispatch must revalidate the original request against current scope, registry,
+parameters, risk and eligibility; atomically reserve budgets and enforce deduplication.
+An old approval, modified parameter model or deserialized record cannot skip checks.
+Adapters must independently check newly introduced redirect/discovery/DNS destinations
+and constrain actual contact. Policy validation is synchronous local checking only:
+no registry mutation, adapter execution, binary selection, runner, network/DNS, Groq,
+audit emission or tool.execution_started event.

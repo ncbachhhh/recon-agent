@@ -10,6 +10,7 @@ from ipaddress import (
     ip_address,
     ip_network,
 )
+from typing import Literal
 from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -267,6 +268,29 @@ class ScopeValidator:
                     )
             reason = ScopeRejectionReason.NOT_IN_SCOPE
         return Failure(error=_rejection(reason, parsed).to_error_info())
+
+    def validate_value(self, value: str) -> OperationResult[ScopeMatch]:
+        """Classify untyped action target text locally, then use the same parser.
+
+        Delimiters select URL/CIDR/address syntax, never a permissive fallback
+        after parsing fails. Ordinary names use hostname (not domain-root) kind.
+        """
+        kind: Literal["url", "cidr", "ip", "hostname"]
+        try:
+            if "://" in value:
+                kind = "url"
+            elif "/" in value:
+                kind = "cidr"
+            elif ":" in value or value.replace(".", "").isdecimal():
+                kind = "ip"
+            else:
+                kind = "hostname"
+            candidate = Target(id="action-target", kind=kind, value=value)
+        except (ValueError, TypeError):
+            return Failure(
+                error=_rejection(ScopeRejectionReason.INVALID_TARGET).to_error_info()
+            )
+        return self.validate(candidate)
 
     def require_allowed(self, candidate: Target) -> ScopeMatch:
         """Raise the canonical policy exception on rejection, without side effects."""

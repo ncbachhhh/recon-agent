@@ -106,8 +106,8 @@ nested object/list level: `command`, `shell_command`, `raw_command`,
 
 This is structural defense, not a capability policy validator. Other parameter
 names/values remain unapproved JSON data. M1-T04 registry checks capability existence
-only. Future policy and adapters must validate permitted schemas, target, risk and limits before
-constructing fixed argv. No string is evaluated or dispatched by the domain layer.
+only. M1-T05 validates registered parameter schemas, target scope and risk; future
+dispatch/adapters must revalidate and enforce limits before constructing fixed argv. No string is evaluated or dispatched by the domain layer.
 Remote instruction-like text in observations remains evidence; planner reasons and
 summaries remain recommendations. Neither can redefine scope or create authority.
 M6-T04 still owns priority bounds and planner validation semantics.
@@ -208,3 +208,12 @@ against the finite enum and rejects unknown values. It adds no adapter identity,
 executable or argv to ActionRequest/PlannerDecision. Tool-specific typed input/output
 schema references live in trusted AdapterDefinition, never planner data; see
 [tool contracts](tool-contracts.md). No action-policy validation is implemented here.
+
+## Action policy result (M1-T05)
+
+ActionRequest and PlannerDecision wire fields remain unchanged. Policy now returns
+shared Success[ApprovedAction]/Failure: ApprovedAction is an internal policy record
+with action_id, finite capability, primary/secondary ScopeMatch records and a typed
+parameter model excluded from dumps/repr. It is not a new domain ActionResult,
+a persisted permission or a dispatch token. The original request must be revalidated
+at future dispatch. See [policy contract](tool-contracts.md#action-policy-contract-m1-t05).

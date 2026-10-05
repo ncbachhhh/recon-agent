@@ -34,9 +34,18 @@ class AdapterDefinition(BaseModel):
     descriptor: CapabilityDescriptor
     input_schema: type[BaseModel] = Field(exclude=True, repr=False)
     output_schema: type[BaseModel] = Field(exclude=True, repr=False)
+    # None means target semantics are unestablished; () explicitly declares that
+    # this schema introduces no secondary network targets.
+    parameter_target_fields: tuple[str, ...] | None = None
 
     @model_validator(mode="after")
     def strict_schemas(self) -> Self:
+        fields = self.parameter_target_fields
+        if fields is not None and (
+            len(set(fields)) != len(fields)
+            or any(name not in self.input_schema.model_fields for name in fields)
+        ):
+            raise ValueError("parameter target fields must name unique input fields")
         for schema in (self.input_schema, self.output_schema):
             if (
                 schema.model_config.get("extra") != "forbid"

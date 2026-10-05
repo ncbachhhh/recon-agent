@@ -142,3 +142,18 @@ nested executable/import-key rejection. Planner-safe catalog tests deliberately 
 private paths/argv/environment/runner values on fake adapters and prove no leakage.
 Unexpected execution/import/runtime fields in descriptors are rejected. Full-suite
 contact/DNS blocking and fresh-wheel cold import/composition checks remain required.
+
+## Action policy regressions (M1-T05)
+
+Run `.venv/bin/python -m pytest tests/unit/policy/test_action_policy.py`, followed
+by registry/scope regressions and the full baseline. Fixtures use only trusted fake
+schemas/adapters and permitting/denying eligibility services; no scanner models or
+production permitting service exists. Guards block socket/DNS/subprocess/runner,
+registry adapter resolution, dynamic imports and logging. Tests cover canonical
+approvals, malformed/unknown/unavailable/disallowed intent, strict/extra/executable
+parameters, every declared secondary target/default, missing target semantics,
+unsupported target representations, missing eligibility and malformed outcomes.
+Planner metadata cannot change denials. Test-only dispatch rechecks stale approval
+and remains untouched on rejection. Full contact/DNS-blocked suite and guarded
+fresh-wheel imports/policy checks are required. No production dispatch, resource
+reservation, deduplication or concrete-address contact guarantee is claimed.

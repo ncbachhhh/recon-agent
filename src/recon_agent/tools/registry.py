@@ -117,6 +117,21 @@ class ToolRegistry:
 
     def resolve(self, capability: str) -> OperationResult[InstanceOf[ToolAdapter]]:
         """Select trusted code, with canonical failures and no execution side effects."""
+        binding = self._available_binding(capability)
+        if isinstance(binding, Failure):
+            return binding
+        return Success[InstanceOf[ToolAdapter]](value=binding.adapter)
+
+    def capability_definition(
+        self, capability: str
+    ) -> OperationResult[AdapterDefinition]:
+        """Available snapshotted facts only; does not access adapter properties."""
+        binding = self._available_binding(capability)
+        if isinstance(binding, Failure):
+            return binding
+        return Success[AdapterDefinition](value=binding.definition)
+
+    def _available_binding(self, capability: str) -> _Binding | Failure:
         if not self.is_known_capability(capability):
             return Failure(
                 error=PlannerValidationError(
@@ -140,4 +155,4 @@ class ToolRegistry:
                     ),
                 ).to_error_info()
             )
-        return Success[InstanceOf[ToolAdapter]](value=binding.adapter)
+        return binding

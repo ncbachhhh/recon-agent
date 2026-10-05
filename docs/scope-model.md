@@ -146,3 +146,14 @@ that receive no rejected redirect or discovered candidate. Run it with
 `.venv/bin/python -m pytest tests/unit/policy`. This adds evidence for the existing
 contract, without implementing production contact enforcement. Full validation
 follows [testing strategy](testing-strategy.md).
+
+## Action target text (M1-T05)
+
+ScopeValidator.validate_value(str) classifies untyped action target text and reuses
+validate(Target). Text containing :// uses URL syntax, otherwise / uses CIDR,
+otherwise colon or a decimal dot-separated spelling uses IP; other text uses
+hostname. Classification never retries malformed address/URL syntax as a permissive
+name. Generated candidate IDs are stable internal references. No new hostname/IP/
+CIDR/URL matching rules or DNS behavior exist. Primary and trusted declared secondary
+parameter targets use this entry point; each match is only membership, never complete
+action approval. Dispatch/contact revalidation remains a future runtime obligation.

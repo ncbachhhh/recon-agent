@@ -12,7 +12,7 @@ No runtime dependency beyond the existing Pydantic dependency is added.
 Operator supplies target + authorized scope + config
   → ReconSession / deterministic bootstrap / observations [future runtime]
   → AI planner selects capability                          [future]
-  → deterministic action policy                            [future]
+  → ActionPolicyValidator local eligibility                 [M1-T05]
   → Tool Registry selects trusted adapter                  [M1-T04, implemented foundation]
   → ToolAdapter owns executable and literal argv           [future]
   → AsyncProcessRunner                                     [M1-T03, implemented]
@@ -24,10 +24,10 @@ Capability is not a command. ActionRequest/PlannerDecision remain
 non-authoritative data with no executable/argv fields. The planner cannot call
 the runner directly. Tool installation, ProcessSpec construction, process success
 and audit records confer no authorization. The registry supplies identity/availability
-facts; future policy/adapters must
-validate scope, capability parameters, option injection, risk and budgets before
-dispatch. The runner neither grants nor duplicates these checks; it is inherently
-able to launch the executable a trusted caller supplies. There is no arbitrary
+facts; M1-T05 checks scope, capability parameters and risk locally, with restrictive
+budget/completed-action seams. Future dispatch must revalidate and reserve resources
+before adapters construct argv. The runner neither grants nor duplicates these
+checks; it is inherently able to launch the executable a trusted caller supplies. There is no arbitrary
 command product feature or CLI endpoint.
 
 ## Input and injection contracts
@@ -135,9 +135,8 @@ Safe higher-layer events can select return code, argument count, duration and
 truncation flags with their own correlation IDs. No environment is logged.
 
 M1-T04 now implements immutable registry/capability mapping and the minimal trusted
-adapter interface, without execution. Action policy, session budgets/concurrency/rate
-limits,
-scanner adapters, provider/planner runtime, orchestration, persistence, reporting
+adapter interface, without execution. M1-T05 adds pure action eligibility without
+runner calls. Session budgets/concurrency/rate limits, scanner adapters, provider/planner runtime, orchestration, persistence, reporting
 and real CLI remain future tasks. See [tool contracts](tool-contracts.md),
 [security model](security-model.md), [error contracts](error-model.md) and
 [testing strategy](testing-strategy.md) for the surrounding boundaries.

@@ -182,3 +182,9 @@ runner cannot emit policy approval. See [execution model](execution-model.md).
 M1-T04 registry composition/lookups/catalog are pure local operations and emit no
 logs or audit events. Availability and resolution are facts, never policy approval
 or tool.execution_started. Future orchestration owns truthful event production.
+
+M1-T05 ActionPolicyValidator returns shared structured decisions without logging or
+audit events. Future orchestration may correlate the request with Failure/ErrorInfo
+or select ApprovedAction action/capability/scope references. Approval is current
+eligibility, never execution; never emit tool.execution_started for validation.
+Typed parameters and planner reasons are not automatic diagnostic payloads.

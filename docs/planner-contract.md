@@ -70,3 +70,20 @@ Planner output identifies capability only. ActionRequest retains unknown names a
 unapproved structural data; registry rejects unknown names with canonical
 planner_validation_failed, and missing/unavailable adapters with tool_unavailable.
 It never interprets those names as programs. No planner runtime or Groq code is added.
+
+## Implemented action eligibility (M1-T05)
+
+PlannerDecision/ActionRequest remain non-authoritative data. Each ActionRequest
+passes ActionPolicyValidator.validate for strict structure, available registered
+capability, explicit capability/risk allowlists, primary/secondary target scope,
+registered parameter schema and restrictive eligibility seams. reason, priority,
+analysis_summary and discovery/asset references never participate in permission.
+Unknown intent, extra/command-shaped parameters, unsupported or absent target
+semantics and unavailable policy facts fail closed with shared ErrorInfo/Failure.
+
+Only Success[ApprovedAction] may proceed toward future dispatch, which must revalidate
+current policy and enforce budget reservations/deduplication/contact constraints.
+Scope matches, registry catalog entries and old approvals are never dispatch tokens.
+Missing budget/completed-action services reject; actual enforcement implementations
+belong to M1-T06/M1-T08. No planner/Groq runtime, scanner, dispatch or logging producer
+is added. See [concrete contract](tool-contracts.md#action-policy-contract-m1-t05).

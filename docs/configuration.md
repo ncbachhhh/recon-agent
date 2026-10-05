@@ -214,3 +214,11 @@ binaries. Current tools configuration still has only enabled and cannot introduc
 capabilities, adapters, commands, argv or paths. Enablement and adapter-owned runtime
 availability checks belong to future composition/adapter tasks. Any later path
 overrides must remain trusted operator data excluded from planner-safe catalogs.
+
+## Action policy injection (M1-T05)
+
+ActionPolicyConfig is a separate frozen local policy contract, injected explicitly
+into ActionPolicyValidator. Finite capability/risk allowlists default empty. It does
+not read environment/TOML/global AppConfig or consume ToolsConfig.enabled. Trusted
+future composition must assemble policy and actual eligibility services explicitly.
+No seven-section settings/loader or configuration-source behavior changes.

@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts and M1-T05 composes pure action eligibility. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -40,7 +40,7 @@ M0-T03 rejects unknown keys and invalid effective types/limits in trusted config
 
 ## Implemented domain boundary
 
-M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data still requires future capability-specific policy validation. Domain code imports only pure shared ErrorInfo primitives beyond domain/Pydantic types, never configuration or operational layers, and performs no I/O. It does not enforce scope, capability membership, budgets, lifecycle transitions or policy. See [data model](data-model.md) for the exact contracts and staged models.
+M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data requires the M1-T05 capability-specific policy validator. Domain code imports only pure shared ErrorInfo primitives beyond domain/Pydantic types, never configuration or operational layers, and performs no I/O. It does not enforce scope, capability membership, budgets, lifecycle transitions or policy. See [data model](data-model.md) for the exact contracts and staged models.
 
 ## Implemented error/result boundary
 
@@ -170,7 +170,7 @@ The planner-safe catalog contains only capability, semantic description, risk cl
 and declared availability. Internal adapter IDs/schema classes/runtime instances are
 not planner input. ToolAdapter implementations are the first capability execution
 layer allowed to know executable details; the lower-level ExecutionRunner receives
-ProcessSpec only from trusted internal code. Future typed parameter validation must
+ProcessSpec only from trusted internal code. M1-T05 typed parameter validation must
 precede trusted argv construction; no planner dictionary becomes flags. ActionRequest
 also rejects import_path/python_module parameter keys. Text is data, never evaluated.
 
@@ -179,5 +179,36 @@ not enabled or authorized. Registry lookups never check scope, approve actions,
 consume budgets, probe binaries, call the runner or produce approval/execution audit
 events. Discovery does not imply authorization. Planner decisions do not imply
 authorization. Capability existence does not imply action authorization. M1-T05
-owns these combined checks; no production scanner/dispatch/planner runtime exists.
+implements combined local checks; no production scanner/dispatch/planner runtime exists.
 See [tool contracts](tool-contracts.md) for exact schemas and trust assumptions.
+
+## Concrete action policy boundary (M1-T05)
+
+Planner decision != authorization. Registered capability != authorization.
+Scope match alone != complete action authorization.
+
+ActionPolicyValidator composes strict ActionRequest revalidation, available registry
+metadata, explicit frozen capability/risk allowlists, ScopeValidator and registered
+strict parameter validation. Allowlists default empty. The primary target and all
+trusted declared secondary-target fields (including defaults) pass centralized
+scope validation. Missing parameter-target semantics, unsupported representations,
+unknown/unregistered/unavailable/disallowed capabilities, invalid parameters and
+malformed/outside targets reject. Discovery/provenance, reason, priority and analysis
+summary cannot override a check or expand scope. Executable/import keys remain denied.
+
+The shared Success/Failure/ErrorInfo contracts encode approval/rejection; fixed
+failure messages omit raw validation inputs. ApprovedAction carries typed parameters
+internally, not argv. It is not a replayable authorization token. Future dispatch
+must revalidate current request/policy/availability/scope and reserve resources;
+future adapters must constrain contact and validate newly discovered destinations.
+No production dispatcher exists and the runner is unchanged.
+
+PLAN's budget/completed-action seams are restrictive local interfaces: missing
+budget eligibility returns budget_exhausted; missing completed-action eligibility
+returns planner_validation_failed. Only offline tests inject permitting fakes.
+Actual budgets/rates/reservations and deduplication remain M1-T06/M1-T08. Validation
+performs no network, DNS, subprocess, dynamic loading, adapter/runner execution,
+provider calls or audit/log emission. No tool.execution_started event is emitted.
+Trusted schema/check implementations must be pure local code; application code is
+not sandboxed. See [policy contract](tool-contracts.md#action-policy-contract-m1-t05)
+and [ADR 0004](decisions/0004-action-eligibility-boundary.md).

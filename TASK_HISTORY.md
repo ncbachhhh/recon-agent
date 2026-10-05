@@ -606,3 +606,135 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(tools): establish capability and tool registry$"`.
 Established convention avoids invented circular self-hash, amendment or second task
 commit. Final handoff reports actual full hash and verified clean tree. No push.
+
+## 2026-10-05 — M1-T05 — Action policy validator
+
+Status: DONE
+
+Objective: Decide action eligibility deterministically through trusted registry,
+centralized scope, registered schemas and explicit capability/risk policy without
+execution or planner authority.
+
+Startup: Followed AGENTS and recon-project-maintainer skill/references; inspected
+state/current task, M1-T05 and adjacent PLAN boundaries, security/architecture/tool/
+planner/error/execution/scope/data/config/testing/audit docs, ADRs, recent history,
+then Git status/working/index diff/log and relevant source/tests. HEAD matched
+481d23fd0df84a7dbc5be4c12bb1274610377abe. M0-T01–M0-T06/M1-T01–M1-T04 DONE, only
+M1-T05 READY, clean tree/index and no active task/blocker. Set only M1-T05 IN PROGRESS
+before implementation; no unrelated changes existed.
+
+### Implementation and decisions
+
+- policy/actions.py adds explicit frozen ActionPolicyConfig (finite capability/risk
+  allowlists, empty defaults), ActionPolicyValidator and internal ApprovedAction.
+  validate revalidates ActionRequest, checks available registry facts, capability/
+  risk allowlists, primary/secondary scope and registered strict parameter schema.
+  No reason/priority/analysis/discovery field can grant permission.
+- Reuses Success[ApprovedAction]/Failure/ErrorInfo and existing canonical error
+  taxonomy. Invalid/unsupported/disallowed intent and missing completed-action
+  semantics use planner_validation_failed; registry availability retains
+  tool_unavailable; centralized scope failures retain scope_rejected/context;
+  missing budget eligibility returns budget_exhausted. Messages are fixed, without
+  planner text, raw inputs or native validation errors. Callers correlate Failure
+  with their request; approval includes action_id/capability/matches.
+- ToolRegistry.capability_definition supplies available snapshotted definition
+  facts without resolving or accessing adapter objects. Existing resolve uses the
+  same private availability lookup; registry semantics and catalog projection are
+  preserved. No registration, probing, binary selection or dynamic loading.
+- AdapterDefinition.parameter_target_fields records trusted secondary-target
+  semantics. None (default) denies policy approval; explicit () asserts no secondary
+  network inputs. Named fields must be unique schema fields, with validated string
+  or list/tuple-of-string values; other target representations deny. Every value,
+  including schema defaults, passes centralized scope. Future schema owners must
+  declare all target inputs and keep nested/default validation strict and pure.
+  No scanner-specific schema or destination guessing is added.
+- ScopeValidator.validate_value classifies ActionRequest target text using syntax
+  delimiters and invokes its existing parser/membership; no duplicated hostname/IP/
+  CIDR/URL matching, DNS or authorization logic. Current ActionRequest always has a
+  primary network target; no unsupported target-less capability exemption is invented.
+- PLAN explicitly requires restrictive budget/completed-action interfaces now;
+  ActionEligibility.check returns OperationResult[None]. Missing services deny and
+  malformed outcomes reject. Permitting fakes exist only in tests. No budget
+  accounting/rates/concurrency/reservation/session clocks (M1-T06) or canonical action
+  identity/history/dedup/retry logic (M1-T08) is implemented. These are seams only.
+- Approval contains a trusted typed parameter model excluded from dumps/repr and
+  canonical scope matches; it is not a dispatch/replay token. Future dispatch must
+  revalidate the original request against current policy/availability/scope and
+  reserve resources atomically, then constrain/revalidate actual contact. Test-only
+  dispatch models stale budget eligibility and proves rejected requests stay untouched.
+- ADR 0004 records explicit policy injection, fail-closed parameter-target semantics,
+  restrictive pending interfaces and current-eligibility versus dispatch boundary.
+  No execution/network/DNS/Groq/logging/audit producer exists in validation; no
+  tool.execution_started event. Domain wire contracts, configuration loader, error/
+  result taxonomy, runner, CLI, dependencies and future subsystems are unchanged.
+
+Files: added policy/actions.py, tests/unit/policy/test_action_policy.py and ADR 0004;
+updated policy exports/scope text entry point, tools/base.py metadata and tools/
+registry.py fact lookup. Updated security/architecture/tool/planner/execution/data/
+error/scope/configuration/logging/testing documentation, README/CHANGELOG and lifecycle
+files. TASK_HISTORY is appended only. No generated artifacts or unrelated files staged.
+
+### Executed validation
+
+Repository .venv used unless noted. Python 3.14.6 / Pydantic 2.13.5; no Python 3.12
+run is claimed.
+
+| Check | Actual command/result |
+| --- | --- |
+| Setup | `.venv/bin/python --version`; `pip install -e ".[dev]"`; `pip check`: passed |
+| Focused policy | `pytest tests/unit/policy/test_action_policy.py`: initial 97 passed; final expanded module has 103 cases |
+| Focused combined | `pytest tests/unit/policy/test_action_policy.py tests/unit/tools tests/unit/test_scope.py`: 309 passed (103 policy + 98 registry + 108 scope) |
+| Full suite | `pytest`: 1,167 passed |
+| Coverage | `coverage run -m pytest`: 1,167 passed; `coverage report`: 99% overall, 1,132 statements / 288 branches; new action policy/base/registry 100%; only existing scope.py:113 defensive unsupported-kind line/branch missing |
+| Network/DNS-blocked | `/tmp/recon-m1t05-validation/offline.py`: 1,167 passed; Groq key removed, Internet/loopback contact and DNS blocked before collection, guard rejection self-checks passed |
+| Ruff/format/types | `ruff check .`, `ruff format --check .`: passed (73 files); `mypy src/recon_agent`: strict pass, 33 production modules; no weakening, ignores or casts |
+| Build/CLI | `python -m build`: setuptools 84.0.0 isolated sdist/wheel passed; rebuilt after final README state to preserve archive metadata parity. Editable/fresh-wheel `recon-agent` retain unchanged inert message, exit 0 |
+| Fresh wheel | External new `/tmp/recon-m1t05-validation/wheel-venv`, wheel install and pip check; isolated `python -I -B wheel_checks.py`: guarded cold imports/site-packages origins, registry catalog, typed policy approval/denials/defaults/determinism and no startup/runner/network/provider activity passed |
+| Security/artifacts | Temporary artifact_checks.py: policy AST has no execution/network/provider/dynamic-loading entry points; protected core/domain/runner/CLI/future subsystem byte parity; unchanged Pydantic-only dependency; no scanner implementations; secret/cache/generated-artifact scans; wheel/sdist source/README/dependency parity passed |
+| Git/reconciliation | Working/index diff, `git diff --check`, task status/dependency/history-prefix/Markdown local-link and final staged task-owned-path inspection passed before single commit |
+
+Development checks caught a Pytest reserved parametrization name and Mypy needing
+an explicit result annotation after runtime eligibility-result revalidation; corrected
+without changing acceptance or weakening typing. Ruff applied task-owned formatting.
+Final target metadata defaults were tightened from implicit no-targets to explicit
+unestablished/deny before final focused/full checks; regression covers missing facts.
+No unresolved validation failure or product blocker remains.
+
+The full-suite parent contact guard allows AF_UNIX event-loop self-pipes for existing
+local runner tests; it does not sandbox children. Existing harmless interpreter child
+scripts were inspected for no networking. Unit policy guards also block socket
+construction, subprocess/async spawn/runner and registry adapter resolution; tests
+block dynamic imports, adapter properties and logging in the snapshot check.
+Fresh-wheel cold-import guards block process/network/DNS/database/thread/logging/
+filesystem startup while allowing standard dependency metadata reads. Installation/
+build provisioning may access package indexes; product validation needs no credentials,
+live target or reconnaissance binaries.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Unknown capability, outside target, invalid/extra parameters, forbidden risk, insufficient budget and needless repeat denied | Canonical registry/scope/schema/allowlist checks; fake denying budget/completed services and restrictive defaults; 103-case policy matrix and installed wheel checks passed. Budget/dedup implementations remain their owning tasks |
+| Allowed action produces typed validated request | Success[ApprovedAction] includes ID/capability/canonical matches/registered Parameters model; deterministic repeated outcomes, snapshot/default/secondary-target cases passed |
+| Fake execution never receives denied requests | Test-only dispatch receives nothing for unknown/outside/schema-invalid intent and stale eligibility; adapter/runner/process/network guards remain untouched |
+| Pending budget/dedup interfaces restrictive until implemented | Missing budget/completed-action checks deny; no production allowing stub; malformed seam outcomes reject; no resource counters/canonical duplicate logic added |
+
+Additional user criteria: primary/secondary/malformed/redirect/discovered candidates
+check scope independently; permitted/disallowed capability/risk policies are explicit;
+reason/priority/analysis variations cannot change denial; nested executable/import keys
+reject after bypassed construction; actual domain source/AI-facing fields unchanged;
+no execution/network/DNS/scanner/Groq/audit emission; no duplicate error/result system.
+Focused, full, offline, lint/format/types/coverage/build/wheel/inert CLI/security checks
+passed. Documentation distinguishes planner recommendation, registration and scope
+membership from complete authorization and records future dispatch revalidation.
+
+M0-T01–M0-T06 and M1-T01–M1-T05 are DONE. M1-T06 prerequisite gate is satisfied and
+it alone becomes READY; all 80 later tasks remain NOT STARTED. No active task or
+blockers. No new follow-up task; budgets/dedup/dispatch/contact constraints remain
+assigned existing future work. Stop after M1-T05; M1-T06 has not begun.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(policy): validate reconnaissance actions`; resolve with
+`git log -1 --format=%H --grep="^feat(policy): validate reconnaissance actions$"`.
+No circular self-hash, amendment or second task commit. Final handoff reports actual
+full commit hash and verified clean tree. No push.

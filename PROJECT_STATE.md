@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 / internal async process execution validated
+Project phase: M1 / deterministic capability and tool registry validated
 
 Completed:
 
@@ -13,12 +13,13 @@ Completed:
 - M1-T01 — Scope model and validator (DONE)
 - M1-T02 — Scope regression suite (DONE)
 - M1-T03 — Execution runner abstraction (DONE)
+- M1-T04 — Capability and Tool Registry (DONE)
 
 Active task: None.
 
 Next READY:
 
-- M1-T04 — Capability and Tool Registry (not started)
+- M1-T05 — Action policy validator (not started)
 
 ## Implementation reality
 
@@ -50,14 +51,36 @@ Failure has no partial-output payload; bytes are discarded on failure/cancellati
 JSON raw bytes use URL-safe base64. No argv/executable/environment is returned as
 metadata, and the runner emits no logs/audit events or authorization. See
 [execution model](docs/execution-model.md) for descendant/OS cleanup limitations.
-No process-tree containment, registry/adapter, action policy, rate/concurrency/session
-budget runtime, scanner, provider/planner or command CLI was added.
+M1-T03 added no process-tree containment, action policy, rate/concurrency/session
+budget runtime, scanner, provider/planner or command CLI. The upstream registry
+foundation is now implemented separately in M1-T04.
 
-Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy/registry, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T04 is READY; remaining 82 tasks are NOT STARTED.
+M1-T04 adds finite CapabilityId/RiskClass enums and strict frozen CapabilityDescriptor
+in domain/capabilities.py. The 10 conceptual identities do not imply operational tools.
+ActionRequest retains unapproved lowercase-name wire semantics; it adds nested
+import_path/python_module rejection without exposing implementation selection.
+
+tools/ implements minimal ToolAdapter abstract identity/definition, AdapterDefinition
+with strict extra-forbid Pydantic input/output schema classes, explicit
+AdapterRegistration availability snapshots and immutable ToolRegistry. Construction
+revalidates/snapshots metadata and rejects duplicate IDs/conflicting capabilities with
+canonical ConfigurationError. One explicitly selected trusted adapter per capability;
+no globals, dynamic imports, discovery, runtime registration or probing. Default
+ToolRegistry is empty. Synchronous lookups return existing Success/Failure: unknown
+capability is planner_validation_failed; known unregistered capability/unknown adapter
+or unavailable/not_checked registration is tool_unavailable. Only explicit available
+registrations resolve; registration/availability grant no authorization. Lexically
+sorted tuple catalogs expose only capability, description, risk_class and availability;
+internal schema classes/adapter objects are excluded from planner projection. No
+runner invocation, scope/budget enforcement, execution/policy audit or config consumption.
+See tool-contracts.md and ADR 0003 for trust/lifecycle and future adapter boundaries.
+
+Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T05 is READY; remaining 81 tasks are NOT STARTED.
 
 ## Major architecture decisions
 
-- Capability intent never becomes LLM-generated shell/argv; future registry/policy/adapters own authorization and execution.
+- Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; future policy owns authorization and adapters own executable construction.
+- ADR 0003 selects explicit immutable composition, one selected adapter per capability and semantic-only planner catalog; declared availability defaults fail closed.
 - Pure centralized scope membership is implemented; broader action validation and contact enforcement remain future work. Discovery/planner recommendations grant no authority.
 - ADR 0002 requires independently declared address membership, constrained/pinned approved contacts and revalidation on address/destination changes; no DNS runtime or implicit name-to-IP expansion exists.
 - Remote evidence and model recommendations remain non-authoritative data with provenance. Audit records do not authorize replay.
@@ -69,22 +92,20 @@ Audit events describe autonomous recon operations and confer no authorization. E
 
 ## Validation
 
-M1-T03: Python 3.14.6 / Pydantic 2.13.5; editable install and pip check passed.
-Focused execution: 69 passed (52 fake / 17 marked harmless local sys.executable
-cases). Full suite, coverage and network/DNS-blocked suite: each 966 passed, with
-Groq key absent in the guarded run. AF_UNIX event-loop self-pipes are permitted;
-Internet/loopback contact and DNS remain blocked in the parent. Child scripts
-contain no networking; the Python guard is not a child sandbox.
-Ruff lint/format, strict Mypy (29 production modules), build,
-fresh-wheel guarded cold imports/installed local execution, dependency/source/archive
+M1-T04: Python 3.14.6 / Pydantic 2.13.5. Editable install/pip check passed.
+Focused registry: 98 passed; registry plus domain regressions: 249 passed.
+Full suite, coverage and network/DNS-blocked full suite: each 1,064 passed.
+Ruff lint/format (70 files), strict Mypy (32 production modules), build, fresh-wheel
+install/pip check/guarded cold imports/registry lookups, source/archive/README/dependency
 parity, inert CLI, static security/secret/artifact and Git whitespace checks passed.
-Coverage: 99% overall (914 statements / 234 branches), 100% for execution code;
-only the existing defensive scope unsupported-kind line/branch remains uncovered.
-Security regressions prove literal metacharacters/substitutions and absence of
-sentinel effects, simultaneous large stream capture/bounds, timeout/cancellation
-cleanup and direct-child reaping. No descendant-tree guarantee is claimed.
-Python 3.12 was not available locally and was not tested. See TASK_HISTORY for
-commands, acceptance mapping and temporary-check corrections. No new dependency,
-ADR, scanner integration, runtime dispatch or operational CLI was added.
+Coverage: 99% overall (1,024 statements / 254 branches); new capability/tools code
+100%. Only the existing defensive scope unsupported-kind line/branch remains uncovered.
+Tests guard registry socket/DNS/process/runner access and import-time logging/filesystem/
+dynamic imports. Catalog tests prove internal paths/argv/environment/runner/schema
+classes do not leak. AF_UNIX event-loop self-pipes are allowed for existing local
+runner tests in the full-suite guard; harmless child scripts have no networking,
+but the parent guard is not a child sandbox. Python 3.12 was unavailable on PATH
+and was not tested. No new dependency, scanner, action policy or operational CLI.
+See TASK_HISTORY for commands/acceptance mapping and temporary-wrapper correction.
 
 Known blockers: None.

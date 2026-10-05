@@ -167,3 +167,16 @@ interpretation to future adapters. No competing error/result hierarchy is added.
 Failure has no payload, so bounded partial output is discarded on timeout/failure.
 Caller cancellation uses Python asyncio.CancelledError, re-raised after cleanup;
 it is not converted to the domain CancelledError. See [execution model](execution-model.md).
+
+## Registry integration (M1-T04)
+
+No new error hierarchy/code or result family is introduced. Invalid/duplicate or
+conflicting trusted composition raises ConfigurationError (configuration_invalid).
+Unknown requested capability returns existing Failure with PlannerValidationError
+(planner_validation_failed); known capability without an adapter, unknown adapter ID
+and unavailable/not_checked registration return ToolUnavailableError (tool_unavailable).
+Fixed messages omit arbitrary requested names and executable/runtime details. Safe
+known capability/adapter references may appear in existing ErrorContext fields.
+Successful schema lookup uses Success[AdapterDefinition]; successful resolution
+uses Success[InstanceOf[ToolAdapter]] with the trusted Python object. Internal lookup
+payloads are not planner serialization APIs; catalog() is the explicit safe boundary.

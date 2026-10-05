@@ -492,3 +492,117 @@ Installation/build provisioning can access the package index; product imports/te
 M0-T01–M0-T06 and M1-T01–M1-T03 are DONE. M1-T04's prerequisite gate is satisfied and it alone becomes READY; all 82 later tasks remain NOT STARTED. CURRENT_TASK says No active task. Known blockers: none. Follow-up limits are documented under existing adapter/process reliability tasks; no new scope or future implementation begun. Stop after M1-T03.
 
 Commit reference: the single focused commit containing this entry, titled `feat(execution): add safe subprocess runner`; resolve with `git log -1 --format=%H --grep="^feat(execution): add safe subprocess runner$"`. Existing convention avoids inventing a circular self-hash, amendment or second task commit. Final handoff reports actual full hash and verified clean tree. No push.
+
+## 2026-10-05 — M1-T04 — Capability and Tool Registry
+
+Status: DONE
+
+Objective: Establish deterministic semantic capability → trusted adapter resolution,
+typed schema metadata and sanitized availability catalog without reconnaissance or
+action authorization.
+
+Startup: Followed AGENTS and recon-project-maintainer skill/references; read repository
+state/current task, full M1-T04 and adjacent boundaries, README, architecture/security/
+tool/execution/data/error/planner/logging/config/testing docs, ADRs and recent history,
+then clean Git/index/log and relevant source/tests/pyproject. Confirmed HEAD and expected
+M1-T03 commit 2198fc345feb6ba18b76dc59dd71fd39e365d8ae, M0-T01–M0-T06/M1-T01–M1-T03
+DONE, only M1-T04 READY, no active task/blockers. Set only M1-T04 IN PROGRESS before
+implementation. No unrelated changes existed.
+
+### Implementation and decisions
+
+- domain/capabilities.py defines finite CapabilityId (10 previously documented semantic
+  operations), RiskClass (passive/active_safe) and strict frozen CapabilityDescriptor.
+  Conceptual membership is distinct from working adapter support. No arbitrary command
+  identity exists. ActionRequest retains structural capability-name/provenance semantics
+  so unknown intent is rejected at lookup; nested import_path/python_module are added to
+  its existing executable-key denylist. No executable/argv/adapter field is introduced.
+- tools/base.py supplies minimal ToolAdapter ABC with read-only definition, strict frozen
+  AdapterDefinition (stable distinct adapter ID, semantic descriptor, strict extra-forbid
+  input/output Pydantic model classes), frozen AdapterRegistration and declared
+  AdapterAvailability. Schema classes are internal trusted code and excluded from dumps.
+  Execution/parse/probing methods and real capability-specific models await adapter tasks.
+- tools/registry.py composes immutable snapshotted metadata/mapping proxies from explicit
+  trusted registrations. No runtime registration, mutable globals, dynamic imports,
+  plugin/PATH scanning or configuration command definitions. One selected adapter per
+  capability; duplicate IDs (including same instance twice), conflicting capability
+  owners and malformed metadata fail clearly with existing configuration_invalid.
+  ADR 0003 records the choice and future alternative-composition boundary.
+- resolve returns existing typed Success[InstanceOf[ToolAdapter]] or canonical Failure.
+  Unknown capability → planner_validation_failed (no arbitrary input echoed); known but
+  unregistered → tool_unavailable. Internal unknown adapter lookup also returns
+  tool_unavailable. Registered availability defaults not_checked; unavailable/not_checked
+  resolution fails closed. Available is an explicit trusted snapshot, not probing,
+  enablement or permission. Future dispatch must recheck runtime facts.
+- Lexical tuple listings/catalogs are deterministic across input permutations. Catalog
+  entries have exactly capability/description/risk_class/availability; no adapter ID,
+  executable/argv/template/import/environment/runner/instance/schema class. Descriptions
+  are curated trusted semantic text; producer discipline still governs free text.
+  Internal adapter resolution payloads are not planner serialization APIs.
+- Registry operations are synchronous local facts: no scope/risk/parameter authorization,
+  budgets, runner calls, audit events, network/DNS, binary discovery or Groq. Runner remains
+  unchanged and lower-level. Trusted future adapters validate typed parameters and build
+  explicit argv; no parameter-to-flags pass-through. Default registry is empty.
+
+Files: added domain/capabilities.py, tools/base.py, tools/registry.py,
+tests/unit/tools/test_registry.py and ADR 0003; updated tools exports and ActionRequest
+reserved keys. Updated README/CHANGELOG and tool/architecture/security/planner/execution/
+data/error/config/logging/testing docs; reconciled PLAN/PROJECT_STATE/CURRENT_TASK and
+appended this history. Existing runner, core/config/errors/results/logging, scope policy,
+CLI, dependencies and future subsystem code are unchanged. No generated artifacts staged.
+
+### Executed validation
+
+Repository .venv used unless stated; only Python 3.14.6 / Pydantic 2.13.5 was tested.
+Python 3.12 was not available on PATH and was not tested.
+
+| Check | Actual command/result |
+| --- | --- |
+| Setup | python --version; pip install -e ".[dev]"; pip check: passed |
+| Focused registry | python -m pytest tests/unit/tools: 98 passed |
+| Registry/domain regressions | python -m pytest tests/unit/tools tests/unit/test_domain.py: 249 passed |
+| Full suite | python -m pytest: 1,064 passed |
+| Coverage | coverage run -m pytest: 1,064 passed; coverage report: 99% overall, 1,024 statements / 254 branches; new capability/tools code 100%; existing defensive scope.py:112 only missing line/branch |
+| Offline full suite | /tmp/recon-m1t04-validation/offline.py removes Groq key, blocks socket Internet/loopback contact and DNS before collection: 1,064 passed; AF_UNIX event-loop self-pipes allowed; child scripts contain no network, parent guard is not child sandbox |
+| Ruff/format/types | ruff check .; ruff format --check .: passed (70 files); mypy src/recon_agent: strict checks passed, 32 production modules; no Any/cast/ignores or weakened settings in new source |
+| Build/CLI | python -m build: isolated setuptools 84.0.0 sdist/wheel passed; editable and fresh-wheel console commands emit unchanged inert message, exit 0 |
+| Fresh wheel | New /tmp/recon-m1t04-validation/wheel-venv installed built wheel; isolated python -I -B wheel_checks.py: guarded cold imports/site-packages origins, registry composition/typed schemas/resolution/safe catalog/unknown/unavailable outcomes and no runtime side effects passed; pip check passed |
+| Runtime guards | Tests block socket construction/DNS/subprocess/AsyncProcessRunner.run and guarded lookup blocks import_module, filesystem scanning/writes and logging setup. Fresh-wheel cold import guards block socket/process/database/thread/directory/logging startup and application Path access/writes; dependency metadata reads allowed |
+| Security/artifacts | artifact_checks.py plus targeted production searches/AST review: no dynamic imports/eval/exec/shell/binary lookup/network/Groq/policy imports or scanner classes in new code; protected source parity, unchanged Pydantic-only dependency, wheel/sdist source/README parity, secrets/artifact checks passed |
+| Reconciliation/review | Reviewed every task-owned source/test/doc and working/staged diff; acceptance/status/dependency/Markdown/history-prefix/secret/artifact and Git whitespace checks before single commit |
+
+Development required Ruff formatting only. The first offline validation attempt reused
+the M1-T03 temporary directory containing inspect.py, which shadowed Python's stdlib
+inspect import and ran the old task's checker. Moved the wrapper to a clean M1-T04
+temporary directory; guarded full-suite validation passed. A second run captured complete
+process completion explicitly. No product defect or acceptance relaxation resulted.
+Installation/build provisioning may access a package index; registry/product imports,
+tests and inert CLI require no network, keys, live targets or reconnaissance binaries.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Known capability resolves only to configured registered adapter | Explicit trusted immutable composition; Success contains exact supplied instance; known unregistered/unavailable/not_checked cases fail; fake-only resolution and fresh-wheel checks passed |
+| Unknown/invented capability rejected | Finite CapabilityId; run_command/binary/path/shell/import-shaped names return planner_validation_failed; ActionRequest wire intent stays data; no registration/import/runner call |
+| Duplicate/conflicting entries fail clearly | Canonical ConfigurationError with safe identity context; same instance/duplicate ID/conflicting owner/permutations/malformed definition regressions passed |
+| Unavailable tools structured outcomes | Existing ToolUnavailableError/ErrorInfo/Failure for unregistered, unknown adapter, unavailable/not_checked; declared availability catalog distinguishes states without probing |
+| Catalog has no executable secret paths exposed | Explicit four-field projection, strict extra-field rejection, deliberately private fake internals excluded, stable JSON round trips/order and immutable returned tuples/models verified |
+
+Additional user criteria: strict schema references and metadata, finite risk reporting
+without enforcement, nested import-key rejection, immutable snapshots, no globals/
+PATH discovery/dynamic imports/config-defined commands, and no registry execution
+all verified. No action-policy approval, session budgets/rate/concurrency implementation,
+real scanner/parser, Groq/planner runtime, orchestration, persistence/reporting or real
+CLI added. No new follow-up task/blocker; descendant cleanup remains the documented
+M1-T03 limitation in existing future work.
+
+M0-T01–M0-T06 and M1-T01–M1-T04 are DONE. Both M1-T05 prerequisites are DONE and it
+alone becomes READY; all 81 later tasks remain NOT STARTED. No active task/blockers.
+Stop after M1-T04; M1-T05 has not begun.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(tools): establish capability and tool registry`; resolve with
+`git log -1 --format=%H --grep="^feat(tools): establish capability and tool registry$"`.
+Established convention avoids invented circular self-hash, amendment or second task
+commit. Final handoff reports actual full hash and verified clean tree. No push.

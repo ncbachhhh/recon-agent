@@ -67,7 +67,7 @@ These are data examples, not scan authorization or runnable sessions.
 | Endpoint | `id`, `asset_id`, preserved `url`, `method` (default `GET`), optional `service_id`, `observation_ids` | URL/method identity data. Method must be a non-empty HTTP token and is preserved, including case/extension methods; URL text is not parsed, canonicalized, fetched or crawled |
 | Evidence | `id`, `source`, `origin`, `artifact_reference`, `collected_at`, optional `execution_id`/`capability`/`locator`/`sha256`, `trust`, `truncated`/`redacted` flags | Traceable reference to source material. Trust is always `untrusted`; optional digest is 64 lowercase hexadecimal characters. No raw-output blob, artifact reads/writes, integrity verification or retention engine |
 | Observation | `id`, `kind`, `asset_id`, `source`, `data`, `observed_at`, non-empty `evidence_ids`, optional `execution_id` | A collected/tool-reported fact with provenance. Kinds: `dns`, `service`, `http`, `tls`, `endpoint`, `metadata`; no interpreted Finding |
-| ActionRequest | `id`, `capability`, `target`, `parameters`, `reason`, integer `priority` (default 0), optional `asset_id`/`decision_id` | Unapproved capability intent, never argv. Capability name has lowercase identifier shape; registry membership and priority bounds are later validation work |
+| ActionRequest | `id`, `capability`, `target`, `parameters`, `reason`, integer `priority` (default 0), optional `asset_id`/`decision_id` | Unapproved capability intent, never argv. Capability name has lowercase identifier shape; M1-T04 registry checks membership; priority bounds remain later validation work |
 | ActionResult | `id`, `action_id`, terminal `status`, `recorded_at`, `observations`, `evidence`, `execution_ids`, optional structured `error` (shared ErrorInfo) | Outcome data, not process execution. Status is `completed`, `partial`, `rejected`, `failed`, `cancelled` or `timeout`; M0-T05 aligns outcomes with shared failure information |
 | PlannerDecision | `id`, `analysis_summary`, `actions`, `finished`, `created_at`, optional `provider`/`model`, `input_observation_ids`/`input_evidence_ids` | Untrusted recommendation with input lineage. Provider metadata is text only; no Groq SDK, prompts, policy outcomes or authorization |
 | ReconState | Independent lists of assets, hosts, services, endpoints, observations, evidence, action requests/results and planner decisions | Empty by default. Typed snapshot containers only; no apply/dedup/transition/budget/stop methods |
@@ -102,11 +102,11 @@ ActionRequest has no command, shell, script or raw-argument field. Its parameter
 schema also rejects these reserved executable keys, case-insensitively at any
 nested object/list level: `command`, `shell_command`, `raw_command`,
 `command_template`, `script`, `bash`, `raw_args`, `argv`, `extra_shell_args`,
-`executable`, `executable_path`.
+`executable`, `executable_path`, `import_path`, `python_module`.
 
 This is structural defense, not a capability policy validator. Other parameter
-names/values remain unapproved JSON data. M1 registry/policy and later adapters
-must validate each capability's permitted schema, target, risk and limits before
+names/values remain unapproved JSON data. M1-T04 registry checks capability existence
+only. Future policy and adapters must validate permitted schemas, target, risk and limits before
 constructing fixed argv. No string is evaluated or dispatched by the domain layer.
 Remote instruction-like text in observations remains evidence; planner reasons and
 summaries remain recommendations. Neither can redefine scope or create authority.
@@ -195,3 +195,16 @@ normal exit versus canonical launch/capture/timeout Failure; non-zero exit remai
 an observed process outcome. Timeout/cancellation partial output is not returned.
 Future adapters normalize those facts into domain observations/ActionResult;
 ToolExecution remains staged. See [execution model](execution-model.md).
+
+## Capability metadata (M1-T04)
+
+`domain/capabilities.py` adds finite CapabilityId and RiskClass string enums plus
+strict frozen CapabilityDescriptor (capability, bounded semantic description,
+risk_class). These are pure data, separate from the original 13 entity exports.
+Conceptual enum membership does not claim scanner support or authorize actions.
+ActionRequest/Evidence capability names retain structural string semantics for
+unapproved intent/provenance; the internal registry resolves ActionRequest names
+against the finite enum and rejects unknown values. It adds no adapter identity,
+executable or argv to ActionRequest/PlannerDecision. Tool-specific typed input/output
+schema references live in trusted AdapterDefinition, never planner data; see
+[tool contracts](tool-contracts.md). No action-policy validation is implemented here.

@@ -13,17 +13,18 @@ Operator supplies target + authorized scope + config
   → ReconSession / deterministic bootstrap / observations [future runtime]
   → AI planner selects capability                          [future]
   → deterministic action policy                            [future]
-  → Tool Registry selects trusted adapter                  [M1-T04, future]
+  → Tool Registry selects trusted adapter                  [M1-T04, implemented foundation]
   → ToolAdapter owns executable and literal argv           [future]
   → AsyncProcessRunner                                     [M1-T03, implemented]
   → OS process
   → adapter normalization / observations / planner again    [future]
 ```
 
-Capability is not a command. ActionRequest/PlannerDecision remain unchanged
+Capability is not a command. ActionRequest/PlannerDecision remain
 non-authoritative data with no executable/argv fields. The planner cannot call
 the runner directly. Tool installation, ProcessSpec construction, process success
-and audit records confer no authorization. Future policy/registry/adapters must
+and audit records confer no authorization. The registry supplies identity/availability
+facts; future policy/adapters must
 validate scope, capability parameters, option injection, risk and budgets before
 dispatch. The runner neither grants nor duplicates these checks; it is inherently
 able to launch the executable a trusted caller supplies. There is no arbitrary
@@ -133,7 +134,9 @@ place credentials on command lines; prefer future explicit secret mechanisms.
 Safe higher-layer events can select return code, argument count, duration and
 truncation flags with their own correlation IDs. No environment is logged.
 
-Registry/capability mapping, action policy, session budgets/concurrency/rate limits,
+M1-T04 now implements immutable registry/capability mapping and the minimal trusted
+adapter interface, without execution. Action policy, session budgets/concurrency/rate
+limits,
 scanner adapters, provider/planner runtime, orchestration, persistence, reporting
 and real CLI remain future tasks. See [tool contracts](tool-contracts.md),
 [security model](security-model.md), [error contracts](error-model.md) and

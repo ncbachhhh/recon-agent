@@ -165,7 +165,7 @@ formats, event types, filters, repeated setup, error integration and safety.
 
 Future application/orchestration services explicitly emit events; pure domain
 records do not depend on logging. No scanner/provider/planner or policy audit producer,
-registry, budget engine, autonomous loop, file/rotating sink,
+budget engine, autonomous loop, file/rotating sink,
 database, log shipping, analytics, operational report or real CLI is implemented.
 The existing CLI remains inert and does not initialize logging.
 
@@ -178,3 +178,7 @@ argument count, return code, duration/timestamps and truncation flags for future
 higher-layer events; no argv, environment or output dump is emitted automatically.
 ProcessSpec and raw ProcessExecution output dumps must not enter diagnostics. The
 runner cannot emit policy approval. See [execution model](execution-model.md).
+
+M1-T04 registry composition/lookups/catalog are pure local operations and emit no
+logs or audit events. Availability and resolution are facts, never policy approval
+or tool.execution_started. Future orchestration owns truthful event production.

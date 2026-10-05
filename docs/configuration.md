@@ -205,3 +205,12 @@ Truncation is explicit. max_concurrency, max_actions and max_duration_seconds re
 future session budget/orchestration preferences, not runner-enforced limits.
 No per-request output override, env/cwd/stdin options or new config field is added.
 See [execution model](execution-model.md) for deadline/cleanup and direct-child limits.
+
+## Registry composition (M1-T04)
+
+ToolRegistry receives only explicit trusted AdapterRegistration objects, not config
+command/import definitions. It does not consume ToolsConfig.enabled or discover
+binaries. Current tools configuration still has only enabled and cannot introduce
+capabilities, adapters, commands, argv or paths. Enablement and adapter-owned runtime
+availability checks belong to future composition/adapter tasks. Any later path
+overrides must remain trusted operator data excluded from planner-safe catalogs.

@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. Registry/adapters and other operational source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -28,16 +28,25 @@ failure, partial-output, injection and descendant-process limitations.
 
 ```text
 Planner [future] → deterministic action policy [future]
-  → Tool Registry [M1-T04, future] → ToolAdapter [future]
+  → ToolRegistry [M1-T04] → ToolAdapter [interface; implementations future]
   → Execution Runner [M1-T03] → OS process
 ```
 
 ProcessSpec grants no authority. Future dispatch must recheck approval/scope/budgets
-and select trusted adapters; no such registry/adapter/policy integration is claimed
-today. The execution-neutral ProcessRunner protocol allows future fixture runners;
+and select trusted adapters. Registry lookup exists; action policy and operational
+adapter dispatch remain future work. The execution-neutral ProcessRunner protocol
+allows future fixture runners;
 an internal injected spawn seam already drives deterministic fake-process tests.
 
 ## Tool adapters — `tools/`
+
+M1-T04 provides CapabilityId/CapabilityDescriptor/RiskClass and ToolRegistry. The
+registry is explicitly composed, immutable and empty by default, with one selected
+trusted adapter per capability. It reports declared availability without probing,
+returns existing canonical outcomes, rejects unknown capabilities and conflicting
+registrations, and exports only semantic planner-safe catalog metadata. ToolAdapter
+currently exposes identity/metadata and strict typed input/output model references;
+execution/parsers are future implementations. See [ADR 0003](decisions/0003-immutable-capability-registry.md).
 
 The planner selects capabilities, never command strings. Adapters map validated typed requests to fixed tool options and normalize outputs; they do not decide authorization. Potential mappings:
 

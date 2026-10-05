@@ -134,8 +134,8 @@ Document controls as planned until implementation and test evidence support them
 ## Concrete execution boundary (M1-T03)
 
 Only trusted adapter code may construct ProcessSpec executable/argv after future
-policy/registry approval. No direct planner-to-runner path exists; domain contracts
-are unchanged. The runner performs no target resolution, scope expansion, tool
+policy approval and registry resolution. No direct planner-to-runner path exists;
+domain contracts contain no execution fields. The runner performs no target resolution, scope expansion, tool
 allowlisting or policy approval. It is not a public arbitrary-command feature.
 Production launch uses create_subprocess_exec with literal separated arguments,
 DEVNULL stdin and independent pipes, without shell parsing, expansion or TTY.
@@ -154,3 +154,30 @@ implemented: descendants can survive or hold pipes open; pending OS spawn and re
 can extend cleanup beyond the deadline. Future adapters must account for this
 limitation before integrating tools with child processes. See
 [execution model](execution-model.md) for exact semantics and output/error limits.
+
+## Concrete capability/registry boundary (M1-T04)
+
+Planner output cannot select executable code or register adapters. CapabilityId is
+finite and excludes arbitrary command operations; unknown names fail closed with
+planner_validation_failed. Known conceptual names without registered adapters fail
+with tool_unavailable, as do unavailable/not_checked registrations. No fallback,
+capability-to-binary conversion, planner-controlled import, PATH discovery or mutable
+global registry exists. Explicit trusted application composition supplies adapter
+instances and snapshots metadata into immutable mappings; duplicate/conflicting
+registrations fail at startup with configuration_invalid.
+
+The planner-safe catalog contains only capability, semantic description, risk class
+and declared availability. Internal adapter IDs/schema classes/runtime instances are
+not planner input. ToolAdapter implementations are the first capability execution
+layer allowed to know executable details; the lower-level ExecutionRunner receives
+ProcessSpec only from trusted internal code. Future typed parameter validation must
+precede trusted argv construction; no planner dictionary becomes flags. ActionRequest
+also rejects import_path/python_module parameter keys. Text is data, never evaluated.
+
+Risk metadata is not risk enforcement. Registered is not available; available is
+not enabled or authorized. Registry lookups never check scope, approve actions,
+consume budgets, probe binaries, call the runner or produce approval/execution audit
+events. Discovery does not imply authorization. Planner decisions do not imply
+authorization. Capability existence does not imply action authorization. M1-T05
+owns these combined checks; no production scanner/dispatch/planner runtime exists.
+See [tool contracts](tool-contracts.md) for exact schemas and trust assumptions.

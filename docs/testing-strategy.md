@@ -125,3 +125,20 @@ are reviewed to contain no network activity. This guard does not sandbox arbitra
 child programs. No descendant-tree termination claim is made. Fresh-wheel guarded
 cold imports verify that importing execution does not launch processes or configure
 logging; installed-wheel local execution and inert CLI are checked separately.
+
+## Capability registry regressions (M1-T04)
+
+Run `.venv/bin/python -m pytest tests/unit/tools` first, then existing domain tests
+and the full baseline. Test-only FakeAdapter/DnsInput/DnsOutput classes perform no
+reconnaissance or execution. Autouse guards block DNS/socket construction, subprocess
+entry points and AsyncProcessRunner.run; import/lookup guards also prohibit dynamic
+imports, filesystem scanning/writes and logging startup. No real binary is probed.
+
+Cases cover explicit composition, strict input/output model references, finite known
+identities versus registration/availability, canonical unknown/unavailable outcomes,
+duplicate IDs/conflicting mappings/malformed definitions, stable lexical enumeration,
+immutable mappings/returned collections/snapshots, ActionRequest compatibility and
+nested executable/import-key rejection. Planner-safe catalog tests deliberately put
+private paths/argv/environment/runner values on fake adapters and prove no leakage.
+Unexpected execution/import/runtime fields in descriptors are rejected. Full-suite
+contact/DNS blocking and fresh-wheel cold import/composition checks remain required.

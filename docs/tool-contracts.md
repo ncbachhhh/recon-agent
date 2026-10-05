@@ -1,29 +1,135 @@
-# Planned tool contracts
+# Capability and tool contracts
 
-Registry and ToolAdapter contracts remain conceptual. M1-T03 implements only the
-internal [execution primitive](execution-model.md), without scanner integration.
+M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
+immutable registry composition in `tools/`. No production scanner adapters exist.
+The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
-## Capability versus implementation
+## Capability, adapter and execution details
 
-A **capability** is a typed, policy-approved operation such as `discover_ports`. An **implementation** is a registered adapter that performs it, such as Naabu. Nmap may implement the follow-up `fingerprint_services` capability after ports are known. Groq reasons about `discover_ports`, not a string such as `naabu -host ...`. Registry selection, configured availability, and risk policy decide the adapter; the model does not choose an executable or fallback command.
+A **Capability** is the semantic operation the planner may request. `CapabilityId`
+is a finite string enum: resolve_dns, enumerate_subdomains, discover_ports,
+fingerprint_services, probe_http, inspect_tls, crawl_web, discover_content,
+inspect_protocol and scan_templates. These conceptual identities do not imply
+working integrations. There is no run_command, execute_shell or arbitrary binary
+capability. Extending the catalog requires reviewed application code.
 
-Capability names and parameter schemas form a finite catalog. Unsupported parameters, extra fields, arbitrary tool flags, local paths, shell strings, and targets supplied through remote instructions are rejected. FFUF modes and Nuclei profiles must be named, reviewed subsets, not unrestricted tool interfaces.
+A **Tool** is an external program or other implementation mechanism. A
+**ToolAdapter** is trusted application code implementing a capability; its stable
+adapter ID is distinct from capability identity and executable path. A
+**ToolRegistry** is a deterministic mapping/catalog of those explicitly supplied
+trusted instances. A **ProcessSpec** is internal executable/literal argument data
+constructed by future adapters for the M1-T03 runner. None of these is a shell
+command or planner-supplied execution instruction.
 
-## Future ToolAdapter contract
+```text
+Planner selects capability                 [future runtime]
+  → deterministic action policy            [M1-T05, future]
+  → ToolRegistry selects trusted adapter    [implemented foundation]
+  → ToolAdapter validates/prepares execution [interface; implementations future]
+  → ProcessSpec → AsyncProcessRunner        [M1-T03, implemented]
+  → external tool → normalized observations [future adapters]
+```
 
-| Field/operation | Planned meaning |
+Operators will supply target, authorized scope and configuration to the autonomous
+session. Registry lookup needs no chat interaction or per-action user confirmation.
+Capability existence, registration, availability and installation grant no action
+authorization. M1-T05 combines scope/parameter/risk checks; M1-T06 owns budgets.
+
+## Strict semantic metadata and schemas
+
+`CapabilityDescriptor` is frozen/strict/extra-forbid: capability enum, bounded
+non-blank description and `RiskClass` (`passive`, `active_safe`). Risk is supplied
+by trusted definitions and reported only; the registry does not authorize it.
+Descriptions must be curated semantic text, never copied from paths, flags,
+environment or remote evidence. No automatic metadata redaction can make arbitrary
+trusted free text safe; producers own its contents.
+
+`AdapterDefinition` is a frozen strict internal model with adapter_id (lowercase
+ASCII identifier, underscores/hyphens, at most 64 characters), descriptor,
+input_schema and output_schema. Schemas are trusted Pydantic model **classes**,
+required to be strict and extra-forbid. They are excluded from ordinary dumps/repr;
+lookup returns the classes internally so future policy/adapters can validate their
+contracts. Scanner-specific models and parameter enforcement remain future work.
+
+`ToolAdapter` is a minimal abstract base class with a read-only `definition`
+property. This task adds no execute, parse or binary-probing methods. Future adapter
+tasks will add capability-specific validated input, non-scanning availability checks,
+trusted argv construction, injected ProcessRunner execution and normalized outputs.
+
+Planner parameters must flow through capability-specific typed validation to a
+trusted adapter. No dictionary-to-flags translation or argv pass-through is allowed.
+Schema classes, adapter instances and implementations never come from planner JSON,
+remote content, arbitrary config imports or deserialized requests. Tool paths, if
+later supported, are trusted operator configuration and cannot appear in planner
+contracts. Current ToolsConfig has only enabled; it is not consumed by the registry
+and cannot introduce commands or registrations.
+
+## Explicit composition and deterministic selection
+
+Construct `ToolRegistry(iterable_of_AdapterRegistration)` in trusted application
+code. Each registration supplies a ToolAdapter instance and explicit availability
+snapshot. Definitions are revalidated/snapshotted before committing constructor
+state. There are no mutable global registries, register methods, entry points,
+package discovery, dynamic imports, PATH lookup or fallback adapters.
+
+There is **one selected adapter per capability** in each registry. Different trusted
+application compositions can choose alternatives later; no AI adapter selection is
+introduced. Duplicate adapter IDs (even the same object twice) and conflicting
+capability mappings (even identical metadata) raise canonical ConfigurationError
+with configuration_invalid and safe identity context; nothing silently overwrites.
+Malformed trusted registrations/definitions use the same startup error boundary.
+Direct metadata construction retains Pydantic ValidationError. See
+[ADR 0003](decisions/0003-immutable-capability-registry.md).
+
+The registry and private mappings are immutable; public collections are tuples and
+metadata records are frozen. Instances/schema classes remain trusted code objects,
+not a sandbox against application code deliberately mutating itself. Definition
+metadata is snapshotted; adapter implementations must keep their definition stable.
+
+| API | Meaning |
 | --- | --- |
-| name | Stable adapter identity, separate from executable path/version |
-| capability | Registered capability identifier |
-| input schema | Typed validated target and allowed parameters |
-| output schema | Typed observations, evidence references, and action result |
-| availability check | Non-scanning binary/version/environment check; actionable unavailable result |
-| execute | Build argv from validated request and invoke injected controlled runner |
-| parse | Convert bounded output/fixtures to normalized typed data |
-| timeout | Enforced bounded default and configured maximum |
-| risk class | Explicit policy classification checked before dispatch |
+| is_known_capability(name) | Finite conceptual catalog membership |
+| has_capability(name) | An adapter is registered for this capability, independent of availability |
+| has_adapter(id) | Adapter identity registered internally |
+| list_capabilities() / list_adapters() | Registered identities sorted lexicographically, immutable tuples |
+| definition(id) | Existing OperationResult[AdapterDefinition], internal schema/metadata lookup |
+| resolve(name) | Existing OperationResult[InstanceOf[ToolAdapter]], selected trusted object or Failure |
+| catalog() | Sorted tuple of planner-safe CapabilityCatalogEntry values |
 
-Adapters also declare effective scope/redirect/recursion behavior, output limits, supported versions/formats, and tool-specific budgets. Unknown behavior must fail closed. Availability does not establish authorization. No adapter can follow a new hostname or redirect before policy approval; where a tool cannot be constrained, reject that mode.
+Unknown/invented capability returns PlannerValidationError-derived Failure
+(planner_validation_failed); its raw name is not echoed. Known but unregistered
+capability returns ToolUnavailableError-derived Failure (tool_unavailable). Unknown
+adapter ID also returns tool_unavailable without interpreting the ID as a binary.
+Lookups never authorize targets, enforce budgets, invoke runner methods or emit
+execution/policy audit events. All operations are synchronous local facts.
+
+## Availability and safe catalog
+
+AdapterAvailability has not_checked (default), available and unavailable. These
+are explicit trusted snapshots, **never probes performed by the registry**.
+Registration is distinct from external dependency availability. Future composition
+may declare available only after adapter-owned checks; dispatch must recheck stale
+runtime facts. Unavailable/not_checked registrations still appear in the catalog,
+but resolve returns canonical tool_unavailable Failure with safe capability/adapter
+references. enabled is an operator preference reserved for future composition;
+registry registration does not implement enablement.
+
+`CapabilityCatalogEntry` contains exactly capability, description, risk_class and
+availability. Enum values serialize to stable JSON strings; ordering is lexical by
+capability. This is the only planner-safe projection. It includes no adapter ID,
+instance, implementation/model classes, input JSON-schema dump, executable, argv,
+command/template/script, import path, environment, runner or secrets. Unexpected
+fields are rejected. Internal resolution Success contains a trusted Python object
+and is not a planner serialization API. Never serialize it into planner input.
+Future planner input must bound/filter this catalog using policy and validated
+semantic parameter summaries in their owning tasks.
+
+ActionRequest retains its lowercase capability-name syntax to preserve unapproved
+wire intent and provenance; well-formed unknown names may be represented as data.
+Registry resolution interprets them only against CapabilityId. No unknown name
+becomes a program, dynamic import or newly constructed adapter. Top-level execution
+fields and nested reserved executable/import keys are rejected. Structured parameters
+still require future capability-specific validation and are never process flags.
 
 ## Scope validation boundary
 
@@ -32,7 +138,8 @@ for local membership only; see [scope model](scope-model.md) and
 [ADR 0002](decisions/0002-scope-and-derived-addresses.md). Future adapters must check
 each absolute redirect destination, discovered hostname and concrete resolved
 address independently before contact, pin/constrain approved addresses and recheck
-changes. No adapter, resolver, redirect follower or dispatch integration exists yet.
+changes. No scanner adapter, resolver, redirect follower or dispatch integration
+exists yet.
 
 ## Normalized outputs
 
@@ -64,13 +171,17 @@ Every adapter needs sanitized fixture parsers, argv checks, fake-runner tests, s
 
 ## Implemented process boundary (M1-T03)
 
-Capability is not a command. Future ToolAdapter owns executable selection and
+Capability is not a command. Future ToolAdapter implementations own executable
+selection and
 literal argv construction after deterministic policy and registry dispatch.
 ExecutionRunner only launches that internal ProcessSpec; the planner never supplies
-executable names/argv or calls it directly. ActionRequest/PlannerDecision are unchanged.
+executable names/argv or calls it directly. ActionRequest/PlannerDecision have no
+execution fields; ActionRequest also rejects
+planner-controlled import keys.
 `ProcessRunner.run` is awaitable and returns existing OperationResult with bounded
 raw ProcessExecution facts; fixture runners can implement the same small protocol.
-No adapter interface/catalog/mapping is implemented in this task.
+M1-T04 now supplies the upstream interface/registry described above; no scanner
+implementation or dispatch exists.
 
 Adapters must interpret non-zero exits, decode bytes, check independent stdout/stderr
 truncation flags, and convert facts into observations/ActionResult. The retained-byte

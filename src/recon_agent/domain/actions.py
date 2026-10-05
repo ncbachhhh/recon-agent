@@ -21,6 +21,8 @@ _EXECUTABLE_KEYS = frozenset(
         "extra_shell_args",
         "executable",
         "executable_path",
+        "import_path",
+        "python_module",
     }
 )
 

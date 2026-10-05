@@ -9,7 +9,7 @@ The future typed input contains:
 - Authorized scope and its explicit constraints.
 - Known assets and relevant normalized observations with provenance/trust labels.
 - Completed, failed, and rejected actions plus deduplication identity/retry context.
-- Registered capability catalog, allowed parameter schemas, and risk constraints.
+- Planner-safe capability catalog, future validated parameter summaries, and risk constraints.
 - Remaining action/time/per-host budgets and execution limits.
 
 Select and bound evidence by relevance and size; do not send unlimited raw stdout, stderr, webpage bodies, or secrets. Label evidence as untrusted, even after normalization. Preserve omitted/truncated evidence metadata rather than implying full coverage. Provider model/context limits and redaction are configuration concerns.
@@ -56,3 +56,17 @@ Stop with an explicit auditable reason when:
 - The operator cancels.
 
 Orchestration owns deterministic stop enforcement. A model cannot extend a budget, suppress cancellation, or force retries. `finished` is a recommendation to stop, not permission to skip recording final state or fabricate coverage. Reports disclose completed/rejected/failed work and remaining limitations.
+
+## Implemented catalog boundary (M1-T04)
+
+ToolRegistry.catalog() supplies strict CapabilityCatalogEntry records containing
+capability, description, risk_class and declared availability only. It never exposes
+adapter identity/objects, schema classes, executable/argv/templates, environment or
+import paths. Descriptions are explicitly curated by trusted application code.
+Future planner input assembly must filter/bound the catalog and apply policy; it is
+not authorization or a list of operational scanners. ToolRegistry() is empty today.
+
+Planner output identifies capability only. ActionRequest retains unknown names as
+unapproved structural data; registry rejects unknown names with canonical
+planner_validation_failed, and missing/unavailable adapters with tool_unavailable.
+It never interprets those names as programs. No planner runtime or Groq code is added.

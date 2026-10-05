@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. No operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -40,7 +40,19 @@ M0-T03 rejects unknown keys and invalid effective types/limits in trusted config
 
 ## Implemented domain boundary
 
-M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data still requires future capability-specific policy validation. Domain code imports no configuration or higher layers and performs no I/O. It does not enforce scope, capability membership, budgets, lifecycle transitions or policy. See [data model](data-model.md) for the exact contracts and staged models.
+M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data still requires future capability-specific policy validation. Domain code imports only pure shared ErrorInfo primitives beyond domain/Pydantic types, never configuration or operational layers, and performs no I/O. It does not enforce scope, capability membership, budgets, lifecycle transitions or policy. See [data model](data-model.md) for the exact contracts and staged models.
+
+## Implemented error/result boundary
+
+M0-T05 gives operational failures stable codes and bounded, allowlisted scalar
+context; no credential/environment/output/traceback dump fields exist. Configuration
+failures have fixed messages and source labels. ErrorInfo serialization omits
+native chained causes and raw source inputs. Caller-authored diagnostic strings
+still require sanitization; complete native tracebacks are not the safe diagnostic
+API. Results reject contradictory success/error states; ActionResult distinguishes
+policy rejection, timeout, cancellation and partial evidence. Retryability is
+explicit metadata and grants no permission or automatic retry. These contracts
+perform no logging, recovery or operational execution. See [error model](error-model.md).
 
 ## Untrusted inputs
 

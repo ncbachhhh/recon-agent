@@ -184,7 +184,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M0-T05`
 - **Title:** Error taxonomy and result model
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M0-T04`
 
@@ -222,7 +222,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M0-T06`
 - **Title:** Logging and audit-event foundation
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P0
 - **Dependencies:** `M0-T05`
 

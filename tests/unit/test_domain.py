@@ -11,6 +11,12 @@ import pytest
 from pydantic import BaseModel, ValidationError
 
 import recon_agent.domain as domain
+from recon_agent.core.errors import (
+    CancelledError,
+    ParserError,
+    ScopeRejectedError,
+    ToolTimeoutError,
+)
 from recon_agent.domain import (
     ActionRequest,
     ActionResult,
@@ -378,11 +384,20 @@ def test_domain_json_payloads_preserve_untrusted_data(
 @pytest.mark.parametrize(
     "status", ["partial", "rejected", "failed", "cancelled", "timeout"]
 )
-def test_domain_result_requires_failure_or_limitation_reason(status: str) -> None:
+def test_domain_result_requires_structured_error(status: str) -> None:
     data = {"id": "r", "action_id": "a", "status": status, "recorded_at": WHEN}
     with pytest.raises(ValidationError, match="requires"):
         ActionResult.model_validate(data)
-    result = ActionResult.model_validate({**data, "failure_reason": "bounded outcome"})
+    error = (
+        ScopeRejectedError("outside declared scope")
+        if status == "rejected"
+        else CancelledError("operator cancelled")
+        if status == "cancelled"
+        else ToolTimeoutError("deadline reached")
+        if status == "timeout"
+        else ParserError("bounded outcome")
+    )
+    result = ActionResult.model_validate({**data, "error": error.to_error_info()})
     assert result.status == status
 
 
@@ -391,16 +406,30 @@ def test_domain_result_cannot_misrepresent_failed_observations(
 ) -> None:
     data = models["ActionResult"].model_dump()
     with pytest.raises(ValidationError, match="cannot carry a failure"):
-        ActionResult.model_validate({**data, "failure_reason": "failed"})
+        ActionResult.model_validate(
+            {**data, "error": ParserError("failed").to_error_info()}
+        )
     for status in ("rejected", "failed", "cancelled", "timeout"):
         with pytest.raises(ValidationError, match="successful observations"):
             ActionResult.model_validate(
-                {**data, "status": status, "failure_reason": "failed"}
+                {
+                    **data,
+                    "status": status,
+                    "error": (
+                        ScopeRejectedError("rejected")
+                        if status == "rejected"
+                        else CancelledError("cancelled")
+                        if status == "cancelled"
+                        else ToolTimeoutError("timeout")
+                        if status == "timeout"
+                        else ParserError("failed")
+                    ).to_error_info(),
+                }
             )
     partial = ActionResult.model_validate(
-        {**data, "status": "partial", "failure_reason": "truncated"}
+        {**data, "status": "partial", "error": ParserError("truncated").to_error_info()}
     )
-    assert partial.observations and partial.failure_reason == "truncated"
+    assert partial.observations and partial.error.message == "truncated"
 
 
 def test_domain_state_and_session_defaults_are_independent() -> None:

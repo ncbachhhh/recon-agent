@@ -68,7 +68,7 @@ These are data examples, not scan authorization or runnable sessions.
 | Evidence | `id`, `source`, `origin`, `artifact_reference`, `collected_at`, optional `execution_id`/`capability`/`locator`/`sha256`, `trust`, `truncated`/`redacted` flags | Traceable reference to source material. Trust is always `untrusted`; optional digest is 64 lowercase hexadecimal characters. No raw-output blob, artifact reads/writes, integrity verification or retention engine |
 | Observation | `id`, `kind`, `asset_id`, `source`, `data`, `observed_at`, non-empty `evidence_ids`, optional `execution_id` | A collected/tool-reported fact with provenance. Kinds: `dns`, `service`, `http`, `tls`, `endpoint`, `metadata`; no interpreted Finding |
 | ActionRequest | `id`, `capability`, `target`, `parameters`, `reason`, integer `priority` (default 0), optional `asset_id`/`decision_id` | Unapproved capability intent, never argv. Capability name has lowercase identifier shape; registry membership and priority bounds are later validation work |
-| ActionResult | `id`, `action_id`, terminal `status`, `recorded_at`, `observations`, `evidence`, `execution_ids`, optional `failure_reason` | Outcome data, not process execution. Status is `completed`, `partial`, `rejected`, `failed`, `cancelled` or `timeout`; M0-T05 will add structured error categories |
+| ActionResult | `id`, `action_id`, terminal `status`, `recorded_at`, `observations`, `evidence`, `execution_ids`, optional structured `error` (shared ErrorInfo) | Outcome data, not process execution. Status is `completed`, `partial`, `rejected`, `failed`, `cancelled` or `timeout`; M0-T05 aligns outcomes with shared failure information |
 | PlannerDecision | `id`, `analysis_summary`, `actions`, `finished`, `created_at`, optional `provider`/`model`, `input_observation_ids`/`input_evidence_ids` | Untrusted recommendation with input lineage. Provider metadata is text only; no Groq SDK, prompts, policy outcomes or authorization |
 | ReconState | Independent lists of assets, hosts, services, endpoints, observations, evidence, action requests/results and planner decisions | Empty by default. Typed snapshot containers only; no apply/dedup/transition/budget/stop methods |
 | ReconSession | `id`, non-empty `targets`, explicit `scope`, default empty `state`, `status`, `created_at`, optional `stop_reason` | Session composition only. Default status `created`; other structural statuses `running`, `completed`, `failed`, `cancelled`; no lifecycle enforcement, persistence, resume or execution |
@@ -120,12 +120,22 @@ service observation; any conclusion about exposure needs a future Finding and
 supporting lineage. Normalization does not turn product/version metadata into
 vulnerability claims or planner analysis into observations.
 
-A completed ActionResult cannot carry a failure reason. Every non-completed result
-requires a failure/limitation reason. Only completed/partial results may carry
-observations; rejected/failed/cancelled/timeout results can preserve evidence but
-cannot claim successful observations. A partial result must explicitly explain
-its limitation. These structural rules do not execute tools, retry, assign full
-error codes or implement the M0-T05 error taxonomy.
+M0-T05 replaces ActionResult's temporary failure_reason with shared ErrorInfo.
+A completed result forbids errors; all non-completed results require one.
+Rejections require policy/planner errors, timeout requires tool_timeout and
+cancellation requires cancelled. Failed/partial results cannot relabel a
+policy/planner rejection or cancellation. Only completed/partial results may
+carry observations; rejected/failed/cancelled/timeout results can preserve evidence
+but cannot claim successful observations. A partial result's error explicitly
+explains its limitation. These are structural outcome rules, not authorization,
+retry or state transitions.
+
+ErrorInfo is a pure shared primitive from core/errors; it imports no configuration,
+domain or operational subsystem. Domain actions depend only on this primitive in
+addition to domain/Pydantic types. Generic OperationResult[T] describes an operation
+with success/failure, whereas ActionResult additionally records action identity,
+terminal/partial status and evidence lineage. See [error/result contracts](error-model.md)
+for codes, context, serialization and exception/result usage.
 
 ## Explicitly staged contracts and behavior
 

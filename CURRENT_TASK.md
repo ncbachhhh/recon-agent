@@ -2,10 +2,10 @@
 
 No active task.
 
-Next READY task: **M0-T05 — Error taxonomy and result model**.
+Next READY task: **M0-T06 — Logging and audit-event foundation**.
 
-Prerequisites: M0-T01–M0-T04 DONE. Follow the full AGENTS startup sequence and inspect the working tree before beginning M0-T05 in PLAN.
+Prerequisites: M0-T01–M0-T05 DONE. Follow the complete AGENTS startup sequence and inspect repository/Git reality before starting M0-T06.
 
-Typed configuration and 13 pure domain data contracts now exist. ActionResult currently provides terminal statuses and a minimal failure/limitation reason; M0-T05 owns structured project errors and alignment. No error taxonomy, operational policy, state machine, runner/adapters, Groq/planner runtime, database or reports exist. CLI remains inert.
+Typed configuration/domain/error/result contracts exist. Configuration loading uses ConfigurationError; ActionResult shares ErrorInfo; generic OperationResult carries success/failure without executing or retrying. Logging/audit, scope policy, runner/adapters, providers/planner runtime, orchestration, persistence and reports remain unimplemented. CLI remains inert.
 
-M0-T05 is READY and has not started; all later tasks remain NOT STARTED. Known blockers: None.
+M0-T06 is READY and has not started; all later tasks remain NOT STARTED. Known blockers: None.

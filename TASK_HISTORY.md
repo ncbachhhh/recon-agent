@@ -197,3 +197,56 @@ No required final validation failed. Python 3.12 was not separately exercised; P
 No M0-T05 errors, M0-T06 logging, M1 authorization/runner/registry/policy/budgets/dedup/state-machine work, scanner adapters, Groq/planner runtime, loops, SQLite/persistence, reporting or real CLI commands were implemented. Scope declarations and planner recommendations grant no authorization; allowed JSON parameters still require future deterministic capability validation. PLAN closes M0-T04, makes only M0-T05 READY, leaves 87 later tasks NOT STARTED; CURRENT_TASK says No active task. Known blockers: none; no additional follow-up task discovered. Stop here without starting M0-T05.
 
 Commit reference: the single focused commit containing this entry, titled `feat(domain): establish core reconnaissance models`; resolve with `git log -1 --format=%H --grep="^feat(domain): establish core reconnaissance models$"`. Following existing convention, no circular hash is invented, amendment or second task commit made. Final handoff reports actual hash and clean post-commit tree. No push.
+
+## 2026-10-05 — M0-T05 — Error taxonomy and result model
+
+Status: DONE
+
+Objective: Establish stable structured application failures and typed explicit operation outcomes, with safe diagnostics and configuration/domain integration, before operational layers.
+
+Startup: Re-read governance/state/PLAN, subsystem documentation, ADRs, append-only history, maintenance skill/references, source/tests and pyproject. Inspected clean working tree/index, diffs and recent log; verified predecessor HEAD `0c13869406dc7d3d064f692f1a585f71d856d81e`, M0-T01–M0-T04 DONE, only M0-T05 READY, no active task/blockers. Recorded M0-T05 as the only IN PROGRESS task before implementation. No unrelated changes existed.
+
+### Contracts and integration
+
+Added pure core/errors.py and core/results.py with deliberate public exports. ReconAgentError is the project catch boundary; PolicyError groups scope rejection/budget exhaustion, ToolError groups unavailable/timeout/execution/parser failures. ConfigurationError, ProviderError and PlannerValidationError have their own categories. CancelledError supplies structured information for the existing M0-T04 cancelled outcome; no cancellation machinery exists. Catch parents cannot be instantiated. Ten stable enum codes determine categories independently of human messages.
+
+ErrorInfo contains code, bounded non-blank message, explicit retryable and typed ErrorContext. Context allows only reference/tool/provider/capability, timeout, exit code and configuration-source scalar fields; arbitrary objects, unknown fields, secrets/output/environment/traceback dumping fields and non-finite values fail. References are limited to 256 characters and messages to 1024 to prevent raw-output accumulation in diagnostics. Frozen records revalidate nested inputs. Categories derive from codes rather than independently supplied duplicate fields. Retryability defaults false; known transient tool/provider errors may explicitly set it true, while invalid input/rejection/cancellation cannot be retried unchanged. No automatic retry or authority is implied.
+
+Exceptions expose explicit to_error_info conversion, omitting native causes/tracebacks; unknown exceptions have no speculative global mapper. Normal str/repr and diagnostic dumps contain only the intended contract. Caller-authored ordinary diagnostic text cannot be magically identified as secret. Chained native causes remain available for explicit debugging and may retain sensitive source material; documents direct routine diagnostics to ErrorInfo, not raw exception internals/tracebacks. Separate ProviderSecrets retains its excluded/redacted serializer, including inside typed success values.
+
+OperationResult[T] is a status-discriminated union of frozen Success[T] (required typed value) and Failure (required ErrorInfo). Invalid tags, missing/mixed fields and exception objects fail. Generic typing/narrowing retains Service and ErrorInfo without Any/casts/suppression; JSON round trips preserve nested domain types. Exceptions remain appropriate at exceptional boundaries; explicit results are for intentionally inspected outcomes, not mandatory wrappers for every function.
+
+Configuration loading now exposes the canonical ConfigurationError for source/read/parse/effective validation failures with fixed diagnostics/source labels and native chained causes. Removed ConfigLoadError rather than retaining competing types; precedence/defaults/strict valid behavior is unchanged. Direct domain/config model construction still raises Pydantic ValidationError. ActionResult replaces temporary failure_reason with ErrorInfo: completion forbids errors; non-completion requires one, with rejection/timeout/cancellation consistency and preserved partial/evidence distinction. Generic results do not duplicate action identity/status/provenance. Domain imports pure shared errors only, without configuration or operational dependencies. This contract refinement changes only the relevant existing regression assertions.
+
+Files: added core/errors.py, core/results.py, tests/unit/test_errors.py, test_results.py and docs/error-model.md. Updated config loader/exports, domain/actions.py, relevant config/domain regression tests, README, architecture/configuration/data-model/security/testing docs, CHANGELOG, PLAN, PROJECT_STATE, CURRENT_TASK and this history. Dependencies, CLI, other domain modules and future subsystem markers remain unchanged. No architectural departure/new dependency or redundant ADR was necessary.
+
+### Executed validation
+
+Commands used the repository .venv unless noted:
+
+| Check | Actual command/result |
+| --- | --- |
+| Interpreter/install | `python --version` / `.venv/bin/python --version`: Python 3.14.6; `.venv/bin/python -m pip install -e ".[dev]"` and pip check passed, existing Pydantic 2.13.5 |
+| Focused contracts | `.venv/bin/python -m pytest tests/unit/test_errors.py tests/unit/test_results.py`: 113 passed |
+| Focused regression | Same command with test_config.py/test_domain.py: 329 passed; existing 65 config and 151 domain cases remain covered |
+| Lint/format | `.venv/bin/python -m ruff check .` and `.venv/bin/python -m ruff format --check .`: passed |
+| Types | `.venv/bin/python -m mypy src/recon_agent`: 23 files passed; additionally checking tests/unit/test_results.py: 24 files passed with explicit assert_type narrowing |
+| Full tests | `.venv/bin/python -m pytest`: 330 passed |
+| Coverage | `.venv/bin/python -m coverage run -m pytest`: 330 passed; coverage report: 100%, 400 statements / 76 branches, none missing |
+| Build/CLI | `.venv/bin/python -m build`: wheel/sdist built with isolated setuptools 84.0.0; `.venv/bin/recon-agent`: unchanged inert placeholder, success |
+| Fresh wheel | External temporary venv installed the built wheel; isolated `python -I -B` verified imports from site-packages, typed success/failure/domain JSON round trips, config cause chaining, safe diagnostics and installed CLI/pip check |
+| Offline/side effects | Full 330 tests passed with socket connection/DNS functions blocked and Groq key absent. Fresh-wheel audit blocked network/process/database/directory creation and application file/logging startup; only ordinary dependency entry-point metadata reads allowed |
+| Targeted checks | Fresh wheel verified ToolTimeoutError parent, scope code, Success[int](5), rejection of Failure.value/ErrorInfo.api_key, configuration ValidationError cause, exclusion of synthetic secret from repr/dumps; automated tests cover all codes/hierarchy/retry/context/unknown fields/contradictory outcomes |
+| Security/package/docs/Git | Temporary AST/archive inspection passed: no executable/network/DB/provider/logging behavior, dangerous context fields or Any/suppressions introduced, protected files unchanged, only Pydantic runtime metadata, archive source parity, no secrets/generated artifacts; inspected all changed files, diff/whitespace, status/history/local links and staged paths |
+
+Development checks initially exposed a leftover legacy exception declaration and a Pydantic before-validator interaction with strict nested JSON tuples. Corrected the declaration and selected explicit string outcome tags without that validator; all focused/full/type/serialization checks then passed. A documentation code example required formatting; corrected and format check passed. No acceptance condition or type setting was weakened.
+
+Python 3.12 was not separately executed. Dependency/build provisioning may access the package index; product imports/contract construction, default tests and CLI do not. No real credential, scanner binary or live target was used. Synthetic redaction-test text is data only, with no .env or stored API key.
+
+### Acceptance and handoff
+
+All required categories have concrete types/codes; hierarchy/category tests establish message-independent branching. ErrorInfo/context are strict portable safe diagnostic data with explicit limitations. Success/Failure and ActionResult reject contradictory or misleading success/rejection/error structures; partial evidence remains distinct. Configuration failures use the canonical boundary and native chaining; direct structural domain validation remains Pydantic. Quality/build/fresh-wheel/security/documentation checks passed.
+
+No M0-T06 logging/audit implementation, scope policy, process runner, availability detector, registry/adapters, budget/retry enforcement, scanners, Groq/provider/planner runtime, orchestration, SQLite, reporting or real CLI was implemented. PLAN closes only M0-T05, makes M0-T06 READY and leaves 86 later tasks NOT STARTED; CURRENT_TASK says No active task. No blockers or additional follow-up discovered. Stop at M0-T05.
+
+Commit reference: the single focused commit containing this entry, titled `feat(core): establish error and result contracts`; resolve with `git log -1 --format=%H --grep="^feat(core): establish error and result contracts$"`. Following the established convention, no circular hash, amendment or second task commit is created. Actual hash and clean post-commit tree are reported in the final handoff. No push.

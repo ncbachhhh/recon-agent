@@ -4,6 +4,7 @@ from typing import Literal, Self
 
 from pydantic import Field, JsonValue, field_validator, model_validator
 
+from recon_agent.core.errors import ErrorCategory, ErrorCode, ErrorInfo
 from recon_agent.domain._base import CapabilityName, NonEmptyText, Record, Timestamp
 from recon_agent.domain.observations import Evidence, Observation
 
@@ -59,7 +60,7 @@ class ActionRequest(Record):
 
 
 class ActionResult(Record):
-    """Terminal outcome data; M0-T05 will supply structured error categories."""
+    """Action-specific outcome and evidence lineage, separate from generic outcomes."""
 
     id: NonEmptyText
     action_id: NonEmptyText
@@ -70,17 +71,39 @@ class ActionResult(Record):
     observations: tuple[Observation, ...] = ()
     evidence: tuple[Evidence, ...] = ()
     execution_ids: tuple[NonEmptyText, ...] = ()
-    failure_reason: NonEmptyText | None = None
+    error: ErrorInfo | None = None
 
     @model_validator(mode="after")
     def outcome_is_consistent(self) -> Self:
         if self.status == "completed":
-            if self.failure_reason is not None:
-                raise ValueError("completed result cannot carry a failure reason")
-        elif self.failure_reason is None:
+            if self.error is not None:
+                raise ValueError("completed result cannot carry a failure")
+        elif self.error is None:
             raise ValueError(
-                "non-completed result requires a failure/limitation reason"
+                "non-completed result requires structured error information"
             )
+        if self.error is not None:
+            if self.status == "rejected" and self.error.category not in (
+                ErrorCategory.POLICY,
+                ErrorCategory.PLANNER,
+            ):
+                raise ValueError("rejected result requires a policy/planner rejection")
+            if (
+                self.status == "timeout"
+                and self.error.code is not ErrorCode.TOOL_TIMEOUT
+            ):
+                raise ValueError("timeout result requires tool_timeout")
+            if (
+                self.status == "cancelled"
+                and self.error.code is not ErrorCode.CANCELLED
+            ):
+                raise ValueError("cancelled result requires cancelled")
+            if self.status in ("failed", "partial") and self.error.category in (
+                ErrorCategory.POLICY,
+                ErrorCategory.PLANNER,
+                ErrorCategory.CANCELLATION,
+            ):
+                raise ValueError("rejection/cancellation must use its terminal status")
         if self.status not in ("completed", "partial") and self.observations:
             raise ValueError("unsuccessful result cannot carry successful observations")
         return self

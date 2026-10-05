@@ -144,16 +144,26 @@ text an operator might place in ordinary string settings.
 
 ## Failures and side effects
 
-- Explicit missing/unreadable files raise native `OSError` subclasses, including
-  `FileNotFoundError`; they are never treated as defaults.
-- Malformed TOML/invalid UTF-8 raises `ConfigLoadError` with a fixed message and
-  suppressed source exception context, avoiding raw file snippets in tracebacks.
-- Unknown/malformed environment settings raise `ConfigLoadError` without values.
-- Invalid effective fields, wrong section structures, unsupported values, typos
-  such as `max_concurency`, and unknown keys raise Pydantic `ValidationError`.
+M0-T05 normalizes explicit loading failures into
+`recon_agent.core.errors.ConfigurationError` with stable code
+`configuration_invalid`. The temporary `ConfigLoadError` is removed.
 
-There is no project-wide error taxonomy here; M0-T05 owns that work. Application
-settings and credentials are read only by explicit loader calls; imports define
+- Missing/unreadable files and invalid file paths fail with source `file`;
+  they are never treated as defaults.
+- Malformed TOML/invalid UTF-8 fails with source `file` and a fixed message.
+- Unknown/malformed environment settings fail with source `environment`, without
+  copying variable names or values into the diagnostic contract.
+- Invalid effective fields, wrong section structures, unsupported values, typos
+  such as `max_concurency`, and unknown keys fail with source `validation`.
+
+Native OSError/TOML/Unicode/JSON/Pydantic causes remain explicitly chained for
+inspection. Normal exception str/repr and `to_error_info()` omit those causes and
+raw configuration. Complete chained tracebacks/native structured errors may
+contain source material; they are not safe diagnostic dumps. Direct AppConfig or
+section-model construction still raises Pydantic ValidationError. See
+[error/result contracts](error-model.md) for the boundary and context API.
+
+Application settings and credentials are read only by explicit loader calls; imports define
 models without application startup. Normal dependency imports may inspect
 installed-package metadata. Explicit loading reads only
 the supplied file and environment snapshot: no network, tool discovery/execution,

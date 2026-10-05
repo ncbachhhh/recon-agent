@@ -6,15 +6,15 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
-from pydantic import SecretStr, ValidationError
+from pydantic import SecretStr
 
 from recon_agent.core.config import (
     AppConfig,
-    ConfigLoadError,
     ProviderSecrets,
     load_config,
     load_provider_secrets,
 )
+from recon_agent.core.errors import ConfigurationError
 
 
 def test_config_defaults_are_restrictive_and_serializable() -> None:
@@ -187,7 +187,7 @@ def test_config_invalid_effective_values(
     field: str,
     value: object,
 ) -> None:
-    with pytest.raises(ValidationError):
+    with pytest.raises(ConfigurationError):
         load_config(environ={}, overrides={section: {field: value}})
 
 
@@ -204,7 +204,7 @@ def test_config_invalid_effective_values(
     ],
 )
 def test_config_unknown_keys_and_wrong_sections(values: dict[str, object]) -> None:
-    with pytest.raises(ValidationError):
+    with pytest.raises(ConfigurationError):
         load_config(environ={}, overrides=values)
 
 
@@ -220,7 +220,7 @@ def test_config_unknown_keys_and_wrong_sections(values: dict[str, object]) -> No
 def test_config_invalid_file_data(tmp_path: Path, raw: str) -> None:
     path = tmp_path / "invalid.toml"
     path.write_text(raw)
-    with pytest.raises(ValidationError) as error:
+    with pytest.raises(ConfigurationError) as error:
         load_config(path, environ={})
     assert "sensitive-test-value" not in str(error.value)
 
@@ -229,15 +229,16 @@ def test_config_invalid_file_data(tmp_path: Path, raw: str) -> None:
 def test_config_malformed_file(tmp_path: Path, raw: bytes) -> None:
     path = tmp_path / "broken.toml"
     path.write_bytes(raw)
-    with pytest.raises(ConfigLoadError, match="invalid TOML") as error:
+    with pytest.raises(ConfigurationError, match="invalid TOML") as error:
         load_config(path, environ={})
     assert "sensitive-test-value" not in str(error.value)
-    assert error.value.__suppress_context__
+    assert error.value.__cause__ is not None
 
 
 def test_config_missing_file_fails(tmp_path: Path) -> None:
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ConfigurationError) as error:
         load_config(tmp_path / "absent.toml", environ={})
+    assert isinstance(error.value.__cause__, FileNotFoundError)
 
 
 @pytest.mark.parametrize(
@@ -258,7 +259,7 @@ def test_config_missing_file_fails(tmp_path: Path) -> None:
     ],
 )
 def test_config_invalid_environment(environment: dict[str, str]) -> None:
-    with pytest.raises((ConfigLoadError, ValidationError)) as error:
+    with pytest.raises(ConfigurationError) as error:
         load_config(environ=environment)
     assert "sensitive-test-value" not in str(error.value)
 

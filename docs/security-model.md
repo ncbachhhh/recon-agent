@@ -102,6 +102,11 @@ Discovery does not imply authorization. Planner recommendation does not imply au
 
 M1-T01 implements local ScopeValidator with exact roots, label-aware domain descendants, parsed IP/CIDR membership, host-level HTTP/HTTPS URLs, exclusion precedence and canonical structured failures. Private-address preferences gate RFC1918/IPv6 ULA membership; they grant no scope. Unsupported Unicode/IDN, zones/mapped IPv6, malformed/ambiguous targets and invalid declarations fail closed. The validator emits no logs, performs no DNS/network and mutates no declarations. See [scope model](scope-model.md) for authoritative semantics and [ADR 0002](decisions/0002-scope-and-derived-addresses.md).
 
+M1-T02 regression tests cover adversarial name/URL/address parsing, private gate
+boundaries, exclusions, rule order and stable failures under network/DNS guards.
+Test-only mock consumers prove rejected redirect/discovery candidates cause no
+contact call; production dispatch/contact enforcement remains future work.
+
 A domain resolving to an address is evidence, not IP authorization. Future adapters must independently validate every supplied concrete address, constrain/pin approved destinations and revalidate address changes before contact; no resolution or rebinding runtime exists yet. Tools must not bypass scope via their own recursion, redirect following, secondary lookup targets, or automatic feature discovery. Disable unsafe implicit behavior or reject execution when the adapter cannot constrain it. A post-scan filter cannot undo an out-of-scope network request.
 
 If scope cannot be established reliably, **do not execute the action**. Malformed targets, ambiguous parsing, unresolved policy semantics, unsupported tool behavior, and missing authorization are fail-closed cases. Record the rejection with enough evidence to explain it without leaking secrets.

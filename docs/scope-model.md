@@ -140,5 +140,9 @@ secondary contacts, its mode must be rejected. There is no resolver, address cac
 rebinding implementation or execution hook beyond this callable boundary today.
 
 Focused implementation checks: `.venv/bin/python -m pytest tests/unit -k scope`.
-M1-T02 owns the broader independent regression corpus and fake dispatch checks;
-it has not been implemented. Full validation follows [testing strategy](testing-strategy.md).
+M1-T02 adds an independent regression corpus at `tests/unit/policy`, including
+deterministic generated boundary/order checks and test-only mock contact consumers
+that receive no rejected redirect or discovered candidate. Run it with
+`.venv/bin/python -m pytest tests/unit/policy`. This adds evidence for the existing
+contract, without implementing production contact enforcement. Full validation
+follows [testing strategy](testing-strategy.md).

@@ -63,7 +63,8 @@ Require all commands to pass. Ruff targets Python 3.12 and includes correctness,
 Coverage uses package source `recon_agent`, branch measurement and missing-line reporting; tests are not production coverage. Empty package markers are omitted from the displayed report, not from source measurement. No minimum percentage gate is imposed during foundation work. M0-T03 adds offline configuration tests; focused validation is `.venv/bin/python -m pytest tests/unit/test_config.py`. M0-T04 adds deterministic domain construction/validation/serialization tests; focused validation is `.venv/bin/python -m pytest tests/unit/test_domain.py`. M0-T05 adds error/result hierarchy, diagnostic safety, generic typing and boundary integration tests; focused validation is `.venv/bin/python -m pytest tests/unit/test_errors.py tests/unit/test_results.py`, plus config/domain regression suites. `.venv/bin/python -m mypy src/recon_agent tests/unit/test_results.py` additionally proves generic payload narrowing. M0-T06 focused validation is `.venv/bin/python -m pytest tests/unit/test_logging_audit.py`: fixed aware timestamps, captured streams, JSON parsing, redaction/evidence-preservation, idempotent project setup, error/failure and import guards. Logger state is isolated/restored; no remote telemetry tests or future producers are introduced. M1-T01 focused validation is `.venv/bin/python -m pytest tests/unit -k scope`,
 covering declaration membership, normalization, exclusions, IP/CIDR boundaries,
 URL authority, private gating, redirect candidates, structured failures and purity.
-The broader independent corpus/fake dispatch checks remain M1-T02 work.
+M1-T02 adds the dedicated corpus under `tests/unit/policy`; run it with
+`.venv/bin/python -m pytest tests/unit/policy`.
 A current coverage result does not imply future reconnaissance coverage.
 
 Build uses standard setuptools and emits both sdist and wheel. Inspect archive contents/metadata and ensure artifacts are ignored. When packaging/entry-point behavior changes, install the built wheel into a fresh environment outside the checkout and repeat import/console smoke to detect editable-install masking.
@@ -75,6 +76,29 @@ Installation/build isolation can provision dependencies from a package index; af
 ### Later task closeout
 
 Run focused checks, then all documented complete baseline commands, inspect diff, update task/state/history/docs, and recheck acceptance and final diff. Report commands and actual results; disclose unavailable checks as blockers where required. Broaden checks only for material new changes/failures. Integration tasks remain explicit opt-in and require fixture/fake alternatives for default tests.
+
+## Authorization regression corpus
+
+The M1-T02 corpus uses independently specified outcomes from the scope contract
+and ADR 0002. Two modules cover names/URLs/derived candidates and addresses/rules/
+structured decisions. Parameterized adversarial inputs include suffix lookalikes,
+unsupported encodings, userinfo, malformed authorities, alternate IP forms, CIDR
+boundaries, private gates and exclusions. Invalid declarations are tested alongside
+valid rules so a partially compiled permissive policy cannot go unnoticed.
+
+Small deterministic generated checks exhaust name prefixes and IPv4 documentation
+range members, sample IPv6 boundaries, and permute overlapping/duplicate rules.
+CIDR expectations come from mathematical `ipaddress` membership; declaration order
+must preserve complete outcomes, including match reporting. These checks need no
+Hypothesis dependency or random seed. Regression tests also verify serialized
+outcomes, canonical scope reason codes and parity with ScopeRejectedError.
+
+An autouse fixture blocks socket construction and DNS/connection helpers throughout
+the dedicated corpus. Closeout additionally runs the complete suite with socket
+contact and DNS functions blocked and the Groq key absent. Test-only mock contact
+consumers call `require_allowed` before recording a redirect/discovered candidate;
+rejection must leave the mock untouched. This proves boundary usage locally, without
+adding a production dispatcher or claiming future adapters enforce it already.
 
 ## CI intent
 

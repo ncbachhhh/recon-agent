@@ -363,3 +363,69 @@ Installation/build provisioning can access the package index; product policy/imp
 M0-T01–M0-T06 and M1-T01 are DONE. M1-T02 dependency/prerequisite gate is satisfied and it alone becomes READY; 84 later tasks remain NOT STARTED. CURRENT_TASK says No active task. The broader M1-T02 corpus/property/fake dispatch work has not begun. No action policy, execution capability, scanner, provider/planner, orchestration, persistence or CLI behavior was added. Known blockers: none; documented future contact/address constraints belong to their existing owning tasks. Stop after M1-T01.
 
 Commit reference: the single focused commit containing this entry, titled `feat(policy): implement deterministic scope validation`; resolve with `git log -1 --format=%H --grep="^feat(policy): implement deterministic scope validation$"`. Established convention avoids a circular self-hash, amendment or second task commit. Final handoff reports actual hash and clean post-commit tree. No push.
+
+## 2026-10-05 — M1-T02 — Scope regression suite
+
+Status: DONE
+
+Objective: Prove the documented deterministic scope authorization boundary against confusing host/URL/IP representations before future network adapters depend on it.
+
+Startup: Read AGENTS, PROJECT_STATE, CURRENT_TASK, full M1-T01/M1-T02 specification and M1-T03 boundary, README, scope/security/architecture/data/error/testing/tool docs, relevant ADRs, maintenance skill/references and recent history. Inspected clean working/index diffs and recent log; confirmed HEAD and predecessor commit `b54059ae9e5cd74d3d91ab566f2cd4801c75d824`, M0-T01–M0-T06/M1-T01 DONE, M1-T02 READY, no active task/blockers. Read current policy, scope tests, domain/config/error/result contracts and pyproject before marking only M1-T02 IN PROGRESS. No unrelated user changes existed.
+
+### Regression coverage
+
+Added two coherent test modules and a socket/DNS-blocking autouse fixture under tests/unit/policy. The independent expected outcomes follow scope-model.md and ADR 0002, rather than treating observed implementation behavior as the security specification:
+
+- Exact/case/single-trailing-dot DNS identity, proper label descendants with/without explicit authorization, mandatory suffix/lookalike attacks, label/name length boundaries, malformed labels, unsupported Unicode/punycode and whitespace/control contamination.
+- HTTP/HTTPS parsed authority, host-level valid ports, ordinary path/query/fragment preservation, userinfo rejection even on independently authorized actual hosts, malformed brackets/ports, unsupported schemes, percent-encoded authorities and backslashes.
+- IPv4 exact neighbors, IPv6 equivalent representations/bracketed URLs, alternate IPv4 notations, mapped/scoped IPv6 rejection, IPv4/IPv6 CIDR boundaries and /0, /31, /32, /127, /128, strict malformed/unaligned prefixes and same-family full containment.
+- RFC1918/ULA gates and boundaries, partial private CIDR overlap, unrelated private rejection with the option enabled, explicit special-address membership, exclusion precedence/subtree versus exact-authority semantics and overlapping candidate range rejection.
+- Empty scopes, invalid declarations mixed with valid rules, strict unknown kinds/fields, duplicate and permuted overlapping rules, specific matching/stable ID tie reporting, repeat determinism and no union/subtraction widening.
+- Stable `scope_rejected` and reason codes, canonical authority-only context, ErrorInfo/ScopeRejectedError parity, JSON success/failure round trips and specific ValueError/TypeError parser failures without permissive fallback or raw diagnostic leakage.
+- Independent redirect matrix and provenance-labelled TLS SAN/DNS/robots/JavaScript/scanner candidates. Test-only mock consumers call require_allowed before contact; rejected candidates leave the mock untouched. Explicit IP redirect authorization is tested separately. Declarations remain unchanged.
+
+Deterministic generated checks exhaust 155 small name prefixes (with allowed label-boundary controls), compare 2,322 IPv4 prefix/member combinations plus 30 IPv6 boundaries against ipaddress membership, and permute allow/exclude rules. These supply property/fuzz-style coverage without Hypothesis, randomness, remote fixtures or another dependency. No new ADR or scope semantic was needed.
+
+No regression demonstrated a validator defect. Production source, existing tests, domain/config/error/result contracts, dependencies, CLI and future subsystem markers remain byte-for-byte unchanged. The existing boundary-aware endswith comparison is correct; URL authorization uses parsed hosts, unsupported userinfo is rejected, address membership precedes any allowance, and exclusions/private gates have deterministic precedence. The only remaining uncovered policy line is the unsupported-kind guard after strict Target revalidation; public forged-kind rejection is tested without bypassing that boundary just to increase coverage.
+
+Files: added tests/unit/policy/conftest.py, test_scope_names_urls.py and test_scope_addresses_rules.py. Updated scope/security/testing docs, README, CHANGELOG, PLAN, PROJECT_STATE, CURRENT_TASK and this append-only history. Architecture/data/error/tool docs and ADR 0002 were reviewed and remain accurate; no production contract change required edits there.
+
+### Executed validation
+
+Commands used repository .venv (Python 3.14.6 / Pydantic 2.13.5) unless stated:
+
+| Check | Actual command/result |
+| --- | --- |
+| Setup | `python --version`, `python -m pip install -e ".[dev]"` and `python -m pip check`: passed |
+| Dedicated corpus | `python -m pytest tests/unit/policy`: final 343 passed (initial 334 passed before additional range/precedence/redirect cases) |
+| Full tests | `python -m pytest`: 897 passed |
+| Coverage | `python -m coverage run -m pytest`: 897 passed; `python -m coverage report`: 99%, 781 statements / 216 branches, one defensive line/branch unexecuted (scope.py:112), improved from two missing lines |
+| Offline full suite | Temporary Python wrapper blocks socket connect/connect_ex/bind/listen/accept/send/recv families and DNS helpers before collection, removes Groq key: all 897 passed; dedicated corpus additionally blocks socket construction |
+| Ruff/format | `python -m ruff check .` and `python -m ruff format --check .`: passed, 60 Python files formatted |
+| Types | `python -m mypy src/recon_agent`: strict checks passed for 27 production modules; no typing/acceptance settings weakened |
+| Build | `python -m build`: isolated setuptools 84.0.0 sdist/wheel build passed; final README metadata rebuild and archive parity checks performed before commit |
+| CLI | `.venv/bin/recon-agent` and fresh-wheel console command: unchanged inert placeholder, exit 0 |
+| Fresh wheel | New external temporary venv installed wheel; `python -I -B` cold imports resolved from site-packages, high-risk domain/userinfo/redirect/private/IPv6 cases and error/result JSON round trips passed; installed CLI and pip check passed |
+| Runtime guards | Fresh-wheel check blocked socket/DNS/process/database/directory/thread/global logging startup, application Path access and writes; ordinary import/dependency metadata reads allowed; imports created no project logger |
+| Security/package | Source byte parity with M1-T01, corpus AST imports and suffix/parser/fallback searches reviewed; wheel/sdist source parity and sole Pydantic runtime dependency passed; no generated artifacts, environment files or new secrets in visible/staged files |
+| Reconciliation | Final task-status/dependency, append-only history, Markdown link, secret/artifact and Git working/index/whitespace inspections passed before the single commit |
+
+Python 3.12 was not available on PATH or checked local interpreter locations; it was not executed and does not block this task. Python 3.14.6 is the only version actually tested. Package installation/build provisioning may access the package index; policy/tests/CLI and guarded imports require no network or credentials.
+
+The initial broad secret-pattern check flagged the pre-existing synthetic `sensitive-test-value` invalid-config fixture. Verified its unchanged source and allowed only that exact known test match; subsequent archive/secret checks passed. An interpreter location glob also found no Python 3.12. Neither required a repository code change or acceptance relaxation. There were no failing regression tests and no production bugs fixed.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Required edge-case groups have explicit expected outcomes | Dedicated name/URL/address/rule parameter tables plus independent generated suffix/CIDR checks and contract cases: 343 passed |
+| Out-of-scope/lookalike/ambiguous targets denied | Suffix confusion, userinfo, parser/encoding/control, private/nonstandard address and malformed mixed declarations fail closed with canonical reason codes |
+| Authorized canonical forms consistent | Case/trailing-dot/IPv6 normalization, CIDR identity/containment, stable match specificity/ties, duplicate/permutation/repeat and JSON outcomes passed |
+| Fake dispatch shows no contact on rejection | Independent redirect and discovery mock consumers assert require_allowed rejection and assert_not_called; no production execution code added |
+| Regression suite runs offline | Autouse network/DNS fixture and all 897 full-suite tests under contact/DNS blocking with Groq key absent |
+
+M0-T01–M0-T06 and M1-T01–M1-T02 are DONE. M1-T03 prerequisites are satisfied and it alone becomes READY; all 83 later tasks stay NOT STARTED. CURRENT_TASK says No active task. Known blockers/follow-up work: none newly discovered; existing future contact enforcement remains owned by adapters/action policy/orchestration. No authorization widening, DNS/network runtime, scanner/subprocess runner, Groq, persistence, planner approval, automatic discovery expansion or origin-to-redirect trust was added. Stop after M1-T02; M1-T03 has not begun.
+
+Commit reference: the single focused commit containing this entry, titled `test(policy): harden scope authorization regressions`; resolve with `git log -1 --format=%H --grep="^test(policy): harden scope authorization regressions$"`. Established convention avoids an invented circular self-hash, amendment or second task commit. Final handoff reports the actual full hash and clean post-commit tree. No push.
+
+Closeout validation correction: temporary reconciliation checks initially parsed the multiword NOT STARTED status as one token, mistook historical `Success[int](5)` notation for a Markdown link, and decoded UTF-8 wheel README metadata through the email parser's ASCII text fallback. Corrected the temporary checks to read complete status lines, exclude code/type notation from links and compare original UTF-8 metadata bytes. Final checks passed: 8 DONE / 1 READY / 83 NOT STARTED, 63 local links, preserved historical prefix, and final wheel/sdist README/source parity. These were checker errors; repository states, documentation and artifacts required no correction.

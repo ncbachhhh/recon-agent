@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 / deterministic scope membership foundation
+Project phase: M1 / scope authorization regression boundary validated
 
 Completed:
 
@@ -11,12 +11,13 @@ Completed:
 - M0-T05 — Error taxonomy and result model (DONE)
 - M0-T06 — Logging and audit-event foundation (DONE)
 - M1-T01 — Scope model and validator (DONE)
+- M1-T02 — Scope regression suite (DONE)
 
 Active task: None.
 
 Next READY:
 
-- M1-T02 — Scope regression suite (not started)
+- M1-T03 — Execution runner abstraction (not started)
 
 ## Implementation reality
 
@@ -32,7 +33,9 @@ M0-T06 adds pure `core/audit.py` with 16 stable event types, explicit UTC time/s
 
 M1-T01 adds pure synchronous `policy/ScopeValidator` compiled from an explicit immutable Scope snapshot. Exact DNS names, optional domain descendants, IPv4/IPv6, aligned CIDRs and host-level HTTP/HTTPS URLs use deterministic comparisons; exclusions always win. Canonical Target/matched-rule data use existing Success/Failure outcomes; canonical ScopeRejectedError/ErrorInfo carries typed scope reason and safe authority context. RFC1918/IPv6 ULA gating never grants authorization. Unicode/IDN, scoped/mapped IPv6 and ambiguous representations fail closed. No declaration mutation, global config read, audit producer, DNS or contact occurs. See docs/scope-model.md and ADR 0002 for independent concrete-address authorization and future contact/rebinding obligations.
 
-Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy/registry, runner, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T02 is READY; remaining 84 tasks are NOT STARTED.
+M1-T02 adds 343 independent regression cases under tests/unit/policy, with socket/DNS guards, deterministic generated suffix/CIDR membership checks, rule permutations and test-only mock contact checks for redirects/discovery. No validator defect was demonstrated; production code and dependencies are unchanged. The corpus verifies the documented boundary, not future production contact enforcement.
+
+Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy/registry, runner, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T03 is READY; remaining 83 tasks are NOT STARTED.
 
 ## Major architecture decisions
 
@@ -48,6 +51,17 @@ Audit events describe autonomous recon operations and confer no authorization. E
 
 ## Validation
 
-Python 3.14.6 / Pydantic 2.13.5: editable install and pip check passed; 122 focused scope-selected tests (108 new implementation cases); Ruff lint/format; strict Mypy (27 production modules, 28 including the existing result typing test); all 554 tests and coverage passed (99%, 781 statements / 216 branches; two policy defensive lines unexecuted). All 554 tests also passed with network/DNS blocked and Groq key absent. Final sdist/wheel build, guarded external fresh-wheel imports, scope/error/result JSON round trips, manual domain/redirect/private-IP checks, installed CLI and pip check passed. Guards blocked network/process/database/directory/thread/global logging startup and application file use; normal dependency metadata/import reads remained allowed. Source AST, boundary suffix/fallback review, protected-file and archive/dependency parity checks passed. CLI remains the unchanged inert placeholder. Documentation/status/history, secret/artifact and final Git inspections accompany the focused closeout; see TASK_HISTORY for actual evidence and corrected development failures. Python 3.12 was not separately exercised.
+M1-T02: Python 3.14.6 / Pydantic 2.13.5; editable install and pip check passed.
+Dedicated corpus: 343 passed; full suite and coverage: 897 passed; full suite
+with socket contact/DNS blocked and Groq key absent: 897 passed. Ruff lint/format
+(60 Python files) and strict Mypy (27 production modules) passed. Coverage remains
+99% (781 statements / 216 branches), now with one uncovered defensive unsupported-kind
+line behind strict Target revalidation; no artificial private-parser bypass test added.
+Build, guarded external fresh-wheel cold imports, scope/manual high-risk checks,
+error/result JSON round trips, inert CLI and fresh-wheel pip check passed. Archive
+source/dependency parity, protected-source AST review, secret/artifact checks and
+Git whitespace/state reconciliation passed. Python 3.12 was not available locally
+and was not tested. See TASK_HISTORY for exact commands, limitations and acceptance
+mapping. No production fix, new dependency, ADR, scanner or runtime dispatch added.
 
 Known blockers: None.

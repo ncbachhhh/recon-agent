@@ -29,9 +29,9 @@ These are data examples, not scan authorization or runnable sessions.
 - Unknown fields are forbidden throughout nested models. Structural fields use
   strict types; numeric strings and booleans do not become ports/priorities.
 - IDs and references are caller-supplied non-blank opaque strings. There are no
-  generated IDs, database row keys, scanner-derived identity rules or deduplication
-  algorithms. Existing IDs survive Python/JSON round trips. Producers own uniqueness;
-  later canonicalization/deduplication work must preserve these lineage references.
+  generated IDs or database row keys. Existing IDs survive Python/JSON round trips.
+  Producers own uniqueness; M1-T08 semantic action identity is separate from and
+  preserves these lineage references.
 - Required text must contain a non-whitespace character. Strings are preserved,
   not stripped or rewritten. Target kinds label declarations without validating
   their domain/IP/CIDR/URL syntax; M1-T01 policy owns parsing/canonicalization and authorization; domain constructors still preserve declarations.
@@ -145,7 +145,8 @@ lifecycle and budget records. The following ownership boundaries remain:
 
 - **Action:** ActionRequest/ActionResult plus M1-T07 ActionLifecycle/ActionTransition
   supply intent, history and outcomes. No generic Action placeholder exists;
-  canonical action equivalence/identity remains M1-T08.
+  M1-T08 adds separate ActionIdentity/ActionDedupDecision contracts and policy
+  equivalence.
 - **ToolExecution:** runner/adapter execution metadata belongs with M1-T03 and later
   adapter work. Current execution IDs are opaque provenance references only.
 - **Finding:** interpreted conclusion records belong with M5-T04 finding
@@ -252,3 +253,14 @@ budgets, modify scope, run tools or turn planner text into facts. Python list-ba
 legacy snapshots require explicit tuple/lifecycle conversion; no history is inferred.
 See [complete operations, lifecycle and ownership](state-transitions.md) and
 [ADR 0006](decisions/0006-controlled-recon-state.md).
+
+## Semantic action identity (M1-T08)
+
+ActionIdentity adds a versioned capability/canonical target/parameter JSON record
+and deterministic full JSON key. ActionDedupDecision adds identity, sorted matching
+request IDs, failed_attempts and DedupReason; duplicate/eligible are computed normal
+policy outcomes inside existing Success/Failure. These pure contracts do not own
+history, authorize, consume budgets or execute. Planner prose/priority/IDs/times
+are excluded; registered defaults and nested execution parameters are included.
+Identity has portable Python/JSON round trips independent of opaque lineage IDs.
+See [canonical semantics and conservative retries](action-deduplication.md).

@@ -148,16 +148,17 @@ contact/DNS blocking and fresh-wheel cold import/composition checks remain requi
 Run `.venv/bin/python -m pytest tests/unit/policy/test_action_policy.py`, followed
 by registry/scope regressions and the full baseline. Fixtures use only trusted fake
 schemas/adapters and permitting/denying eligibility services; no scanner models or
-production completed-action permitting service exists. M1-T06 supplies real budget
-checks. Guards block socket/DNS/subprocess/runner,
+production completed-action permitting stub exists; M1-T08 supplies real dedup
+eligibility. M1-T06 supplies real budget checks. Guards block socket/DNS/subprocess/runner,
 registry adapter resolution, dynamic imports and logging. Tests cover canonical
 approvals, malformed/unknown/unavailable/disallowed intent, strict/extra/executable
 parameters, every declared secondary target/default, missing target semantics,
 unsupported target representations, missing eligibility and malformed outcomes.
 Planner metadata cannot change denials. Test-only dispatch rechecks stale approval
 and remains untouched on rejection. Full contact/DNS-blocked suite and guarded
-fresh-wheel imports/policy checks are required. No production dispatch, deduplication
-or concrete-address contact guarantee is claimed. M1-T06 separately supplies resource reservations.
+fresh-wheel imports/policy checks are required. No production dispatch or
+concrete-address contact guarantee is claimed; M1-T08 separately tests deduplication.
+M1-T06 separately supplies resource reservations.
 
 ## Budget regressions (M1-T06)
 
@@ -198,4 +199,21 @@ without authorization, nested input/output alias isolation, simultaneous commits
 nonempty budget bucket Python/JSON round trips and no enforcement duplication.
 Original domain fixtures now use strict tuple collections and explicit coherent
 lifecycle history; permissive list mutation is deliberately rejected. Default budget
-and execution regressions remain required. No semantic dedup or session loop is tested.
+and execution regressions remain required. M1-T08 tests semantic dedup separately;
+no session loop is tested.
+
+## Action deduplication regressions (M1-T08)
+
+Run `.venv/bin/python -m pytest tests/unit/policy/test_dedup.py tests/unit/policy/test_action_policy.py tests/unit/test_state.py -q`, then the complete baseline,
+contact/DNS-blocked suite, fresh-wheel cold imports/composition and artifact checks.
+Fixtures use only trusted strict schemas, local histories and explicit UTC times.
+Runtime guards forbid DNS/sockets/subprocess/runner/adapter resolution/dynamic import/
+logging. Simultaneous local contenders test shared-state atomic new/retry admission
+without scanning or an orchestration loop.
+
+Cases cover cosmetic planner repetition, key order, nested JSON types, defaults,
+serialization exclusions, meaningful changes, existing target aliases, preserved URL
+semantics, every lifecycle, zero/configured retry limits, retryability flags,
+reconstructed-history bounds, terminal-ID replay, malformed history fail-closed,
+lookup/input alias isolation, validated callback detachment/rollback, and real policy/
+budget composition with no authorization/resource/execution effects from dedup.

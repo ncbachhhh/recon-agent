@@ -19,7 +19,7 @@ from recon_agent.domain import ActionRequest
 from recon_agent.domain._base import NonEmptyText
 from recon_agent.domain.capabilities import CapabilityId, RiskClass
 from recon_agent.policy.scope import ScopeMatch, ScopeValidator
-from recon_agent.tools import ToolRegistry
+from recon_agent.tools import AdapterDefinition, ToolRegistry
 
 
 class ActionPolicyConfig(BaseModel):
@@ -91,6 +91,49 @@ def _invalid(message: str) -> Failure:
     return Failure(error=PlannerValidationError(message).to_error_info())
 
 
+def _validate_action_inputs(
+    request: ActionRequest,
+    definition: AdapterDefinition,
+    scope_validator: ScopeValidator,
+) -> OperationResult[ApprovedAction]:
+    """Shared schema/scope normalization only; no complete policy approval."""
+    target = scope_validator.validate_value(request.target)
+    if isinstance(target, Failure):
+        return target
+    try:
+        parameters = definition.input_schema.model_validate(
+            request.parameters, strict=True
+        )
+    except (ValidationError, TypeError, ValueError):
+        return _invalid("Parameters do not satisfy the registered input schema")
+
+    if definition.parameter_target_fields is None:
+        return _invalid("Parameter target semantics are not established")
+    matches: list[ScopeMatch] = []
+    for name in definition.parameter_target_fields:
+        value = getattr(parameters, name)
+        values = (value,) if isinstance(value, str) else value
+        if not isinstance(values, (tuple, list)) or any(
+            not isinstance(candidate, str) for candidate in values
+        ):
+            return _invalid("Unsupported parameter target representation")
+        for candidate in values:
+            match = scope_validator.validate_value(candidate)
+            if isinstance(match, Failure):
+                return match
+            matches.append(match.value)
+
+    return Success[ApprovedAction](
+        value=ApprovedAction(
+            action_id=request.id,
+            capability=definition.descriptor.capability,
+            scope_match=target.value,
+            parameter_scope_matches=tuple(matches),
+            parameters=parameters,
+        )
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class ActionPolicyValidator:
     """Compose snapshotted facts and explicit local policy; no execution methods.
@@ -133,39 +176,10 @@ class ActionPolicyValidator:
         if descriptor.risk_class not in self.config.allowed_risk_classes:
             return _invalid("Risk class is not permitted by action policy")
 
-        target = self.scope_validator.validate_value(request.target)
-        if isinstance(target, Failure):
-            return target
-        try:
-            parameters = definition.input_schema.model_validate(
-                request.parameters, strict=True
-            )
-        except (ValidationError, TypeError, ValueError):
-            return _invalid("Parameters do not satisfy the registered input schema")
-
-        if definition.parameter_target_fields is None:
-            return _invalid("Parameter target semantics are not established")
-        matches: list[ScopeMatch] = []
-        for name in definition.parameter_target_fields:
-            value = getattr(parameters, name)
-            values = (value,) if isinstance(value, str) else value
-            if not isinstance(values, (tuple, list)) or any(
-                not isinstance(candidate, str) for candidate in values
-            ):
-                return _invalid("Unsupported parameter target representation")
-            for candidate in values:
-                match = self.scope_validator.validate_value(candidate)
-                if isinstance(match, Failure):
-                    return match
-                matches.append(match.value)
-
-        approved = ApprovedAction(
-            action_id=request.id,
-            capability=descriptor.capability,
-            scope_match=target.value,
-            parameter_scope_matches=tuple(matches),
-            parameters=parameters,
-        )
+        inputs = _validate_action_inputs(request, definition, self.scope_validator)
+        if isinstance(inputs, Failure):
+            return inputs
+        approved = inputs.value
         checks: tuple[Callable[[], OperationResult[None]], ...] = (
             lambda: self.budget_eligibility.check(approved),
             lambda: self.completed_action_eligibility.check(request),

@@ -533,7 +533,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T08`
 - **Title:** Action deduplication
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M1-T07`
 
@@ -551,6 +551,14 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 2. Implement completed/in-flight lookup
 3. Connect policy denial and bounded failed-action retries
 4. Document equivalence and deliberate rerun semantics.
+
+**Retry contract (M1-T08):** Explicit trusted ActionDedupConfig defaults to zero
+failed retries. Only all-failed equivalent history with every ErrorInfo.retryable
+flag true may retry, at most one initial attempt plus the configured retries.
+Requested/approved/started/completed and partial/rejected/cancelled/timeout
+equivalents deny. Retries require new action IDs, full policy revalidation and
+separately charged execution resources. No retry scheduler or completed-rerun
+override is added; see docs/action-deduplication.md and ADR 0007.
 
 **Acceptance criteria:**
 
@@ -574,7 +582,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M2-T01`
 - **Title:** DNS resolver capability
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M1-T08`
 

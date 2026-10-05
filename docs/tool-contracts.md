@@ -242,8 +242,9 @@ BudgetEligibility.check(ApprovedAction) and the completed-action
 ActionEligibility.check(ActionRequest) return OperationResult[None]. Missing services
 deny; returned malformed outcomes also reject. M1-T06 evolves the budget seam to
 consume canonical primary/secondary targets without repeating schema/scope checks
-and supplies BudgetController. M1-T08 still owns completed-action semantics; its
-permitting fakes exist only in tests. No production permitting stub exists.
+and supplies BudgetController. M1-T08 supplies ActionDeduplicator, reading existing
+state history and explicitly bounded failed-retry limits. Permitting fakes remain
+test-only; no production permitting stub exists.
 
 Future dispatch must revalidate the original request against current scope, registry,
 parameters, risk and eligibility; atomically reserve budgets and enforce deduplication.
@@ -273,5 +274,16 @@ normalized evidence/observations. Policy references and execution IDs are histor
 caller-supplied facts, never runner instructions or replay authorization. State does
 not resolve adapters, approve via planner text, acquire budgets, build commands or
 invoke execution. Future dispatch still revalidates policy/reserves resources before
-contact and later records outcomes atomically. No action equivalence/dedup/retry
-implementation is added. See [state contract](state-transitions.md).
+contact and later records outcomes atomically. M1-T08 adds action equivalence and
+bounded failed-retry eligibility with atomic REQUESTED admission; no dispatch is
+added. See [state contract](state-transitions.md).
+
+## Action deduplication (M1-T08)
+
+ActionCanonicalizer reuses available registered input_schema and declared target
+semantics with policy's shared scope/schema validation. Validated defaults/nested
+fields define identity, including fields excluded from serialization. No parameters
+become flags. ActionDeduplicator implements the existing ActionEligibility seam
+without adapter resolution, approval, resource consumption or execution. The same
+state owner atomically admits new/retry requests.
+See [canonical identity, lifecycle rules and policy self-entry handling](action-deduplication.md).

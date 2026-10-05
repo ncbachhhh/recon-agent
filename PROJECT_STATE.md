@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 / controlled in-memory recon state validated
+Project phase: M1 complete / M2 prerequisite gate ready; no adapters started
 
 Completed:
 
@@ -17,12 +17,13 @@ Completed:
 - M1-T05 — Action policy validator (DONE)
 - M1-T06 — Execution budgets and rate limiting (DONE)
 - M1-T07 — ReconState state machine (DONE)
+- M1-T08 — Action deduplication (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M1-T08 — Action deduplication (READY; not started)
+- M2-T01 — DNS resolver capability (READY; not started)
 
 ## Implementation reality
 
@@ -94,8 +95,9 @@ from dumps/repr, never a reusable permission token. Unknown, unavailable, malfor
 unsupported, disallowed and schema-invalid requests reject with existing canonical
 codes. Planner reason/priority/analysis and discovery confer no authority. Explicit
 missing budget/completed-action eligibility services default deny; completed-action
-permitting services exist only in tests. M1-T06 now supplies budget checks/reservations;
-no dedup logic, execution, network/DNS, Groq, dynamic loading or audit producer. Future dispatch must revalidate current facts,
+permitting stubs exist only in tests. M1-T06 supplies budget checks/reservations;
+M1-T08 now supplies the real dedup eligibility service; no execution, network/DNS,
+Groq, dynamic loading or audit producer. Future dispatch must revalidate current facts,
 reserve resources atomically and constrain/recheck actual contact. See tool-contracts
 and ADR 0004. Existing configuration loader, domain wire fields, errors/results,
 runner, CLI, dependencies and future runtime subsystems are unchanged.
@@ -138,16 +140,44 @@ M1-T06 enforcement ownership; BudgetController arithmetic and permit logic are u
 Detached input/output copies prevent nested JSON edits from corrupting owned state.
 Supplied initial state and Python/JSON dumps validate the same rules. Approval references
 are trusted caller history, never dispatch tokens; future dispatch revalidates current
-policy and reserves resources. See state-transitions.md and ADR 0006. No semantic action
-equivalence, retry eligibility or session startup/stop/resume is implemented here.
+policy and reserves resources. See state-transitions.md and ADR 0006. M1-T08 adds
+semantic action equivalence/retry eligibility in policy and a pure atomic admission
+seam in this owner. Session startup/stop/resume remains future work.
+
+M1-T08 adds domain/ActionIdentity, ActionDedupDecision and DedupReason plus
+policy/ActionCanonicalizer, ActionDedupConfig and ActionDeduplicator. Full versioned
+canonical JSON represents capability, existing scope-normalized target kind/value
+and actual validated registered-schema fields/defaults. Planner reason/priority/
+IDs/times are excluded; sorted nested object keys, preserved arrays/scalar types
+and declared secondary target normalization prevent cosmetic evasion. Non-JSON/
+nonfinite values and uncanonicalizable same-capability history fail closed.
+
+Read-only typed lookup and the existing policy seam derive all eligibility from
+ReconState, without a second history/cache/retry counter. Requested/approved/started/
+completed equivalents deny; partial/rejected/cancelled/timeout equivalents deny.
+Trusted explicit max_failed_retries defaults to zero: only all-failed history with
+all errors explicitly retryable may retry, within one initial attempt plus N retries.
+Retries need new action IDs; own pending policy revalidation excludes only unchanged
+requested/approved semantics, never started/terminal IDs. There is no force rerun.
+
+Atomic record_request consults history inside the existing ReconStateMachine lock
+via a trusted pure detached-data admission callback, validates the check result and
+records REQUESTED only. Failed admission leaves state unchanged. Dedup grants no
+authorization, consumes no budgets and executes nothing. The policy validator shares
+existing scope/schema normalization; no raw parameters become argv. See
+[action identity/retry contract](docs/action-deduplication.md) and ADR 0007.
+Runner, registry, scope, configuration, budget enforcement, shared errors/results,
+planner wire models, CLI/dependencies and future subsystem code are unchanged.
 
 Audit events describe autonomous recon operations and confer no authorization. Event
 producers, generic Action/ToolExecution/Finding entities, scanners, Groq/provider/planner
-runtime, deduplication/automatic retries, autonomous loop, persistence and operational
+runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M1-T08 is READY; remaining 78 tasks are NOT STARTED.
+Only M2-T01 is READY; remaining 77 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0007 selects versioned full semantic JSON identity, existing state history, atomic admission and explicit default-zero bounded failed retries; eligibility never authorizes or executes.
 
 - ADR 0006 selects validated frozen state snapshots, defensive ownership, atomic local transitions, explicit history/times and read-only budget recording; policy/resources/execution remain independent.
 
@@ -165,26 +195,31 @@ Only M1-T08 is READY; remaining 78 tasks are NOT STARTED.
 
 ## Validation
 
-M1-T07: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
-Editable installation and pip check passed. Focused state/domain/error/budget tests:
-480 passed (161 state cases). Full, coverage and network/DNS-blocked suites: each
-1,408 passed. Ruff lint/format (83 files), strict Mypy (37 production modules),
-sdist/wheel build, editable/fresh-wheel inert CLI, guarded installed-wheel cold
-imports and state/policy/budget checks, artifact/secret/source/dependency inspections
-and Git whitespace checks passed. Coverage 99% overall (1,622 statements / 456
-branches), with state owner/lifecycle/snapshot/session modules and budget/policy at
-100%; only existing scope.py:121 unsupported-kind line/branch remains uncovered.
+M1-T08: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
+Editable development install and pip check passed. Focused dedup/policy/state tests:
+368 passed, including 104 new dedup cases. Full, coverage and network/DNS-blocked
+suites: each 1,512 passed. Ruff lint/format (88 files), strict Mypy (39 production
+modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI, guarded
+installed-wheel cold imports and identity/dedup/retry/policy/state/budget composition,
+artifact/secret/source/dependency inspection and Git whitespace checks passed.
+Coverage: 99% overall (1,794 statements / 522 branches); identity/state/action-policy/
+budget modules 100%; dedup 99% (defensive domain-kind guard not exercised through
+ScopeValidator's concrete action classification). Existing scope unsupported-kind
+line/branch also remains uncovered. No coverage setting or acceptance gate changed.
 
-Static checks confirm unchanged ActionRequest/PlannerDecision definitions, unchanged
-budget enforcement AST, protected configuration/registry/runner/error-result-audit
-boundaries (except the documented minimal state-error extension), no future subsystem
-implementation and Pydantic-only runtime dependencies. State/domain contains no
-process/network/DNS/provider calls, operational imports, implicit clocks/environment
-or action equivalence logic. No scanner is invoked. Offline suite permits AF_UNIX
-event-loop self-pipes for existing local runner/fake cancellation checks; parent
-guards do not sandbox children, whose harmless interpreter scripts contain no
-networking. Fresh-wheel cold imports prohibit process/contact/database/thread/logging/
-filesystem startup, permitting dependency metadata reads. Package-index access is
-limited to install/build provisioning. See TASK_HISTORY for acceptance/evidence.
+Static/runtime checks prove canonical semantics exclude planner metadata and have
+no network/DNS/scanner/Groq/process/shell/dynamic import invocation. Protected runner,
+registry, scope, configuration, shared errors/results/audit, planner wire definitions,
+ReconState schema and budget enforcement remain byte-identical. No future subsystem
+implementation is present. Dedup does not approve or reserve resources; atomic
+admission records only intent. Error/retry/terminal histories remain intact.
+
+The full offline guard permits AF_UNIX event-loop self-pipes for existing harmless
+runner/fake async cancellation tests; it does not sandbox child interpreters, whose
+existing scripts contain no networking. Fresh-wheel cold imports prohibit contact/
+process/database/thread/logging/filesystem startup, allowing dependency metadata
+reads. Package-index access is limited to install/build provisioning. Default product
+validation requires no provider credentials, binaries or live targets. See TASK_HISTORY
+for acceptance, development corrections and actual executed evidence.
 
 Known blockers: None.

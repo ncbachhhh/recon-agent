@@ -15,9 +15,17 @@ from recon_agent.policy.budgets import (
     ExecutionBudget,
     ReservationOutcome,
 )
+from recon_agent.policy.dedup import (
+    ActionCanonicalizer,
+    ActionDedupConfig,
+    ActionDeduplicator,
+)
 from recon_agent.policy.scope import ScopeMatch, ScopeValidator
 
 __all__ = [
+    "ActionCanonicalizer",
+    "ActionDedupConfig",
+    "ActionDeduplicator",
     "ActionEligibility",
     "ActionPolicyConfig",
     "ActionPolicyValidator",

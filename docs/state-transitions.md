@@ -62,7 +62,7 @@ Cancellation may occur before or during work. Completed/partial/failed/timeout r
 started. Partial remains a distinct terminal outcome and retains its limitation;
 it is not silently completed. Repeating the same terminal transition rejects rather
 than pretending idempotent success. A later retry needs a distinct caller-assigned
-action ID; retry/equivalence eligibility remains M1-T08, with no implementation here.
+action ID; M1-T08 policy supplies explicit retry/equivalence eligibility.
 
 Requested has no policy/execution/result metadata. Approved requires only a policy
 reference; started requires only an execution ID; terminal requires only a result ID.
@@ -84,8 +84,9 @@ resources and constrain actual contact. A planner has no state mutation tool.
 
 IDs must be unique within each entity collection. This protects lineage identity,
 not semantic equivalence: distinct IDs may contain identical target/parameter/fact
-content. No canonicalization, completed/in-flight equivalence, action deduplication,
-retry counter or sophisticated observation deduplication is implemented.
+content. M1-T08 supplies canonical action equivalence and retry eligibility in
+policy, derived from this history. No separate retry counter or sophisticated
+observation deduplication is implemented.
 
 Subject observation references must exist and belong to the same asset. Hosts require
 known assets; service host ownership and optional endpoint service ownership must
@@ -137,3 +138,19 @@ network, execution, persistence, reporting, planning or autonomous loop activity
 
 See [data model](data-model.md), [budget ownership](execution-budgets.md),
 [security model](security-model.md), and [ADR 0006](decisions/0006-controlled-recon-state.md).
+
+## Atomic semantic request admission (M1-T08)
+
+ReconStateMachine.record_action_requested optionally accepts a trusted pure
+eligibility(request, state) callback inside its existing commit lock. Both arguments
+are detached; callbacks must not reenter the owner. Existing OperationResult[None]
+is validated; Failure aborts without mutation, and malformed results retain the
+canonical state-transition failure. Low-level recording remains available to
+preserve trusted raw rejection history without pretending semantic approval.
+
+ActionDeduplicator.record_request supplies the check and performs atomic equivalence
+lookup plus REQUESTED recording. No second state owner/cache/retry counter is added.
+Policy checks may exclude only their own unchanged requested/approved entry; all
+competing matches and all started/terminal IDs still deny. Lookup is read-only,
+retry limits derive from existing failure history, and budgets/authorization stay
+independent. See [identity and retry rules](action-deduplication.md).

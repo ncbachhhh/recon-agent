@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from threading import Lock
 
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from recon_agent.core.errors import StateTransitionError
 from recon_agent.core.results import Failure, OperationResult, Success
@@ -51,13 +51,16 @@ class ReconStateMachine:
 
     def _commit(
         self,
-        update: Callable[[ReconState], dict[str, object]],
+        update: Callable[[ReconState], dict[str, object] | Failure],
     ) -> OperationResult[ReconState]:
         with self._lock:
             try:
                 current = self._owned.value
+                changes = update(current)
+                if isinstance(changes, Failure):
+                    return changes
                 candidate = ReconState.model_validate(
-                    {**current.model_dump(), **update(current)}
+                    {**current.model_dump(), **changes}
                 )
                 owned = candidate.model_copy(deep=True)
                 result = Success[ReconState](value=candidate.model_copy(deep=True))
@@ -141,9 +144,27 @@ class ReconStateMachine:
         request: ActionRequest,
         *,
         recorded_at: datetime,
+        eligibility: Callable[[ActionRequest, ReconState], OperationResult[None]]
+        | None = None,
     ) -> OperationResult[ReconState]:
-        def update(current: ReconState) -> dict[str, object]:
+        """Record intent; optional trusted pure admission check runs under the lock.
+
+        The check receives detached data and must not reenter this owner. This
+        seam performs no authorization, resource reservation or execution.
+        """
+
+        def update(current: ReconState) -> dict[str, object] | Failure:
             validated = ActionRequest.model_validate(request)
+            if eligibility is not None:
+                outcome: OperationResult[None] = TypeAdapter(
+                    OperationResult[None]
+                ).validate_python(
+                    eligibility(
+                        validated.model_copy(deep=True), current.model_copy(deep=True)
+                    )
+                )
+                if isinstance(outcome, Failure):
+                    return outcome
             lifecycle = ActionLifecycle(
                 action_id=validated.id,
                 transitions=(

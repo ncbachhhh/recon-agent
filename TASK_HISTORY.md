@@ -993,3 +993,127 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(state): add controlled recon state transitions$"`.
 Final handoff reports its actual hash and verified clean tree. No amendment, second
 task commit, history rewrite or push.
+
+
+## 2026-10-05 — M1-T08 — Action deduplication
+
+Status: DONE. M1-T08 alone progressed READY → IN PROGRESS → DONE; M2-T01 alone
+becomes READY and remains unstarted. Dependencies/predecessors were DONE.
+Starting HEAD: f6ba31a18c85bf64d80806c92a4aa52c792cfcb0; clean working tree/index,
+no active task/blocker. Startup followed AGENTS/maintenance skill and inspected
+state/roadmap, subsystem docs/ADRs/history, Git and current contracts/source/tests.
+Repository evidence matched the expected prerequisite state. No unrelated work existed.
+
+### Objective, changes and decisions
+
+Prevent unnecessary equivalent planner work through deterministic semantic identity,
+existing authoritative history, explicit bounded failed retries and policy/state seams.
+
+- Domain ActionIdentity encodes version action-v1, finite capability, canonical target
+  kind/value and full sorted compact parameter JSON. Its key uses an unambiguous full
+  JSON envelope, no digest collisions or delimiter/stringification tricks. New pure
+  ActionDedupDecision/DedupReason provide typed normal outcomes inside existing
+  Success/Failure; planner fields, IDs, timestamps and lineage metadata are excluded.
+- ActionCanonicalizer shares strict registered-schema and primary/secondary scope
+  validation with ActionPolicyValidator; no allowlist/approval/budget/adapter execution
+  occurs. Actual validated defaults/nested fields are included even when serialized
+  dumps exclude them. Object order collapses; ordered arrays and JSON scalar types,
+  non-target text and execution-relevant changes stay distinct. Unsupported non-JSON,
+  non-string keys and nonfinite values deny. Existing target case/dot/IP/CIDR/authority
+  aliases collapse; URL resources and authorization semantics are unchanged, without DNS.
+- ActionDeduplicator reads only existing ReconState request/lifecycle/result history;
+  there is no second history, cache or retry counter. Requested/approved/started and
+  completed equivalence denies. Rejected/partial/cancelled/timeout equivalence denies.
+  Explicit trusted frozen ActionDedupConfig defaults max_failed_retries to zero.
+  Only all-failed equivalents with every recorded ErrorInfo.retryable true may retry,
+  at most one initial attempt plus N configured retries. New service instances/IDs/
+  prose cannot reset that count. All failures and evidence distinctions remain intact.
+- Read-only inspect returns canonical identity, sorted matching IDs, failed count,
+  typed reason and computed duplicate/eligible. Retry eligibility remains equivalent
+  work, not success or authorization. Historical same-capability requests that cannot
+  canonicalize under fixed trusted contracts fail closed with fixed safe errors.
+- Atomic record_request adds a pure eligibility callback to the existing state owner's
+  request recording lock. Detached callback data and validated OperationResult[None]
+  preserve ownership/rollback. Concurrent equivalent new/retry submissions admit one
+  REQUESTED record, with no approval/execution/resources. Low-level raw state recording
+  remains available for trusted rejection histories; state imports no operational policy.
+- Existing completed_action_eligibility seam uses the real checker. Policy revalidation
+  excludes only its own semantically unchanged requested/approved entry. Competing
+  equivalents, changed same-ID semantics and all started/terminal IDs deny. Retry
+  requests need new IDs and full current policy; actual future execution pays a new
+  budget reservation. Dedup uses existing planner_validation_failed for policy denial;
+  no error/result hierarchy or authorization token is introduced.
+- ADR 0007 and the M1-T08 PLAN retry contract document the explicit conservative
+  assignment where prior docs had no retry configuration. Broader recovery classes,
+  timeout/partial/rejection reconsideration and automatic retries remain later work.
+  No force-rerun/TTL/reset/remote-defined semantics, session startup or loop is added.
+
+Files: new domain/identity.py, policy/dedup.py, tests/unit/policy/test_dedup.py (104
+cases), docs/action-deduplication.md and ADR 0007; minimal shared policy input helper,
+state admission and domain/policy exports; deliberate domain public API regression;
+architecture/data/security/state/tool/planner/testing docs, README/changelog/task records.
+Runner, registry/adapters, scope semantics, configuration/loader, budget enforcement,
+shared errors/results/audit/logging, ActionRequest/PlannerDecision/ReconState schemas,
+CLI/dependencies and all future subsystem source remain byte-identical to starting HEAD.
+No M2-T01 or later implementation, new follow-up task, generated artifact or secret.
+
+### Executed final validation
+
+Repository .venv unless noted: Python 3.14.6 / Pydantic 2.13.5. Python 3.12 was not
+executed; no broader runtime claim is made.
+
+| Check | Actual command/result |
+| --- | --- |
+| Environment | `python --version` and `.venv/bin/python --version`: 3.14.6; `python -m pip install -e '.[dev]'` through .venv and pip check passed |
+| Focused | `pytest tests/unit/policy/test_dedup.py tests/unit/policy/test_action_policy.py tests/unit/test_state.py -q`: 368 passed, including 104 new dedup cases |
+| Full | `pytest -q`: 1,512 passed |
+| Coverage | `coverage run -m pytest -q`: 1,512 passed; `coverage report`: 99%, 1,794 statements / 522 branches; identity/state/action-policy/budget 100%, dedup 99% |
+| Network/DNS blocked | `/tmp/recon-m1t08-validation/offline.py`: 1,512 passed; Groq key absent, Internet/loopback contact and DNS blocked before collection; guard self-checks passed |
+| Lint/format/types | `ruff check .`, `ruff format --check .`: passed (88 files); `mypy src/recon_agent`: strict pass, 39 production modules; no suppressions/settings weakened |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; editable and external fresh-wheel recon-agent print unchanged inert status and exit 0 |
+| Fresh wheel | New external `/tmp/recon-m1t08-validation/wheel-venv`, wheel install/pip check passed; isolated `python -I -B wheel_checks.py` from outside checkout verified guarded cold imports, installed module origins, canonical identity/dedup/failed retry and real policy/budget/state composition without runtime side effects |
+| Security/artifacts | Temporary artifact_checks.py: operational import/call AST, planner-field exclusion, protected source/contract byte parity, absence of future implementations, Pydantic-only runtime dependency, artifact/secret scans, wheel/sdist source/README/metadata parity passed |
+| Final reconciliation/Git | Task-owned working/index diff and whitespace review; exact authorized readiness/prerequisite gates, appended history and local Markdown link/fence checks before one focused commit |
+
+Coverage's only uncovered new line/branch is dedup.py's defensive rejection of a
+domain-kind action target, unreachable through current concrete ScopeValidator
+classification; existing scope.py unsupported-kind guard also remains uncovered.
+No coverage gate was weakened. Focused runtime guards forbid sockets/DNS/subprocess/
+runner/adapter resolution/dynamic imports/logging. Full offline guards permit AF_UNIX
+loop self-pipes only; they do not sandbox existing harmless local interpreter children,
+whose scripts were statically checked to contain no networking. Fresh-wheel imports
+prohibit process/contact/database/thread/logging/filesystem startup, permitting
+read-only dependency metadata. Installation/build provisioning may access indexes.
+
+Development runs exposed four malformed-admission error-code expectations and the
+existing deliberate domain-export assertion. Service admission now revalidates
+malformed intent with the existing planner boundary before entering the state owner;
+its own state boundary/rollback remains unchanged. The export assertion includes the
+three new intended public contracts. Review also prevented reuse of terminal IDs
+under a configured failed retry. Final focused/full/coverage/offline/lint/type/build/
+wheel/security checks passed after corrections; no unresolved validation failure.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Equivalent authorized requests collapse despite representation/order | Shared strict policy input validation, canonical primary/secondary/default targets, cosmetic planner loop regression and nested/key-order/serialization tests |
+| Distinct meaningful parameters remain distinct | JSON type/array/non-target text preservation; capability/target/count/secondary/options distinctions; hidden/default/nested schema tests |
+| Completed/in-flight duplicates deny dispatch | Lifecycle table, policy denial with runtime guards, own pending revalidation/changed semantics/terminal replay tests; atomic new/retry contenders admit one request |
+| Failed actions retry only within configured limits | Default-zero/strict explicit config, every lifecycle/error flag table, one initial plus N failure accounting, service reconstruction and shared-owner concurrent retry tests |
+| No alternate target spelling policy bypass | Existing ScopeValidator only, accepted aliases dedup, malformed/outside primary/secondary failures and preserved URL distinctions; no DNS or scope widening |
+
+Dedup does not authorize, consume resources or execute; real policy/budget isolation
+and runtime/static guards prove those boundaries. All required validation passed.
+M0-T01–M0-T06 and M1-T01–M1-T08 DONE: M0 and M1 complete. M2-T01 alone READY and
+unstarted; remaining 77 tasks NOT STARTED. No active task/blocker. Stop after M1-T08.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(state): add deterministic action deduplication`; resolve with
+`git log -1 --format=%H --grep="^feat(state): add deterministic action deduplication$"`.
+Final handoff reports the actual hash and clean tree. No amendment, second task
+commit, history rewrite or push.
+
+Closeout crossed the local date boundary: work started 2026-10-05 and the final
+reconciliation/commit handoff occurred 2026-10-06 (Asia/Ho_Chi_Minh). The entry's
+2026-10-05 heading records the start date; no prior history entry is rewritten.

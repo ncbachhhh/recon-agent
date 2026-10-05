@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -23,9 +23,9 @@ semantics deny, explicit () means no secondary network inputs. validate_value is
 ScopeValidator text-classification entry point reusing its existing parser/matcher.
 Planner metadata never authorizes; registry facts and scope matches are insufficient
 alone. Missing budget/completed-action check interfaces default deny. M1-T06 now
-supplies the budget controller; completed-action semantics remain M1-T08 with
-permitting fakes only in tests. No dedup identity, dispatch, provider, network or
-audit producer is implemented. Approval is current local eligibility,
+supplies the budget controller; M1-T08 supplies ActionDeduplicator through the
+existing eligibility seam. No dispatch, provider, network or audit producer is
+implemented. Approval is current local eligibility,
 never a replay token: future dispatch revalidates and reserves atomically. See
 [policy contract](tool-contracts.md#action-policy-contract-m1-t05) and
 [ADR 0004](decisions/0004-action-eligibility-boundary.md).
@@ -139,5 +139,18 @@ recommendations; ActionPolicyValidator authorizes; BudgetController enforces res
 ExecutionRunner executes processes. BudgetState/ReservationOutcome pure data move to
 domain with preserved policy exports and timestamped BudgetSnapshot recording. No
 budget arithmetic or live controller enters the state owner. ReconSession's status
-fields remain structural; startup/stop/resume are future orchestration. Semantic action
-deduplication/retry eligibility remains M1-T08. See [state contract](state-transitions.md).
+fields remain structural; startup/stop/resume are future orchestration. M1-T08 adds
+semantic action deduplication/retry eligibility in policy with an atomic admission
+seam in this owner. See [state contract](state-transitions.md).
+
+## Semantic action eligibility (M1-T08)
+
+Action identity = execution-relevant semantic identity. Planner explanation !=
+action identity. ActionCanonicalizer shares registered strict schema/scope input
+validation with ActionPolicyValidator. ActionDeduplicator reads existing state and
+returns typed decisions, with default-zero explicit failed retries. Atomic
+record_request admission uses the state owner's lock and detached pure callback,
+without a second ledger or authorization/resource/execution side effects.
+Future dispatch still requires current policy, lifecycle and charged reservations.
+See [identity/retry contract](action-deduplication.md) and
+[ADR 0007](decisions/0007-action-identity-and-retries.md).

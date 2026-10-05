@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -206,8 +206,8 @@ No production dispatcher exists and the runner is unchanged.
 PLAN's budget/completed-action seams are restrictive local interfaces: missing
 budget eligibility returns budget_exhausted; missing completed-action eligibility
 returns planner_validation_failed. Only offline tests inject completed-action
-permitting fakes. M1-T06 implements budgets/rates/reservations; deduplication remains
-M1-T08. Validation
+permitting fakes. M1-T06 implements budgets/rates/reservations; M1-T08 supplies the
+real ActionDeduplicator eligibility service. Validation
 performs no network, DNS, subprocess, dynamic loading, adapter/runner execution,
 provider calls or audit/log emission. No tool.execution_started event is emitted.
 Trusted schema/check implementations must be pure local code; application code is
@@ -250,6 +250,24 @@ configured limits, consumption or execution. State stores caller-supplied policy
 references and execution history without performing or authenticating authorization;
 future dispatch must still revalidate current policy and reserve resources. Snapshot
 serialization grants no replay permission. Read-only budget records cannot update
-BudgetController. Only ID/reference integrity is implemented, not semantic action
-deduplication. No scanner/network/DNS/process/provider/dynamic import or logging
+BudgetController. State owns ID/reference integrity; M1-T08 policy adds semantic
+action deduplication through a controlled atomic request admission seam. No scanner/
+network/DNS/process/provider/dynamic import or logging
 side effects exist. See [ownership and trust limits](state-transitions.md).
+
+## Semantic duplicate boundary (M1-T08)
+
+Planner explanation != action identity. Trusted registry schemas and centralized
+scope semantics define capability/target/parameter identity; remote evidence cannot
+change them. Reason/priority/IDs, key ordering and already accepted target aliases
+cannot evade equivalence. Unknown/malformed/unavailable/outside actions fail closed.
+Completed/in-flight equivalents deny; explicit failed retries default to zero and
+require retryable errors plus a bounded trusted limit. Rejected/partial/cancelled/
+timeout equivalents deny. A new action ID alone cannot reset history.
+
+Atomic request admission consults history under the existing state lock, admitting
+one simultaneous equivalent request; lookup alone makes no claim. Eligibility
+cannot authorize, reserve resources or execute. Own pending policy revalidation
+requires matching semantic data; terminal IDs cannot replay. Current policy and
+charged resources remain independent future dispatch obligations.
+See [complete dedup/retry/trust contract](action-deduplication.md).

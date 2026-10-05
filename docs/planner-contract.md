@@ -85,7 +85,8 @@ Only Success[ApprovedAction] may proceed toward future dispatch, which must reva
 current policy and enforce budget reservations/deduplication/contact constraints.
 Scope matches, registry catalog entries and old approvals are never dispatch tokens.
 Missing budget/completed-action services reject; M1-T06 now supplies explicit budget
-checks/reservations, while completed-action semantics remain M1-T08. No planner/Groq
+checks/reservations, and M1-T08 supplies semantic deduplication and bounded
+failed-retry eligibility. No planner/Groq
 runtime, scanner, dispatch or logging producer is added. See [concrete contract](tool-contracts.md#action-policy-contract-m1-t05).
 
 M1-T06 freezes resource limits in a trusted session-local controller. Planner-facing

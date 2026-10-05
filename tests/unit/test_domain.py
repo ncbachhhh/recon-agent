@@ -501,6 +501,9 @@ def test_domain_record_attributes_are_frozen(
 
 def test_domain_public_api_is_deliberate() -> None:
     assert set(domain.__all__) == set(MODEL_NAMES) | {
+        "ActionIdentity",
+        "ActionDedupDecision",
+        "DedupReason",
         "ActionLifecycle",
         "ActionPhase",
         "ActionTransition",

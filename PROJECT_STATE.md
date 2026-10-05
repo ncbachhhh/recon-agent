@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 / deterministic execution resource controls validated
+Project phase: M1 / controlled in-memory recon state validated
 
 Completed:
 
@@ -16,12 +16,13 @@ Completed:
 - M1-T04 — Capability and Tool Registry (DONE)
 - M1-T05 — Action policy validator (DONE)
 - M1-T06 — Execution budgets and rate limiting (DONE)
+- M1-T07 — ReconState state machine (DONE)
 
 Active task: None.
 
-Next READY:
+Next ready task:
 
-- M1-T07 — ReconState state machine (not started)
+- M1-T08 — Action deduplication (READY; not started)
 
 ## Implementation reality
 
@@ -29,9 +30,9 @@ The 92-task roadmap, governance, maintenance skill and design documentation exis
 
 `core/config/` implements strict seven-section settings, defaults < explicit TOML < namespaced environment < programmatic precedence, and separate excluded/redacted credentials. Configuration source/effective validation failures use ConfigurationError with fixed diagnostics and native cause chaining. Direct model construction raises Pydantic ValidationError. Loading preferences grants no authorization or runtime startup.
 
-`domain/` exports 13 pure typed data contracts with explicit opaque IDs, aware UTC timestamps, structural validation, evidence provenance and portable serialization. Targets/scopes are declarations; planner decisions/action requests are unapproved data. ActionResult uses shared ErrorInfo and validates consistent completed/partial/rejected/failed/cancelled/timeout outcomes. Frozen records and mutable state/session containers have no operational transition APIs. Domain depends on pure shared errors, never logging/configuration/operational layers.
+`domain/` retains the original 13 pure typed data contracts and adds lifecycle/state/budget snapshot contracts with explicit opaque IDs, aware UTC timestamps, structural validation, evidence provenance and portable serialization. Targets/scopes are declarations; planner decisions/action requests are unapproved data. ActionResult uses shared ErrorInfo and validates consistent completed/partial/rejected/failed/cancelled/timeout outcomes. ReconState is a frozen tuple-based snapshot with whole-state validation; ReconStateMachine owns explicit atomic transitions and detached copies. ReconSession remains structural mutable composition. Domain depends on pure shared errors/results, never logging/configuration/operational layers.
 
-`core/errors.py` supplies stable codes, category catch boundaries and concrete configuration/policy/tool/parser/provider/planner/budget/cancellation exceptions, with bounded allowlisted scalar context and explicit conservative retryability. ErrorInfo omits native causes/tracebacks/credentials. `core/results.py` provides typed Success[T]/Failure and the status-discriminated OperationResult[T] union; ActionResult retains its action/evidence role. Caller-authored diagnostics require safe selection; chained causes remain explicit debugging data, not routine dumps.
+`core/errors.py` supplies stable codes, category catch boundaries and concrete configuration/policy/tool/parser/provider/planner/budget/cancellation/state exceptions, with bounded allowlisted scalar context and explicit conservative retryability. ErrorInfo omits native causes/tracebacks/credentials. `core/results.py` provides typed Success[T]/Failure and the status-discriminated OperationResult[T] union; ActionResult retains its action/evidence role. Caller-authored diagnostics require safe selection; chained causes remain explicit debugging data, not routine dumps.
 
 M0-T06 adds pure `core/audit.py` with 16 stable event types, explicit UTC time/session IDs and optional action/execution/decision/asset correlation. `core/redaction.py` copies and bounds diagnostic JSON, masks known sensitive keys/wrappers and accepts explicitly registered secret values. `core/diagnostics.py` explicitly configures only the project logger, replaces its owned console handler, supports escaped human/JSON output and emits revalidated records through recon_agent.audit. Existing LoggingConfig and ErrorInfo are reused. Native causes/stacks are omitted; malformed records produce fixed omission output and sink failures raise fixed ConfigurationError without raw-record fallback. Imports and data constructors do not configure logging. See docs/logging-and-audit.md for precise redaction and delivery limits.
 
@@ -99,8 +100,9 @@ reserve resources atomically and constrain/recheck actual contact. See tool-cont
 and ADR 0004. Existing configuration loader, domain wire fields, errors/results,
 runner, CLI, dependencies and future runtime subsystems are unchanged.
 
-M1-T06 adds policy/ExecutionBudget, BudgetState, BudgetController, BudgetPermit and
-ReservationOutcome. Strict execution settings add per-host counts, per-capability
+M1-T06 adds policy/ExecutionBudget, BudgetController and BudgetPermit, with shared
+BudgetState/ReservationOutcome contracts (now pure domain types, re-exported by policy).
+Strict execution settings add per-host counts, per-capability
 rolling rate windows and aggregate output allowances. Frozen explicit limits are
 separate from the local locked ledger and injected monotonic clock. Policy's budget
 seam consumes ApprovedAction with canonical primary/secondary ScopeMatches;
@@ -121,9 +123,33 @@ aggregate output envelope permits eight full allowances; budgets are independent
 upper limits rather than a promised action count. See execution-budgets.md and ADR
 0005. Policy authorization != budget availability; AI planner cannot raise limits.
 
-Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, scanners, Groq/provider/planner runtime, state transitions/deduplication/automatic retries, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T07 is READY; remaining 79 tasks are NOT STARTED.
+M1-T07 adds domain/ReconStateMachine, ActionLifecycle/ActionTransition/ActionPhase
+and BudgetSnapshot. One local owner validates and defensively copies complete frozen
+tuple snapshots before atomic commit. Requested/approved/started and existing
+terminal outcomes have explicit nonregressing UTC history; invalid transitions and
+terminal re-entry fail with canonical StateTransitionError/Failure without mutation.
+Related facts/results ingest atomically with reference, subject and execution lineage
+validation. Known unfinished/unsuccessful actions cannot support observations, directly
+or through evidence; partial/error/rejection histories retain their distinctions.
+
+PlannerDecision recording adds only recommendations, never action requests, approval,
+scope changes, consumption or execution. Read-only caller-sampled budget facts retain
+M1-T06 enforcement ownership; BudgetController arithmetic and permit logic are unchanged.
+Detached input/output copies prevent nested JSON edits from corrupting owned state.
+Supplied initial state and Python/JSON dumps validate the same rules. Approval references
+are trusted caller history, never dispatch tokens; future dispatch revalidates current
+policy and reserves resources. See state-transitions.md and ADR 0006. No semantic action
+equivalence, retry eligibility or session startup/stop/resume is implemented here.
+
+Audit events describe autonomous recon operations and confer no authorization. Event
+producers, generic Action/ToolExecution/Finding entities, scanners, Groq/provider/planner
+runtime, deduplication/automatic retries, autonomous loop, persistence and operational
+reports remain unimplemented. No chat transcript or private reasoning contract exists.
+Only M1-T08 is READY; remaining 78 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0006 selects validated frozen state snapshots, defensive ownership, atomic local transitions, explicit history/times and read-only budget recording; policy/resources/execution remain independent.
 
 - Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; local action policy checks eligibility and future adapters own executable construction.
 - ADR 0005 selects atomic local reservations, permanent attempt/output charges, rolling monotonic rates and synchronous concurrency ownership without runtime dispatch.
@@ -135,24 +161,30 @@ Audit events describe autonomous recon operations and confer no authorization. E
 - Explicit local standard-library logging leaves root/third-party handlers alone, performs no remote upload/file persistence and needs no new runtime dependency or ADR.
 - Bounded diagnostics exclude raw environment/output/native causes/commands. Registered secrets and key-labelled secret values are masked; arbitrary unregistered free-text secrets require producer discipline. Source evidence is never mutated.
 - Exceptions handle application boundaries; ErrorInfo is portable failure data; generic results support intentionally inspected outcomes. Retryability grants no authority.
-- ADR 0001's explicit TOML and separate-secret choice is unchanged. IDs/times, canonical identity and operational mutation remain separate concerns. Groq/SQLite remain planned; default tests are deterministic offline checks.
+- ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
 
-M1-T06: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
-Editable install/pip check passed. Focused budget/config/action-policy: 246 passed
-(78 new budget cases). Full, coverage and network/DNS-blocked suites: each 1,245
-passed. Ruff lint/format (77 files), strict Mypy (34 production modules), sdist/wheel
-build, editable/fresh-wheel inert CLI, guarded fresh-wheel cold imports/policy and
-real budget reservations/cleanup/exhaustion, pip check, static security/secret/
-artifact/source/README/dependency and Git whitespace checks passed. Coverage 99%
-overall (1,355 statements / 336 branches); budget and action policy 100%. Only the
-existing defensive scope unsupported-kind line/branch remains uncovered.
-Unit and installed guards prohibit budget/policy network/DNS/process/runner/adapter
-resolution/dynamic import/log startup. No scanner/provider call exists. Offline
-suite permits AF_UNIX event-loop self-pipes for local fake cancellation/runner tests;
-parent guards do not sandbox children, whose harmless local interpreter scripts
-were reviewed for no networking. Package-index access is limited to install/build
-provisioning. See TASK_HISTORY for acceptance/evidence.
+M1-T07: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
+Editable installation and pip check passed. Focused state/domain/error/budget tests:
+480 passed (161 state cases). Full, coverage and network/DNS-blocked suites: each
+1,408 passed. Ruff lint/format (83 files), strict Mypy (37 production modules),
+sdist/wheel build, editable/fresh-wheel inert CLI, guarded installed-wheel cold
+imports and state/policy/budget checks, artifact/secret/source/dependency inspections
+and Git whitespace checks passed. Coverage 99% overall (1,622 statements / 456
+branches), with state owner/lifecycle/snapshot/session modules and budget/policy at
+100%; only existing scope.py:121 unsupported-kind line/branch remains uncovered.
+
+Static checks confirm unchanged ActionRequest/PlannerDecision definitions, unchanged
+budget enforcement AST, protected configuration/registry/runner/error-result-audit
+boundaries (except the documented minimal state-error extension), no future subsystem
+implementation and Pydantic-only runtime dependencies. State/domain contains no
+process/network/DNS/provider calls, operational imports, implicit clocks/environment
+or action equivalence logic. No scanner is invoked. Offline suite permits AF_UNIX
+event-loop self-pipes for existing local runner/fake cancellation checks; parent
+guards do not sandbox children, whose harmless interpreter scripts contain no
+networking. Fresh-wheel cold imports prohibit process/contact/database/thread/logging/
+filesystem startup, permitting dependency metadata reads. Package-index access is
+limited to install/build provisioning. See TASK_HISTORY for acceptance/evidence.
 
 Known blockers: None.

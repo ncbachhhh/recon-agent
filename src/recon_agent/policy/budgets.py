@@ -5,7 +5,6 @@ from __future__ import annotations
 from asyncio import CancelledError
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from enum import StrEnum
 from math import isfinite
 from threading import Lock
 from time import monotonic
@@ -21,6 +20,7 @@ from recon_agent.core.config.models import (
 )
 from recon_agent.core.errors import BudgetExhaustedError, ConfigurationError
 from recon_agent.core.results import Failure, OperationResult, Success
+from recon_agent.domain.budgets import BudgetState, ReservationOutcome
 from recon_agent.domain.capabilities import CapabilityId
 from recon_agent.policy.actions import ApprovedAction
 from recon_agent.tools import ToolRegistry
@@ -52,33 +52,6 @@ class ExecutionBudget(BaseModel):
         return cls.model_validate(
             {name: getattr(validated, name) for name in cls.model_fields}
         )
-
-
-class ReservationOutcome(StrEnum):
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
-    TIMEOUT = "timeout"
-    ABORTED = "aborted"
-
-
-@dataclass(frozen=True, slots=True)
-class BudgetState:
-    """Detached read-only accounting snapshot; never an input to the controller."""
-
-    permitted_actions: int
-    remaining_actions: int
-    active_executions: int
-    reserved_output_bytes: int
-    remaining_output_bytes: int
-    remaining_seconds: float
-    host_actions: tuple[tuple[str, int], ...]
-    capability_window_actions: tuple[tuple[CapabilityId, int], ...]
-    outcomes: tuple[tuple[ReservationOutcome, int], ...]
-
-    @property
-    def expired(self) -> bool:
-        return self.remaining_seconds == 0.0
 
 
 @dataclass(slots=True)

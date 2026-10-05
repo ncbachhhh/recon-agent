@@ -122,3 +122,14 @@ No capture buffer, output bytes, evidence store or retention engine is added her
 
 See [configuration](configuration.md), [execution model](execution-model.md),
 [security model](security-model.md) and [ADR 0005](decisions/0005-budget-reservations.md).
+
+
+## Recorded budget facts (M1-T07)
+
+BudgetState/ReservationOutcome now live in pure domain/budgets.py and remain
+re-exported by policy/budgets.py. The controller's checks, counting, rate/time
+arithmetic and permit ownership are unchanged. Strict frozen snapshot validation
+adds nonnegative finite structural checks; BudgetSnapshot records caller-supplied
+id/time plus those facts. ReconStateMachine can append snapshots and preserve
+BudgetExhaustedError rejection results, but cannot acquire/release/refund/reset
+resources or infer counters from action history. See [state contract](state-transitions.md).

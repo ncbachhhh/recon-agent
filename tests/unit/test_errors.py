@@ -26,6 +26,7 @@ from recon_agent.core.errors import (
     ProviderError,
     ReconAgentError,
     ScopeRejectedError,
+    StateTransitionError,
     ToolError,
     ToolExecutionError,
     ToolTimeoutError,
@@ -34,6 +35,7 @@ from recon_agent.core.errors import (
 from recon_agent.domain import ActionResult, Service
 
 CASES = [
+    (StateTransitionError, ReconAgentError, "state_transition_invalid", "state"),
     (ConfigurationError, ReconAgentError, "configuration_invalid", "configuration"),
     (ScopeRejectedError, PolicyError, "scope_rejected", "policy"),
     (BudgetExhaustedError, PolicyError, "budget_exhausted", "policy"),
@@ -356,4 +358,5 @@ def test_error_imports_conversion_and_serialization_have_no_runtime_side_effects
         "ProviderError",
         "PlannerValidationError",
         "CancelledError",
+        "StateTransitionError",
     }

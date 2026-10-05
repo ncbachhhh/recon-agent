@@ -1,10 +1,10 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
-Pure data models with no process, network, provider, CLI, or database dependencies. Implemented data contracts include Target, Scope, Asset, Host, Service, Endpoint, Observation, Evidence, ActionRequest, ActionResult, ReconSession, ReconState and PlannerDecision. Action, ToolExecution and Finding are explicitly staged for later owning tasks. Domain validation checks structure only; there is no scope/policy enforcement, state machine or execution behavior. Observations describe collected facts; findings interpret evidence; planner recommendations are neither facts nor executable instructions. See [data model](data-model.md).
+Pure data models with no process, network, provider, CLI, or database dependencies. Implemented data contracts include Target, Scope, Asset, Host, Service, Endpoint, Observation, Evidence, ActionRequest, ActionResult, ReconSession, ReconState and PlannerDecision. Action, ToolExecution and Finding are explicitly staged for later owning tasks. Individual records validate structure; M1-T07 adds whole-state lineage/lifecycle validation and a small local transition owner. Domain performs no scope/policy enforcement or execution. Observations describe collected facts; findings interpret evidence; planner recommendations are neither facts nor executable instructions. See [data model](data-model.md).
 
 `core/config/` now provides strict typed section models, an explicit TOML/environment/programmatic loader and separate redacted provider secrets. See [configuration](configuration.md) and [ADR 0001](decisions/0001-configuration-sources.md). Loading only constructs contracts: explicit consumers implement scope authorization and budgets; subsystem startup remains future work. `core/errors.py` and `core/results.py` implement pure structured failure and generic outcome contracts. Configuration loading uses the project ConfigurationError boundary; domain ActionResult uses shared ErrorInfo without importing configuration or operational layers. See [error/result contracts](error-model.md). `core/audit.py` provides pure event data; `core/redaction.py` bounds/sanitizes diagnostic copies; `core/diagnostics.py` explicitly configures project-local console logging and emits audit records. Domain models import no logging implementation. See [logging and audit](logging-and-audit.md).
 
@@ -124,3 +124,20 @@ limits. Future dispatch revalidates current policy, reserves atomically and owns
 actual traffic/time/output containment. No worker/orchestrator or M1-T07/M1-T08 work
 is added. See [budget contract](execution-budgets.md) and
 [ADR 0005](decisions/0005-budget-reservations.md).
+
+## Controlled session state (M1-T07)
+
+ReconStateMachine explicitly owns the authoritative in-memory ReconState. Frozen
+tuple snapshots, validated action history and detached copies prevent bypass through
+exposed collections/nested JSON. A local lock protects complete candidate validation
+and atomic commit; failure leaves prior state intact. Inputs supply identities/times.
+Planner records do not enqueue/approve actions or produce evidence. Atomic normalized
+fact/result ingestion preserves lineage and unsuccessful/partial outcome distinctions.
+
+Responsibilities stay separate: ReconState records state; PlannerDecision records
+recommendations; ActionPolicyValidator authorizes; BudgetController enforces resources;
+ExecutionRunner executes processes. BudgetState/ReservationOutcome pure data move to
+domain with preserved policy exports and timestamped BudgetSnapshot recording. No
+budget arithmetic or live controller enters the state owner. ReconSession's status
+fields remain structural; startup/stop/resume are future orchestration. Semantic action
+deduplication/retry eligibility remains M1-T08. See [state contract](state-transitions.md).

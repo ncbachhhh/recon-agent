@@ -17,6 +17,7 @@ Instantiate a concrete error with a short, sanitized message and optional typed
 | ConfigurationError | ReconAgentError | `configuration_invalid` | configuration: explicit loading/startup |
 | ScopeRejectedError | PolicyError | `scope_rejected` | policy: centralized authorization |
 | BudgetExhaustedError | PolicyError | `budget_exhausted` | policy: resource/action limits |
+| StateTransitionError | ReconAgentError | `state_transition_invalid` | state: invalid input/lifecycle/lineage |
 | ToolUnavailableError | ToolError | `tool_unavailable` | tool: environment/availability |
 | ToolTimeoutError | ToolError | `tool_timeout` | tool: execution deadline |
 | ToolExecutionError | ToolError | `tool_execution_failed` | tool: execution failure |
@@ -203,3 +204,15 @@ later admit a separately revalidated/reserved action, but no failure grants retr
 permission. Invalid controller limits/initial clock use ConfigurationError; direct
 model/config-snapshot validation uses ValidationError. No new code/context field or
 error hierarchy is introduced. See [budget contract](execution-budgets.md).
+
+## State transition failures (M1-T07)
+
+The single StateTransitionError extends ReconAgentError with code
+state_transition_invalid and category state. It reports malformed initial/transition
+state, invalid lifecycle, identity/reference conflicts or unsupported input. It is
+non-retryable and uses the existing ErrorInfo/Failure contract. Initial state errors
+raise it with a fixed message and native cause chaining; transition rejection returns
+Failure with fixed text and no raw state/input/cause. State failures cannot be
+relabelled as failed/partial tool outcomes in ActionResult. No parallel exception
+hierarchy, error context field or retry implementation is introduced.
+See [state contracts](state-transitions.md).

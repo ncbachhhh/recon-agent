@@ -494,7 +494,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T07`
 - **Title:** ReconState state machine
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M1-T06`, `M0-T04`
 
@@ -533,7 +533,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T08`
 - **Title:** Action deduplication
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P0
 - **Dependencies:** `M1-T07`
 

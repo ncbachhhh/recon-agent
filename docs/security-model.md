@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -40,7 +40,7 @@ M0-T03 rejects unknown keys and invalid effective types/limits in trusted config
 
 ## Implemented domain boundary
 
-M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data requires the M1-T05 capability-specific policy validator. Domain code imports only pure shared ErrorInfo primitives beyond domain/Pydantic types, never configuration or operational layers, and performs no I/O. It does not enforce scope, capability membership, budgets, lifecycle transitions or policy. See [data model](data-model.md) for the exact contracts and staged models.
+M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data requires the M1-T05 capability-specific policy validator. Domain code imports only pure shared error/result primitives beyond domain/Pydantic/standard-library types, never configuration or operational layers, and performs no I/O. Individual records do not enforce scope, capability membership, budgets or policy; M1-T07 adds controlled action lifecycle recording with whole-state validation. See [data model](data-model.md) for the exact contracts and staged models.
 
 ## Implemented error/result boundary
 
@@ -234,3 +234,22 @@ future callers own audit/history recording. A permit grants resources, never sco
 or execution authority. Future adapters must obey traffic/output/time envelopes;
 there is no scanner containment or running-work interrupt added here. See
 [precise contracts](execution-budgets.md) and [ADR 0005](decisions/0005-budget-reservations.md).
+
+## State integrity (M1-T07)
+
+The explicit ReconStateMachine owns one validated state, copying initial/committed/
+returned snapshots under a local lock. Invalid transitions, identity collisions,
+missing/conflicting provenance or terminal re-entry fail with canonical structured
+state_transition_invalid without partial mutation. No remote text changes policy.
+Failed/rejected/cancelled/timeout results cannot claim successful observations; known
+unfinished/unsuccessful execution evidence cannot indirectly support them either.
+Partial stays distinguishable from completed. Evidence remains untrusted data.
+
+PlannerDecision recording neither requests/approves actions nor changes scope,
+configured limits, consumption or execution. State stores caller-supplied policy
+references and execution history without performing or authenticating authorization;
+future dispatch must still revalidate current policy and reserve resources. Snapshot
+serialization grants no replay permission. Read-only budget records cannot update
+BudgetController. Only ID/reference integrity is implemented, not semantic action
+deduplication. No scanner/network/DNS/process/provider/dynamic import or logging
+side effects exist. See [ownership and trust limits](state-transitions.md).

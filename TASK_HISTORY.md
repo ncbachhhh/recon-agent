@@ -872,3 +872,124 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(policy): add execution budgets and rate limits$"`.
 Final handoff reports its actual hash and verified clean tree. No amendment, second
 task commit, history rewrite or push.
+
+
+## 2026-10-05 — M1-T07 — ReconState state machine
+
+Status: DONE. M1-T07 alone progressed READY → IN PROGRESS → DONE; M1-T08 alone
+becomes READY, unstarted. Dependencies M1-T06/M0-T04 and predecessors were DONE.
+Starting HEAD: 74e4f4c64671f3b6733364b070cd91571bacc2da; clean tree/index and no
+active task/blocker. Startup followed AGENTS/maintenance skill and reviewed the
+roadmap, subsystem docs/ADRs, history, current contracts/source/tests and Git evidence.
+The interrupted run's implementation survived; resumed closeout preserved it and
+reran required validation rather than reimplementing or starting M1-T08. The earlier
+reported 1,407 full/offline count precedes the final integration test; final actual
+full, coverage and network/DNS-blocked runs each contain 1,408 tests.
+
+### Objective, changes and decisions
+
+Own consistent authoritative in-memory state through explicit validated transitions,
+with evidence/action/planner/budget histories and no operational execution.
+
+- ReconState is a strict frozen tuple snapshot. ReconStateMachine owns one defensive
+  copy and a local lock. Each operation validates a complete candidate and prepares
+  detached committed/returned copies before atomic swap; failure leaves prior state
+  unchanged. Initial/serialized/model-copy inputs revalidate the same invariants.
+  Ordinary nested JSON in returned snapshots remains editable but cannot mutate the
+  owner. No hidden global state, generated IDs/times or environment dependency exists.
+- ActionLifecycle/ActionTransition/ActionPhase store explicit supplied UTC history:
+  requested → approved → started → existing terminal outcomes, with documented
+  rejection/cancellation branches. Partial remains distinct. Invalid/skipped/backward
+  edges, terminal repeats, malformed metadata/times, orphan results and conflicting
+  action/result/execution identities reject. One started action owns one execution
+  identity and terminal result; retries/equivalence remain M1-T08 and are not added.
+- Atomic related subject/observation/evidence ingestion validates known references,
+  subject ownership and provenance. Terminal ActionResult/facts/history commit together;
+  conflicting existing fact payloads reject. Failed/rejected/cancelled/timeout outcomes
+  cannot claim observations. Known unfinished/unsuccessful execution provenance also
+  cannot support observations indirectly through evidence. Unknown external provenance
+  stays opaque; no scanner parsing, finding generation, DNS or scope expansion occurs.
+- PlannerDecision recording adds a recommendation only, with input lineage. It cannot
+  enqueue, approve, execute, stop sessions, change scope or consume/raise budgets.
+  Explicit decision-linked requests must match supplied recommendations. Approval
+  references/execution IDs are caller-authored historical facts, never replay tokens;
+  future dispatch still validates policy and reserves resources independently.
+- Existing BudgetState/ReservationOutcome pure contracts move to domain and remain
+  re-exported from policy. Strict frozen structural validation and timestamped
+  BudgetSnapshot preserve caller-sampled facts. State records samples and canonical
+  budget rejection results; it does not call/reset/restore controllers or infer counts.
+  ExecutionBudget, BudgetController, BudgetPermit, _Usage and clock/denial enforcement
+  AST are identical to the preceding commit. M1-T06 retains all resource arithmetic.
+- Minimal canonical StateTransitionError extends ReconAgentError with one state code/
+  category, fixed safe transition messages and non-retryable Failure/ErrorInfo results.
+  Invalid initial state raises the same error with native cause chaining; state errors
+  cannot masquerade as failed/partial tool results. No parallel error hierarchy or
+  error-context/audit event field is added; domain produces no logs/audit side effects.
+- ADR 0006 documents ownership/atomicity/alias isolation, explicit history and pure
+  budget recording. Python legacy list snapshots now require tuple conversion and
+  explicit lifecycle records; no prior permission is inferred. Whole-state validation/
+  copying favors integrity over large-session performance. ReconSession remains
+  structural composition; session startup/stop/resume belongs to future orchestration.
+
+Files: new domain/state.py, lifecycle.py, budgets.py, tests/unit/test_state.py (161
+cases), docs/state-transitions.md and ADR 0006; updated domain session/action exports,
+minimal core errors, policy budget imports, domain/error regressions, architecture/
+data/security/error/budget/tool/audit/testing docs and README/changelog/task records.
+Registry, scope policy, runner/process bounds, configuration, shared result/audit/
+logging infrastructure, CLI, dependencies and future subsystem code are unchanged.
+ActionRequest/PlannerDecision definitions are unchanged; identity/reference checks
+are not semantic action deduplication. No scanner/provider/loop/persistence/reporting/
+real CLI work or future-task implementation is present. No artifacts/secrets staged.
+
+### Executed final validation
+
+Repository .venv unless noted: Python 3.14.6 / Pydantic 2.13.5. Python 3.12 was not
+executed; no broader runtime testing claim is made.
+
+| Check | Actual command/result |
+| --- | --- |
+| Environment | `python --version`: 3.14.6; editable development environment and `pip check`: passed |
+| Focused | `pytest tests/unit/test_state.py tests/unit/test_domain.py tests/unit/test_errors.py tests/unit/test_budgets.py -q`: 480 passed, including 161 state cases |
+| Full | `pytest -q`: 1,408 passed |
+| Coverage | `coverage run -m pytest -q`: 1,408 passed; `coverage report`: 99% overall, 1,622 statements / 456 branches. New state/lifecycle/budget-snapshot and session validation modules 100%; budget/action policy 100%; only existing scope.py:121 defensive unsupported-kind line/branch missing |
+| Network/DNS blocked | `/tmp/recon-m1t07-validation/offline.py`: 1,408 passed; key absent, Internet/loopback contact and DNS blocked before collection; contact/DNS guard self-checks passed |
+| Lint/format/types | `ruff check .`, `ruff format --check .`: passed (83 files); `mypy src/recon_agent`: strict pass, 37 source modules; no weakened settings/suppressions |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed after final README lifecycle reconciliation; editable and external installed-wheel `recon-agent`: unchanged inert message, exit 0 |
+| Fresh wheel | External `/tmp/recon-m1t07-validation/wheel-venv`; wheel install/pip check passed; final wheel reinstalled after rebuild. Isolated `python -I -B wheel_checks.py` from outside checkout: guarded cold imports/site-packages origins, registry/policy/budget and state lifecycle/rollback/serialization/alias checks passed |
+| Security/artifacts | Temporary artifact_checks.py: operational import/call AST checks, unchanged planner wire definitions and budget enforcement AST, protected source parity, scanner/future implementation absence, Pydantic-only dependency, secret/generated-artifact scans and wheel/sdist source/README/metadata parity passed |
+| Reconciliation/Git | Final working/index diffs, whitespace, exact authorized PLAN transitions/prerequisite gates, append-only history, local Markdown links/fences and task-owned paths inspected before the one focused commit |
+
+Focused guards prohibit socket/DNS/subprocess/runner/adapter resolution/dynamic import/
+logging startup. Full offline guard permits AF_UNIX event-loop self-pipes for existing
+harmless local runner and fake async cancellation tests; it does not sandbox child
+interpreters, whose existing scripts were reviewed for no networking. Fresh-wheel
+cold-import guards prohibit process/contact/database/thread/logging/filesystem startup,
+allowing dependency metadata reads. Installation/build provisioning may access indexes;
+product checks require no scanner binaries, live targets or provider credentials.
+
+Development checks corrected strict tuple/enum budget JSON/Python round trips, typed
+validation annotations and test fixtures without weakening acceptance. Final results
+above supersede development failures; no unresolved failure or blocker remains.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Invalid transitions rejected | 81-edge lifecycle matrix, malformed initial/history/result cases, canonical structured failures and all-terminal re-entry protection |
+| Successful observations retain provenance | Atomic related fact/result ingestion; preserved source/time/artifact/execution/evidence payloads, reference and subject ownership tests |
+| Failed/rejected actions never become successful facts | Existing terminal result restrictions plus known unsuccessful/unfinished execution attribution denial, including indirect evidence; failed-result history preserved without observations |
+| Assets/history/budgets update coherently | Whole candidate validation/rollback, nested alias isolation, simultaneous local commits, real policy/budget sampling and resource-denial integration with unchanged controller accounting |
+| Serialization preserves distinctions | Deterministic Python/JSON round trips for complete failed/partial/rejected histories, planner input lineage and nonempty budget buckets; explicit UTC inputs |
+
+All required focused/full/offline/lint/types/coverage/build/wheel/CLI/security/artifact/
+secret/Git checks passed. State never invokes execution/network/DNS/scanner/Groq or
+imports operational policy. Planner recording remains non-authoritative; no action
+semantic deduplication or budget reimplementation is present. No new follow-up task
+or blocker. M0-T01–M0-T06 and M1-T01–M1-T07 DONE; M1-T08 alone READY, unstarted;
+remaining 78 tasks NOT STARTED. No active task. Stop after M1-T07.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(state): add controlled recon state transitions`; resolve using
+`git log -1 --format=%H --grep="^feat(state): add controlled recon state transitions$"`.
+Final handoff reports its actual hash and verified clean tree. No amendment, second
+task commit, history rewrite or push.

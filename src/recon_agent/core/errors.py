@@ -13,6 +13,7 @@ class ErrorCategory(StrEnum):
     PROVIDER = "provider"
     PLANNER = "planner"
     CANCELLATION = "cancellation"
+    STATE = "state"
 
 
 class ScopeRejectionReason(StrEnum):
@@ -34,6 +35,7 @@ class ErrorCode(StrEnum):
     PLANNER_VALIDATION_FAILED = "planner_validation_failed"
     BUDGET_EXHAUSTED = "budget_exhausted"
     CANCELLED = "cancelled"
+    STATE_TRANSITION_INVALID = "state_transition_invalid"
 
     @property
     def category(self) -> ErrorCategory:
@@ -53,6 +55,8 @@ class ErrorCode(StrEnum):
             return ErrorCategory.PROVIDER
         if self is ErrorCode.PLANNER_VALIDATION_FAILED:
             return ErrorCategory.PLANNER
+        if self is ErrorCode.STATE_TRANSITION_INVALID:
+            return ErrorCategory.STATE
         return ErrorCategory.CANCELLATION
 
 
@@ -115,6 +119,7 @@ class ErrorInfo(_Contract):
             ErrorCategory.POLICY,
             ErrorCategory.PLANNER,
             ErrorCategory.CANCELLATION,
+            ErrorCategory.STATE,
         ):
             raise ValueError(
                 "rejection, invalid input or cancellation is not retryable"
@@ -226,6 +231,12 @@ class CancelledError(ReconAgentError):
     _code = ErrorCode.CANCELLED
 
 
+class StateTransitionError(ReconAgentError):
+    """Invalid state input, lineage or lifecycle; grants no retry/authorization."""
+
+    _code = ErrorCode.STATE_TRANSITION_INVALID
+
+
 __all__ = [
     "BudgetExhaustedError",
     "CancelledError",
@@ -241,6 +252,7 @@ __all__ = [
     "ReconAgentError",
     "ScopeRejectedError",
     "ScopeRejectionReason",
+    "StateTransitionError",
     "ToolError",
     "ToolExecutionError",
     "ToolTimeoutError",

@@ -178,3 +178,24 @@ Configuration tests cover strict invalid/new fields, loading/snapshots and plann
 metadata/field isolation. Fresh-wheel guarded imports/composition/reservations,
 artifact/secret/source inspection and inert CLI remain required. No claims about
 running-work cancellation or future internal scanner traffic follow from these tests.
+
+
+## Controlled state regressions (M1-T07)
+
+Run `.venv/bin/python -m pytest tests/unit/test_state.py tests/unit/test_domain.py tests/unit/test_errors.py tests/unit/test_budgets.py`, then all required
+full baseline/contact-DNS-blocked/build/wheel checks.
+Tests use caller-supplied UTC times, fake records and local synchronous contenders;
+no scanner/provider/runner work occurs. Guards prohibit socket/DNS/subprocess/runner,
+registry execution resolution, dynamic imports and logging startup. Fresh-wheel
+cold imports and state transitions also run with runtime startup/contact prohibited.
+
+The 81-edge lifecycle matrix covers allowed paths, every invalid edge and terminal
+re-entry with byte-identical rollback. Additional cases cover malformed/revalidated
+initial snapshots, exact history metadata and result/ID/time/execution correlation,
+atomic fact batches/failed-result preservation, missing/conflicting provenance,
+known unsuccessful execution observation denial, subject ownership, planner lineage
+without authorization, nested input/output alias isolation, simultaneous commits,
+nonempty budget bucket Python/JSON round trips and no enforcement duplication.
+Original domain fixtures now use strict tuple collections and explicit coherent
+lifecycle history; permissive list mutation is deliberately rejected. Default budget
+and execution regressions remain required. No semantic dedup or session loop is tested.

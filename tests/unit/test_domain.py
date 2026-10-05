@@ -18,8 +18,11 @@ from recon_agent.core.errors import (
     ToolTimeoutError,
 )
 from recon_agent.domain import (
+    ActionLifecycle,
+    ActionPhase,
     ActionRequest,
     ActionResult,
+    ActionTransition,
     Asset,
     Endpoint,
     Evidence,
@@ -28,6 +31,7 @@ from recon_agent.domain import (
     PlannerDecision,
     ReconSession,
     ReconState,
+    ReconStateMachine,
     Scope,
     Service,
     Target,
@@ -128,15 +132,38 @@ def models() -> dict[str, BaseModel]:
         input_evidence_ids=(evidence.id,),
     )
     state = ReconState(
-        assets=[asset],
-        hosts=[host],
-        services=[service],
-        endpoints=[endpoint],
-        observations=[observation],
-        evidence=[evidence],
-        action_requests=[action],
-        action_results=[result],
-        planner_decisions=[decision],
+        assets=(asset,),
+        hosts=(host,),
+        services=(service,),
+        endpoints=(endpoint,),
+        observations=(observation,),
+        evidence=(evidence,),
+        action_requests=(action,),
+        action_results=(result,),
+        planner_decisions=(decision,),
+        action_lifecycles=(
+            ActionLifecycle(
+                action_id=action.id,
+                transitions=(
+                    ActionTransition(phase=ActionPhase.REQUESTED, recorded_at=WHEN),
+                    ActionTransition(
+                        phase=ActionPhase.APPROVED,
+                        recorded_at=WHEN,
+                        policy_reference="policy-1",
+                    ),
+                    ActionTransition(
+                        phase=ActionPhase.STARTED,
+                        recorded_at=WHEN,
+                        execution_id="execution-1",
+                    ),
+                    ActionTransition(
+                        phase=ActionPhase.COMPLETED,
+                        recorded_at=WHEN,
+                        result_id=result.id,
+                    ),
+                ),
+            ),
+        ),
     )
     session = ReconSession(
         id="session-1",
@@ -434,21 +461,22 @@ def test_domain_result_cannot_misrepresent_failed_observations(
 
 def test_domain_state_and_session_defaults_are_independent() -> None:
     first, second = ReconState(), ReconState()
-    assert all(value == [] for value in first.model_dump().values())
-    first.assets.append(Asset(id="asset", kind="host", value="example.test"))
-    assert second.assets == []
+    assert all(value == () for value in first.model_dump().values())
+    owner = ReconStateMachine(first)
+    added = owner.record_asset(Asset(id="asset", kind="host", value="example.test"))
+    assert added.status == "success"
+    assert second.assets == first.assets == ()
     target = Target(id="target", kind="domain", value="example.test")
     scope = Scope(id="scope")
     left = ReconSession(id="left", targets=(target,), scope=scope, created_at=WHEN)
     right = ReconSession(id="right", targets=(target,), scope=scope, created_at=WHEN)
-    left.state.assets.append(first.assets[0])
-    assert right.state.assets == []
+    left.state = owner.state
+    assert right.state.assets == ()
     assert left.status == "created" and left.stop_reason is None
-    # No lifecycle methods: mutable containers are data only until M1-T07.
-    assert not any(
-        hasattr(first, attr)
-        for attr in ("apply_observation", "enforce_budget", "transition_action")
-    )
+    with pytest.raises(AttributeError):
+        first.assets.append(Asset(id="asset", kind="host", value="example.test"))
+    with pytest.raises(ValidationError):
+        first.assets = ()
     with pytest.raises(ValidationError):
         left.status = "unknown"
 
@@ -459,7 +487,7 @@ def test_domain_nested_records_revalidate_at_aggregate_boundary(
     observation = models["Observation"]
     observation.data["unexpected"] = object()
     with pytest.raises(ValidationError):
-        ReconState(observations=[observation])
+        ReconState(observations=(observation,))
 
 
 @pytest.mark.parametrize("name", MODEL_NAMES[:-2])
@@ -472,7 +500,15 @@ def test_domain_record_attributes_are_frozen(
 
 
 def test_domain_public_api_is_deliberate() -> None:
-    assert set(domain.__all__) == set(MODEL_NAMES)
+    assert set(domain.__all__) == set(MODEL_NAMES) | {
+        "ActionLifecycle",
+        "ActionPhase",
+        "ActionTransition",
+        "BudgetSnapshot",
+        "BudgetState",
+        "ReservationOutcome",
+        "ReconStateMachine",
+    }
     assert not any(
         hasattr(domain, name) for name in ("Action", "ToolExecution", "Finding")
     )

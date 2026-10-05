@@ -43,13 +43,13 @@ These are data examples, not scan authorization or runnable sessions.
   `model_dump_json()` produce portable strings/arrays/objects. Both dump forms can
   be validated back into the corresponding model. Ordinary model equality compares
   data, not a canonical deduplication identity.
-- Record attributes (all models except ReconState/ReconSession) are frozen, and
+- Record attributes (including ReconState; excluding ReconSession) are frozen, and
   reference collections use tuples. Observation data and action parameters are
   ordinary nested JSON dictionaries/lists, not deeply immutable objects. Aggregate
-  containers are mutable with independent default factories and validated field
-  assignment. In-place list/dict edits are not validation or approved transitions;
-  nested instances are revalidated at model-construction boundaries. M1-T07 owns
-  controlled mutation and concurrency semantics. Revalidate snapshots before use.
+  ReconState collections are now tuples with validated lineage/lifecycle history.
+  ReconStateMachine owns defensive copies and controlled atomic transitions; detached
+  nested JSON edits cannot alter managed state. ReconSession remains structural
+  mutable composition. Nested instances are revalidated at model boundaries.
 - Optional metadata defaults to `None`; no inferred product/version, authority or
   timestamps are manufactured. Provider credentials have no domain field. Flexible
   evidence text can still contain sensitive remote content; future collection and
@@ -70,7 +70,7 @@ These are data examples, not scan authorization or runnable sessions.
 | ActionRequest | `id`, `capability`, `target`, `parameters`, `reason`, integer `priority` (default 0), optional `asset_id`/`decision_id` | Unapproved capability intent, never argv. Capability name has lowercase identifier shape; M1-T04 registry checks membership; priority bounds remain later validation work |
 | ActionResult | `id`, `action_id`, terminal `status`, `recorded_at`, `observations`, `evidence`, `execution_ids`, optional structured `error` (shared ErrorInfo) | Outcome data, not process execution. Status is `completed`, `partial`, `rejected`, `failed`, `cancelled` or `timeout`; M0-T05 aligns outcomes with shared failure information |
 | PlannerDecision | `id`, `analysis_summary`, `actions`, `finished`, `created_at`, optional `provider`/`model`, `input_observation_ids`/`input_evidence_ids` | Untrusted recommendation with input lineage. Provider metadata is text only; no Groq SDK, prompts, policy outcomes or authorization |
-| ReconState | Independent lists of assets, hosts, services, endpoints, observations, evidence, action requests/results and planner decisions | Empty by default. Typed snapshot containers only; no apply/dedup/transition/budget/stop methods |
+| ReconState | Frozen tuples of subjects, observations/evidence, requests/results, decisions, action lifecycles and budget snapshots | Empty by default; whole-state lineage/lifecycle validation. ReconStateMachine owns explicit atomic transitions and detached copies |
 | ReconSession | `id`, non-empty `targets`, explicit `scope`, default empty `state`, `status`, `created_at`, optional `stop_reason` | Session composition only. Default status `created`; other structural statuses `running`, `completed`, `failed`, `cancelled`; no lifecycle enforcement, persistence, resume or execution |
 
 ## Provenance and relationships
@@ -85,10 +85,10 @@ never opened or resolved by these models.
 
 Action requests may cite an asset and source decision. Results cite an action,
 may carry observations/evidence, and preserve opaque execution references.
-Decisions cite the selected input observations/evidence. The model layer checks
-reference shape, not existence in a database or consistency across an entire
-partial snapshot. Future ingestion/state/storage layers must keep links resolvable
-and enforce ownership/uniqueness; M0-T04 does not infer missing provenance.
+Decisions cite the selected input observations/evidence. Individual record models
+check structural shape; M1-T07's whole ReconState boundary checks in-memory reference
+existence, ownership and identity uniqueness. Database/resume integrity remains
+future storage work. No missing provenance is inferred.
 
 ## JSON payloads and action safety
 
@@ -140,22 +140,21 @@ for codes, context, serialization and exception/result usage.
 ## Explicitly staged contracts and behavior
 
 PLAN permits associated Action/ToolExecution/Finding models to be staged. M0-T04
-implements the 13 required models and exports only those models from the public
-package; the following are absent, with ownership made explicit:
+established the 13 required models; M1-T07 extends the public exports with state,
+lifecycle and budget records. The following ownership boundaries remain:
 
-- **Action:** lifecycle/policy record and canonical action identity belong with
-  M1-T07 state transitions / M1-T08 deduplication. ActionRequest/ActionResult supply
-  the present intent/outcome data; no Action placeholder or transition API exists.
+- **Action:** ActionRequest/ActionResult plus M1-T07 ActionLifecycle/ActionTransition
+  supply intent, history and outcomes. No generic Action placeholder exists;
+  canonical action equivalence/identity remains M1-T08.
 - **ToolExecution:** runner/adapter execution metadata belongs with M1-T03 and later
   adapter work. Current execution IDs are opaque provenance references only.
 - **Finding:** interpreted conclusion records belong with M5-T04 finding
   normalization. ReconState deliberately has no untyped findings placeholder.
 - **Session configuration/budgets, broader action policy outcomes, asset/action canonicalization, retention and
   stop/resume rules:** extended by their owning policy/orchestration/storage tasks;
-  no generic executable configuration or budget/state-machine implementation here.
+  no generic executable configuration or operational startup exists here.
 
-Scope data is distinct from ScopeValidator. ReconState data is distinct from a
-state machine. ReconSession is distinct from persistence. PlannerDecision is
+Scope data is distinct from ScopeValidator. ReconState is managed by the explicit ReconStateMachine transition owner. ReconSession is distinct from persistence. PlannerDecision is
 non-authoritative recommendation data. None of these contracts implement scope
 matching, process runners, registry/policy, scanners, Groq/provider communication,
 AI reasoning, autonomous loops, SQLite, reporting or real CLI commands.
@@ -223,8 +222,33 @@ at future dispatch. See [policy contract](tool-contracts.md#action-policy-contra
 policy/ now supplies frozen ExecutionBudget limits and detached frozen BudgetState
 snapshots with attempted-action, active-concurrency, reserved-output, remaining-time,
 canonical-host, capability-window and typed completion-outcome counts. These are
-internal session-local resource records, separate from ReconSession/ReconState and
-planner/action wire models. BudgetPermit is opaque live resource ownership, never
+internal session-local resource records, separate from planner/action wire models.
+M1-T07 records detached BudgetSnapshot samples in ReconState; enforcement remains
+owned by BudgetController. BudgetPermit is opaque live resource ownership, never
 a replay/serialization token. Existing Success/Failure/ErrorInfo carry checks and
-reservations; no broader entity, state transition or persistent history is added.
+reservations. M1-T06 added no state transition or persistent history; M1-T07 adds
+only the in-memory recording boundary described below.
 See [budget semantics](execution-budgets.md).
+
+## Controlled state integration (M1-T07)
+
+ReconState = authoritative in-memory session state, owned by ReconStateMachine.
+PlannerDecision = recommendation record; ActionPolicyValidator = authorization;
+budget layer = resource enforcement; ExecutionRunner = process execution.
+The domain owner performs only explicit validated recording, including related fact
+batches, action lifecycle history, terminal results and caller-sampled budgets.
+
+ActionLifecycle/ActionTransition/ActionPhase add requested → approved → started
+and the existing terminal outcome statuses. Policy references and execution IDs
+record caller-supplied history, never authority/replay tokens. All terminal re-entry
+rejects. StateTransitionError extends the existing Failure/ErrorInfo system with
+one code/category, without a parallel hierarchy. Full initial/deserialized/live
+snapshots enforce lineage and known unsuccessful-action observation protection.
+
+BudgetState/ReservationOutcome move to pure domain contracts, preserving policy
+re-exports; no enforcement arithmetic moves. BudgetSnapshot adds id/time to sampled
+facts, separate from immutable configured limits. The owner cannot reset/consume
+budgets, modify scope, run tools or turn planner text into facts. Python list-based
+legacy snapshots require explicit tuple/lifecycle conversion; no history is inferred.
+See [complete operations, lifecycle and ownership](state-transitions.md) and
+[ADR 0006](decisions/0006-controlled-recon-state.md).

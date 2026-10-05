@@ -104,6 +104,7 @@ class ActionResult(Record):
                 ErrorCategory.POLICY,
                 ErrorCategory.PLANNER,
                 ErrorCategory.CANCELLATION,
+                ErrorCategory.STATE,
             ):
                 raise ValueError("rejection/cancellation must use its terminal status")
         if self.status not in ("completed", "partial") and self.observations:

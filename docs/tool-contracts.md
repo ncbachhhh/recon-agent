@@ -264,3 +264,14 @@ releases only concurrency and records a typed outcome; retries need new charged
 reservations. No implicit multi-process/tool-internal traffic allowance exists.
 AI planner cannot raise resource limits. See [budget contract](execution-budgets.md)
 for exact ownership, counting, CIDR rejection and future adapter obligations.
+
+
+## State recording (M1-T07)
+
+ReconStateMachine records explicit requested/approved/started/terminal history and
+normalized evidence/observations. Policy references and execution IDs are historical
+caller-supplied facts, never runner instructions or replay authorization. State does
+not resolve adapters, approve via planner text, acquire budgets, build commands or
+invoke execution. Future dispatch still revalidates policy/reserves resources before
+contact and later records outcomes atomically. No action equivalence/dedup/retry
+implementation is added. See [state contract](state-transitions.md).

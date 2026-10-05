@@ -194,3 +194,11 @@ producers. BudgetExhaustedError/Failure remains explicit caller data; future app
 services own budget.exhausted and correlated execution/outcome recording. Controller
 snapshots and live permits are internal resource state, never automatic diagnostics.
 See [budget contract](execution-budgets.md).
+
+
+M1-T07 returns Success[ReconState]/Failure through explicit controlled transitions
+without domain logging or event emission. Future callers may correlate lifecycle
+policy/execution/result references, supplied UTC times and canonical state errors
+with existing audit event types. Planner and budget recording confer no authorization;
+do not dump full snapshots, nested JSON or remote text as diagnostics. No new audit
+event type/producer/sink is added. See [state contract](state-transitions.md).

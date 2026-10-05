@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -53,6 +53,26 @@ API. Results reject contradictory success/error states; ActionResult distinguish
 policy rejection, timeout, cancellation and partial evidence. Retryability is
 explicit metadata and grants no permission or automatic retry. These contracts
 perform no logging, recovery or operational execution. See [error model](error-model.md).
+
+## Implemented logging/audit boundary
+
+M0-T06 configures only the project logger on an explicit call, without file or
+remote collectors. Context copies mask secret-labelled fields/wrappers, and
+explicitly registered local values are removed from emitted text/ErrorInfo.
+Unregistered free-form secrets still require producer discipline. Raw models,
+environment/output/traceback dumps and private reasoning/transcript/command keys
+are not an audit input contract. Captured tests verify redaction and malformed
+record/sink failures without stdlib's raw-record debug leakage.
+
+Bounded JSON/ASCII escaping prevents remote text from forging physical log lines
+or terminal controls. Evidence remains data; diagnostic redaction does not mutate
+source observations/artifacts or infer authority. Record summaries/action reasons,
+not model chain-of-thought. AuditEvent is non-authoritative: even an approval event
+cannot authorize execution by deserialization/replay. Later policy/producers remain
+responsible for truthful recording, scope/budgets and dispatch. See
+[logging and audit](logging-and-audit.md) for precise redaction limits and local sink
+behavior; no logging from domain/error constructors, telemetry export or persistence
+exists.
 
 ## Untrusted inputs
 

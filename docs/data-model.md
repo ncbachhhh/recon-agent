@@ -163,3 +163,13 @@ AI reasoning, autonomous loops, SQLite, reporting or real CLI commands.
 Run focused offline validation with
 `.venv/bin/python -m pytest tests/unit/test_domain.py`, then the complete baseline
 in [testing strategy](testing-strategy.md).
+
+## Operational audit boundary
+
+M0-T06 adds pure AuditEvent data under core/audit.py and an explicit local sink
+outside domain. Application/orchestration producers will record event/session,
+action, execution, decision and asset IDs plus bounded summaries/ErrorInfo. Subject,
+observation and finding event types are forward contracts, not producers or new
+Finding/ToolExecution entities. No domain constructor logs, and diagnostic copying
+never mutates collected evidence. Events record decisions without authority or
+execution/replay methods. See [logging and audit](logging-and-audit.md).

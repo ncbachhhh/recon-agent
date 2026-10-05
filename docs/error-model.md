@@ -73,7 +73,12 @@ chained tracebacks may contain sensitive source material; they are not the safe
 diagnostic API. Use ErrorInfo for routine diagnostics. Direct model construction
 continues to raise Pydantic ValidationError; displayed errors hide inputs, while
 structured errors need `errors(include_input=False)` and careful context handling.
-M0-T06's logging/redaction pipeline is not implemented here.
+M0-T06 now consumes ErrorInfo through the configured local formatter, applying
+explicit registered-secret redaction to its message/context and including derived
+error_category. Native causes/tracebacks are omitted, including exc_info; they are
+not stable audit data. Malformed records produce fixed omission output, and sink
+I/O failures raise a fixed ConfigurationError without raw-record debug fallback.
+See [logging/audit contracts](logging-and-audit.md). Error constructors remain pure.
 
 ## Explicit operation results
 
@@ -142,6 +147,7 @@ Focused checks:
 Tests exercise codes/hierarchy, retryability, bounded allowlisted context, secrets,
 strict nested serialization, typed payload narrowing, result invariants,
 configuration cause chaining and ActionResult distinctions. The [testing strategy](testing-strategy.md)
-requires full validation as well. No new runtime dependency, logging/audit,
+requires full validation as well. M0-T05 introduced no logging behavior; M0-T06
+now implements the separate local sink. No new runtime dependency,
 scope validator, process runner, tool registry, scanner, Groq/provider implementation,
 planner runtime, autonomous loop, database, report or CLI command is added.

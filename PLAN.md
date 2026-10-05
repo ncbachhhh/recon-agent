@@ -222,7 +222,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M0-T06`
 - **Title:** Logging and audit-event foundation
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M0-T05`
 
@@ -262,7 +262,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T01`
 - **Title:** Scope model and validator
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P0
 - **Dependencies:** `M0-T06`
 

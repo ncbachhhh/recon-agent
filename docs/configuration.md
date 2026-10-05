@@ -188,5 +188,7 @@ strict/unknown settings, file failures, secret exclusion, diagnostics and absenc
 of runtime filesystem/logging side effects. See [testing strategy](testing-strategy.md)
 for mandatory complete validation. Domain data models now exist (M0-T04);
 scope enforcement,
-process runners/adapters, Groq, AI planning, database persistence, audit logging,
-operational reports and real CLI commands remain unimplemented.
+process runners/adapters, Groq, AI planning, database persistence,
+operational reports and real CLI commands remain unimplemented. M0-T06 explicitly
+consumes LoggingConfig level/structured through configure_logging; loading settings
+still configures no handlers. See [logging and audit](logging-and-audit.md).

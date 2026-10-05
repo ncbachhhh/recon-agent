@@ -250,3 +250,59 @@ All required categories have concrete types/codes; hierarchy/category tests esta
 No M0-T06 logging/audit implementation, scope policy, process runner, availability detector, registry/adapters, budget/retry enforcement, scanners, Groq/provider/planner runtime, orchestration, SQLite, reporting or real CLI was implemented. PLAN closes only M0-T05, makes M0-T06 READY and leaves 86 later tasks NOT STARTED; CURRENT_TASK says No active task. No blockers or additional follow-up discovered. Stop at M0-T05.
 
 Commit reference: the single focused commit containing this entry, titled `feat(core): establish error and result contracts`; resolve with `git log -1 --format=%H --grep="^feat(core): establish error and result contracts$"`. Following the established convention, no circular hash, amendment or second task commit is created. Actual hash and clean post-commit tree are reported in the final handoff. No push.
+
+## 2026-10-05 — M0-T06 — Logging and audit-event foundation
+
+Status: DONE
+
+Objective: Establish explicit local diagnostics and strict correlated audit records for future autonomous reconnaissance operations, with bounded secret-safe output and no operational producers.
+
+Startup: Re-read AGENTS/state/CURRENT_TASK, complete M0-T06 specification, subsystem docs/ADR, history, maintenance skill/references, source/tests and pyproject. Inspected clean working tree/index, both diffs and recent log; verified predecessor HEAD `8b580d37722200715ee4915551561db70e3ba308`, M0-T01–M0-T05 DONE, only M0-T06 READY, no active task/blockers. Recorded M0-T06 as the only IN PROGRESS task before implementation. No unrelated changes existed.
+
+### Logging and audit architecture
+
+Added core/audit.py, core/redaction.py and core/diagnostics.py with deliberate module public exports. AuditEvent is strict frozen data: explicit opaque event/session IDs, aware timestamp normalized to UTC, standard severity, concise message, bounded JSON context, optional action/execution/planner-decision/asset IDs and existing ErrorInfo. Sixteen stable enum codes cover session lifecycle, subject/fact records, planner decision/action requests, policy approval/rejection, execution outcomes and budget exhaustion. These are contracts without producers, authority, replay or new Finding/ToolExecution entities. Context is revalidated/redacted on serialization/emission, including nested edits; source evidence remains unchanged.
+
+Explicit configure_logging consumes the existing LoggingConfig level/structured fields. Standard-library logging uses recon_agent and recon_agent.audit, with stderr or caller-supplied streams. Repeated setup replaces only the owned recon_agent.console handler, retains other project handlers and leaves root/third-party logging unchanged. Human mode prefixes severity/logger to escaped JSON; structured mode emits deterministic sorted compact JSON lines. Ordinary LogRecord timestamps use UTC; audit timestamps come from the supplied record. Both formats escape control characters/newlines and bound text/context. No implicit config/secret loading, file sink, rotating logs, remote upload, thread or startup occurs.
+
+Context accepts JSON data and masks sensitive key suffixes and SecretStr/SecretBytes wrappers. Explicitly registered local secret values are removed from output strings, IDs, ErrorInfo and printf arguments; no environment discovery or raw credential model dump occurs. Context limits (1024-character text, 256-character keys, 64-item containers, depth eight, 8192 encoded bytes) prevent raw artifact accumulation. Raw output/environment/native exception/command/private-reasoning/transcript keys are rejected, not executed. Ordinary evidence-like words and metadata such as password_policy/token_count are preserved; diagnostic copying never modifies observations. Unknown free-text secrets cannot be magically inferred and require producer discipline.
+
+ErrorInfo integrates without native causes, exc_info or stack_info serialization. Malformed records yield fixed omission output. Stream failures raise a fixed ConfigurationError with context suppressed, avoiding standard logging's raw-record debug fallback. No guaranteed delivery, persistence or automatic recovery is claimed. Application producers will explicitly record concise planner summaries, requested capabilities, policy outcomes and execution references; no chat architecture, transcript or hidden chain-of-thought model is introduced.
+
+Files: added three core modules, tests/unit/test_logging_audit.py and docs/logging-and-audit.md; updated README, CHANGELOG, architecture/configuration/data-model/error-model/security/testing docs, PLAN, PROJECT_STATE, CURRENT_TASK and this append-only history. Existing production modules, prior tests, dependencies/pyproject, CLI and later subsystem markers remain byte-for-byte unchanged. No new runtime dependency or redundant ADR was needed.
+
+### Executed validation
+
+Commands used repository .venv unless noted:
+
+| Check | Actual command/result |
+| --- | --- |
+| Interpreter/install | Python 3.14.6; `.venv/bin/python -m pip install -e ".[dev]"` succeeded with existing Pydantic 2.13.5; `.venv/bin/python -m pip check` passed |
+| Focused tests | `.venv/bin/python -m pytest tests/unit/test_logging_audit.py`: 116 passed; all event codes/round trips, correlations, strict/unknown fields, UTC, bounds, remote data, redaction, formatting, severity, setup/emission and safe failure paths covered |
+| Ruff | `.venv/bin/python -m ruff check .` / `.venv/bin/python -m ruff format --check .`: passed; 53 Python files formatted |
+| Types | `.venv/bin/python -m mypy src/recon_agent`: 26 modules passed; additional existing generic result typing test passed via `mypy src/recon_agent tests/unit/test_results.py` (27 files); no Any, casts, ignores or weakened type settings introduced |
+| Full tests | `.venv/bin/python -m pytest`: 446 passed |
+| Coverage | `.venv/bin/python -m coverage run -m pytest`: 446 passed; coverage report: 100%, 621 statements / 150 branches, none missing |
+| Offline | Temporary socket connection/DNS blocking wrapper with Groq key removed: all 446 tests passed; no scanner, provider, database or live target required |
+| Build/CLI | `.venv/bin/python -m build`: isolated sdist/wheel build succeeded; `.venv/bin/recon-agent` unchanged placeholder, success |
+| Fresh wheel | External temporary venv installed the built wheel; isolated python -I -B cold imports, pure event/ErrorInfo JSON round trips, explicit local logging/emission, duplicate-handler safety, UTC/correlation, redaction, installed CLI and pip check passed |
+| Runtime guards | Fresh wheel blocked socket/process/database/directory creation, application Path file access, global logging setup and thread starts; only installed dependency entry-point metadata reads permitted; no project logger existed after cold imports |
+| Security/package | Temporary AST/field/archive inspection passed: no executable/network/Groq/SQLite/remote collector behavior, private reasoning/chat/command/secret fields or domain-to-logging dependency; protected files unchanged, sole Pydantic runtime metadata and wheel/sdist source parity |
+| Review | Inspected all changed/new source, tests and subsystem docs; working/index diff and artifact/secret checks performed; final status/history/local-link/whitespace/staged-path reconciliation accompanies this focused closeout |
+
+Development checks exposed a handler marker typing mismatch and an import-test logging guard that outlived its context. Replaced the marker with the public handler name and scoped test guards correctly; subsequent focused/full/type checks passed. Security review additionally identified stdlib sink failure's raw-record fallback, so it now raises a fixed safe error and has a captured-output regression test. A manual wheel check initially used the wrong temporary venv path; rerunning against the installed venv passed. No acceptance criteria or validation settings were weakened.
+
+Python 3.12 was not separately exercised. Installation/build provisioning may access the package index; product imports, contract construction, local logging, tests and CLI require no network or credentials. Only obvious synthetic secret text was used, with no real key or .env file.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Listed events serialize with correlation/timestamps | All sixteen event types pass Python/JSON round trips with explicit IDs and UTC; captured audit sink and guarded wheel checks passed |
+| Secret settings/error contexts redacted | ProviderSecrets wrappers/exclusions, sensitive-key and registered-value tests, ErrorInfo and printf/sink failure tests passed; free-text limitations documented |
+| Untrusted text bounded/escaped | Context/string/depth/item/byte limits, control/newline escaping, invalid record omission and unchanged source Observation tests passed |
+| Local logging needs no credentials/network or policy changes | Explicit project-only setup/import guards, severity/repeated-handler tests, network-blocked suite and fresh wheel guards passed; events have no execution/authorization behavior |
+
+M0-T06 adds infrastructure only. No scope enforcement, process runner, registry, scanner adapter, Groq/provider/planner runtime, autonomous loop, persistence, operational report or real CLI was implemented. No future event producer or private reasoning/chat model exists. PLAN closes M0-T06, makes only M1-T01 READY and leaves 85 later tasks NOT STARTED; CURRENT_TASK says No active task. Known blockers: none; no additional follow-up discovered. Stop without beginning M1-T01.
+
+Commit reference: the single focused commit containing this entry, titled `feat(core): establish logging and audit foundation`; resolve with `git log -1 --format=%H --grep="^feat(core): establish logging and audit foundation$"`. Following the existing convention, no circular hash is invented and no amendment or second task commit is made. Final handoff reports the actual hash and post-commit clean tree. No push.

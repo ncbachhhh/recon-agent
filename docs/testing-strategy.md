@@ -217,3 +217,17 @@ semantics, every lifecycle, zero/configured retry limits, retryability flags,
 reconstructed-history bounds, terminal-ID replay, malformed history fail-closed,
 lookup/input alias isolation, validated callback detachment/rollback, and real policy/
 budget composition with no authorization/resource/execution effects from dedup.
+
+## Native DNS regressions (M2-T01)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_dns.py tests/unit/tools/test_registry.py -q`
+first, then the complete baseline, network/DNS-blocked suite, fresh-wheel checks and
+artifact/secret review. Sanitized tests/fixtures/dns/answers.json contains DNS
+presentation RDATA, including non-UTF-8/multipart/instruction-like TXT data. Injected
+fake messages and mocked native UDP exercise six record types, multiple/negative/alias
+answers, provenance, normalization order, malformed envelopes/rcode failures, strict
+input and authorized infrastructure, no follow-up authority, shared resolver host
+budgets, aggregate record/output bounds, cancellation/session/whole-action deadlines
+and existing state/dedup composition. Socket contact/DNS/subprocess guards assert no
+real activity. No local DNS server/live integration is needed. Fresh-wheel imports
+and composition include native DNS under guarded contact/process/startup checks.

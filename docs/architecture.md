@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. Scanner implementations and other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -45,8 +45,9 @@ failure, partial-output, injection and descendant-process limitations.
 ```text
 Planner [future] → ActionPolicyValidator [M1-T05 local eligibility]
   → BudgetController atomic reservation [M1-T06; resources only]
-  → ToolRegistry [M1-T04] → ToolAdapter [interface; implementations future]
-  → Execution Runner [M1-T03] → OS process
+  → ToolRegistry [M1-T04] → ToolAdapter
+      → NativeDnsResolver → approved numeric resolver [M2-T01]
+      → Execution Runner → OS process [future external adapters; M1-T03 runner exists]
 ```
 
 ProcessSpec grants no authority. Future dispatch must recheck approval/scope/budgets
@@ -62,14 +63,14 @@ registry is explicitly composed, immutable and empty by default, with one select
 trusted adapter per capability. It reports declared availability without probing,
 returns existing canonical outcomes, rejects unknown capabilities and conflicting
 registrations, and exports only semantic planner-safe catalog metadata. ToolAdapter
-currently exposes identity/metadata and strict typed input/output model references;
-execution/parsers are future implementations. See [ADR 0003](decisions/0003-immutable-capability-registry.md).
+exposes identity/metadata and strict typed input/output model references; M2-T01
+adds a capability-specific native DNS execution/parser implementation. See [ADR 0003](decisions/0003-immutable-capability-registry.md).
 
 The planner selects capabilities, never command strings. Adapters map validated typed requests to fixed tool options and normalize outputs; they do not decide authorization. Potential mappings:
 
 | Capability | Potential implementation |
 | --- | --- |
-| resolve_dns | Native resolver or dnsx |
+| resolve_dns | Implemented bounded native dnspython adapter (M2-T01); DNSX future (M2-T03) |
 | enumerate_subdomains | subfinder |
 | discover_ports | naabu |
 | fingerprint_services | nmap |
@@ -80,7 +81,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | inspect_protocol | Controlled SSH/SMB/FTP/SMTP/database modules |
 | scan_templates | nuclei with named policy profiles |
 
-These are candidates, not working integrations or locked implementation choices. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
+Except for implemented resolve_dns, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
 ## Provider layer — `providers/`
 
@@ -154,3 +155,13 @@ without a second ledger or authorization/resource/execution side effects.
 Future dispatch still requires current policy, lifecycle and charged reservations.
 See [identity/retry contract](action-deduplication.md) and
 [ADR 0007](decisions/0007-action-identity-and-retries.md).
+
+## Operational native DNS (M2-T01)
+
+Explicit ToolRegistry registration selects DnsAdapter. Its capability-specific execute
+revalidates current policy/scope/dedup, checks independently authorized numeric resolver
+infrastructure, atomically reserves existing budgets, then exchanges fixed bounded DNS
+questions through NativeDnsResolver. This native path uses no ExecutionRunner/process.
+Typed results normalize into existing Asset/Observation/Evidence; caller owns lifecycle
+and fact ingestion. No generic dispatcher, enumeration, DNSX or later adapter exists.
+See [resolver contract](dns-resolver.md) and [ADR 0008](decisions/0008-bounded-native-dns.md).

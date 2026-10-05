@@ -154,3 +154,10 @@ snapshot. M1-T03's bounded draining/capture remains unchanged. Aggregate allowan
 is permanently charged per permitted attempt, including failed/cancelled attempts;
 additional execution requires additional reservations. See
 [resource ownership and limitations](execution-budgets.md).
+
+## Native DNS execution (M2-T01)
+
+resolve_dns does not use ProcessSpec/ExecutionRunner. Its explicitly registered trusted
+DnsAdapter rechecks policy, independently scoped resolver infrastructure and atomic
+budgets before bounded asynchronous native UDP exchanges. Existing process contracts
+remain unchanged. See [DNS contact/resource/error semantics](dns-resolver.md).

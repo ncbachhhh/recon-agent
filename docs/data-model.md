@@ -264,3 +264,16 @@ history, authorize, consume budgets or execute. Planner prose/priority/IDs/times
 are excluded; registered defaults and nested execution parameters are included.
 Identity has portable Python/JSON round trips independent of opaque lineage IDs.
 See [canonical semantics and conservative retries](action-deduplication.md).
+
+## DNS normalization (M2-T01)
+
+Operational DNS uses internal strict tools.dns_models query/record/context/output
+schemas, preserving existing pure domain contracts. The queried Asset owns kind=dns
+Observations; each carries canonical original query_target, query_type, outcome,
+record owner/type/value/TTL, optional MX preference and exact TXT chunk hex.
+Negative answers produce status observations. Evidence is untrusted with native_dns
+source, resolve_dns capability, explicit caller time/execution identity and a memory
+reference/hash to the returned normalized query snapshot, never a raw packet file.
+Discovered names/addresses are data only; no new Scope or actionable flag is inferred.
+Sorting/deduplication makes identical facts/context deterministic. Caller owns coherent
+state lifecycle/ingestion and retention. See [full DNS contract](dns-resolver.md).

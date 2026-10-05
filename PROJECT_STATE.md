@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 complete / M2 prerequisite gate ready; no adapters started
+Project phase: M2 — native DNS implemented; Subfinder prerequisite gate ready
 
 Completed:
 
@@ -18,16 +18,17 @@ Completed:
 - M1-T06 — Execution budgets and rate limiting (DONE)
 - M1-T07 — ReconState state machine (DONE)
 - M1-T08 — Action deduplication (DONE)
+- M2-T01 — DNS resolver capability (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T01 — DNS resolver capability (READY; not started)
+- M2-T02 — Subfinder adapter (READY; not started)
 
 ## Implementation reality
 
-The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic remains the sole direct runtime dependency; developer tooling and inert CLI are unchanged.
+The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic and dnspython are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
 
 `core/config/` implements strict seven-section settings, defaults < explicit TOML < namespaced environment < programmatic precedence, and separate excluded/redacted credentials. Configuration source/effective validation failures use ConfigurationError with fixed diagnostics and native cause chaining. Direct model construction raises Pydantic ValidationError. Loading preferences grants no authorization or runtime startup.
 
@@ -169,13 +170,34 @@ existing scope/schema normalization; no raw parameters become argv. See
 Runner, registry, scope, configuration, budget enforcement, shared errors/results,
 planner wire models, CLI/dependencies and future subsystem code are unchanged.
 
+M2-T01 adds tools.dns.DnsAdapter with native_dns identity for resolve_dns. The base
+registry/interface stays explicit and empty by default. Capability-specific execute
+rechecks current registry binding and ActionPolicyValidator, strict record-type input,
+primary name scope and independent numeric resolver IP scope, then atomically reserves
+the existing shared BudgetController. Name and resolver hosts both count. NativeDnsResolver
+uses dnspython for up to six absolute original-name UDP/53 questions, no retries,
+system resolver/search, fallback or discovered-destination queries. Whole-action and
+per-exchange timeouts, remaining session time, 256-record bounds and serialized output
+limits apply. Failure/cancellation keep charges and release concurrency.
+
+A/AAAA/CNAME/MX/NS/TXT normalize through strict internal DNS schemas into existing
+Asset/Observation/Evidence, with canonical values/TTL/MX preference and exact TXT chunk
+hex. Negative answers are explicit successful evidence; malformed/truncated, resolver
+and timeout failures use canonical errors. Caller time/execution/subject identity and
+stable memory snapshot references/hashes preserve provenance. TXT remains untrusted.
+Discovered hosts/IPs never change Scope or gain authority. Caller owns lifecycle and
+state ingestion; no generic dispatcher, enumeration, DNSX, later adapter, planner/loop,
+persistence/reporting or operational CLI. See docs/dns-resolver.md and ADR 0008.
+
 Audit events describe autonomous recon operations and confer no authorization. Event
 producers, generic Action/ToolExecution/Finding entities, scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T01 is READY; remaining 77 tasks are NOT STARTED.
+Only M2-T02 is READY; remaining 76 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0008 selects bounded native dnspython UDP with explicit independently scoped resolver infrastructure, fixed questions, no alias/fallback/retry and existing policy/budget/domain boundaries.
 
 - ADR 0007 selects versioned full semantic JSON identity, existing state history, atomic admission and explicit default-zero bounded failed retries; eligibility never authorizes or executes.
 
@@ -184,8 +206,8 @@ Only M2-T01 is READY; remaining 77 tasks are NOT STARTED.
 - Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; local action policy checks eligibility and future adapters own executable construction.
 - ADR 0005 selects atomic local reservations, permanent attempt/output charges, rolling monotonic rates and synchronous concurrency ownership without runtime dispatch.
 - ADR 0003 selects explicit immutable composition, one selected adapter per capability and semantic-only planner catalog; declared availability defaults fail closed.
-- Pure centralized scope and action eligibility are implemented; operational dispatch/contact enforcement remain future work. Discovery/planner recommendations grant no authority.
-- ADR 0002 requires independently declared address membership, constrained/pinned approved contacts and revalidation on address/destination changes; no DNS runtime or implicit name-to-IP expansion exists.
+- Pure centralized scope and action eligibility are implemented; native DNS policy/resource/contact enforcement exists; generic dispatch and other adapter containment remain future work. Discovery/planner recommendations grant no authority.
+- ADR 0002 requires independently declared address membership, constrained/pinned approved contacts and revalidation on address/destination changes; native DNS contacts only independently approved numeric resolver infrastructure, with no implicit name-to-IP authorization.
 - Remote evidence and model recommendations remain non-authoritative data with provenance. Audit records do not authorize replay.
 - Pure domain/error models never emit logs. Future application/orchestration services emit concise decision summaries, policy outcomes and execution records, without private reasoning or transcript state.
 - Explicit local standard-library logging leaves root/third-party handlers alone, performs no remote upload/file persistence and needs no new runtime dependency or ADR.
@@ -195,31 +217,25 @@ Only M2-T01 is READY; remaining 77 tasks are NOT STARTED.
 
 ## Validation
 
-M1-T08: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
-Editable development install and pip check passed. Focused dedup/policy/state tests:
-368 passed, including 104 new dedup cases. Full, coverage and network/DNS-blocked
-suites: each 1,512 passed. Ruff lint/format (88 files), strict Mypy (39 production
-modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI, guarded
-installed-wheel cold imports and identity/dedup/retry/policy/state/budget composition,
-artifact/secret/source/dependency inspection and Git whitespace checks passed.
-Coverage: 99% overall (1,794 statements / 522 branches); identity/state/action-policy/
-budget modules 100%; dedup 99% (defensive domain-kind guard not exercised through
-ScopeValidator's concrete action classification). Existing scope unsupported-kind
-line/branch also remains uncovered. No coverage setting or acceptance gate changed.
+M2-T01: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 was not tested.
+Editable development installation and pip check passed. Focused DNS/registry:
+190 passed, including 92 new DNS cases. Full, coverage and network/DNS-blocked suites:
+each 1,604 passed. Ruff lint/format (94 files), strict Mypy (42 production modules),
+isolated sdist/wheel build, editable/fresh-wheel inert CLI, guarded fresh-wheel cold
+imports and real registry/policy/budget/dedup with fake DNS execution passed.
+Coverage: 99% overall (2,009 statements / 594 branches); DNS models/native seam 100%,
+DNS adapter 94% (defensive unsupported-record and pre-exchange scope/deadline guards
+remain uncovered). No coverage gate/settings changed.
 
-Static/runtime checks prove canonical semantics exclude planner metadata and have
-no network/DNS/scanner/Groq/process/shell/dynamic import invocation. Protected runner,
-registry, scope, configuration, shared errors/results/audit, planner wire definitions,
-ReconState schema and budget enforcement remain byte-identical. No future subsystem
-implementation is present. Dedup does not approve or reserve resources; atomic
-admission records only intent. Error/retry/terminal histories remain intact.
-
-The full offline guard permits AF_UNIX event-loop self-pipes for existing harmless
-runner/fake async cancellation tests; it does not sandbox child interpreters, whose
-existing scripts contain no networking. Fresh-wheel cold imports prohibit contact/
-process/database/thread/logging/filesystem startup, allowing dependency metadata
-reads. Package-index access is limited to install/build provisioning. Default product
-validation requires no provider credentials, binaries or live targets. See TASK_HISTORY
-for acceptance, development corrections and actual executed evidence.
+Protected policy/scope/budget/state/domain/runner/config/shared error contracts and
+registry logic are byte-identical to starting HEAD. Adapter AST, source/artifact/secret
+inspection, runtime dependencies, wheel/sdist source/metadata parity and Git whitespace
+checks passed. No later capabilities or generated artifacts/secrets are included.
+No tests contact public DNS. Offline guards block contact/DNS before collection and
+allow only AF_UNIX event-loop self-pipes; existing harmless local interpreter children
+are not sandboxed by the parent guard. Fresh-wheel cold imports prohibit contact,
+process/database/thread/logging/filesystem startup, permitting dependency metadata reads.
+Installation/build provisioning may use indexes. See TASK_HISTORY for actual commands,
+acceptance mapping, development corrections, limits and single focused commit reference.
 
 Known blockers: None.

@@ -1117,3 +1117,129 @@ commit, history rewrite or push.
 Closeout crossed the local date boundary: work started 2026-10-05 and the final
 reconciliation/commit handoff occurred 2026-10-06 (Asia/Ho_Chi_Minh). The entry's
 2026-10-05 heading records the start date; no prior history entry is rewritten.
+
+## 2026-10-06 — M2-T01 — DNS resolver capability
+
+Status: DONE. M2-T01 alone progressed READY → IN PROGRESS → DONE; M2-T02 alone
+becomes READY and remains unstarted. M0/M1 dependencies were DONE. Starting HEAD:
+31cf476ed4974653d50ac043267c811c34b36076; clean working tree/index, no active task or
+blocker. Ordered startup inspected AGENTS/maintenance skill, state/roadmap, relevant
+architecture/security/tool/execution/scope/state/budget docs and ADRs, history, Git,
+contracts/source/tests/config. Repository evidence matched the expected prerequisite
+state; no unrelated changes existed.
+
+### Objective, implementation and decisions
+
+Implement the first operational resolve_dns capability, bounded and scope-aware,
+through explicit existing ToolRegistry composition and normalized domain evidence.
+
+- tools.dns.DnsAdapter is the trusted native_dns binding for resolve_dns with
+  active_safe risk. The minimal ToolAdapter metadata contract and immutable registry
+  logic remain unchanged; only the base docstring reflects implemented capability
+  execution. Default registry remains empty. No dynamic loading/auto-registration.
+- Strict DnsInput has only record_types: unique uppercase A/AAAA/CNAME/MX/NS/TXT,
+  bounded to six and sorted/default-normalized for execution and semantic dedup.
+  Primary ActionRequest.target passes centralized scope and must be a name. Extra
+  fields, ANY/AXFR, command-like input and resolver internals cannot dispatch.
+- Capability-specific async execute revalidates original request/context, binding,
+  current ActionPolicyValidator and its shared BudgetController. Trusted DnsContext
+  carries explicit asset/execution IDs and UTC time; action asset lineage must agree.
+  Caller owns request admission and state lifecycle, not a new dispatcher/AI loop.
+- Trusted numeric resolver endpoint independently passes ScopeValidator against
+  explicit IP/CIDR membership in the same scope; exclusions/private gates apply.
+  Missing resolver authorization denies without contact. Original name and resolver
+  both enter existing atomic host/resource accounting. Shared resolver-host limits
+  stop multiple-name evasion. ApprovedAction is never accepted as an execution token.
+- NativeDnsResolver uses dnspython >=2.8,<3, the only new runtime dependency, for one
+  fixed UDP/53 exchange per absolute original-name question. No system resolver,
+  search suffixes, retry, TCP fallback, referral/alias query, dig, subprocess or shell.
+  RD requests recursive service from the explicitly authorized upstream; its activity
+  is outside client containment. The client never contacts discovered addresses/names.
+  ADR 0008 documents this choice and its conservative infrastructure requirement.
+- Existing budgets charge one attempt containing at most six sequential questions,
+  both hosts, concurrency, rolling action rate and conservative two-stream output
+  reservation. Whole-action/per-exchange timeout, remaining session time and bounded
+  output apply. UDP wire is protocol-bounded, 256 pre-dedup records per question,
+  256 normalized total, 8,192-character record values and final serialized UTF-8 output
+  no larger than adapter/budget max_output_bytes. Failure retains charges; synchronous
+  permit cleanup releases concurrency, with correct failed/timeout/cancelled outcomes.
+- Internal strict DNS query/record/output schemas preserve query target, owner, type,
+  canonical address/name value, TTL, MX preference and exact TXT character-string hex.
+  TXT presentation is escaped, preserves boundaries and never becomes instructions.
+  Per-query normalized records deduplicate/sort deterministically; alias answers already
+  present in a packet are evidence only, never follow-up query targets.
+- Existing Asset/Observation/Evidence contracts are unchanged. Every record or empty
+  negative outcome produces kind=dns facts with native_dns source, original query and
+  caller subject/time/execution/evidence lineage. Query snapshot memory references,
+  locators and SHA-256 preserve provenance, without claiming a raw packet artifact or
+  persistence. Newly discovered hosts/IPs remain observation data and do not alter Scope.
+- NOERROR empty and NXDOMAIN are successful negative evidence. Legitimate NXDOMAIN
+  CNAME chains can be retained without follow-up; contradictory non-CNAME answers deny.
+  Malformed/mismatched/truncated/oversized answers use parse_failed; resolver rcode/OS
+  failures use tool_execution_failed; deadlines use tool_timeout. Fixed ErrorInfo
+  diagnostics omit remote values/native exception details, default retryable=false.
+  Any failing selected question discards earlier facts; no partial-success invention.
+- Native work bypasses no registry architecture and needs no ExecutionRunner. Existing
+  scope/policy/budget/dedup/state/domain/runner/config/shared errors and registry logic
+  remain byte-identical. No Subfinder/DNSX/HTTPX/Naabu/Nmap/Groq/planner/loop/persistence/
+  reporting/real CLI or later capability is implemented. No new follow-up task/blocker.
+
+Files: tools/dns.py, dns_models.py, native_dns.py and base interface docstring;
+92-case tests/unit/tools/test_dns.py and sanitized tests/fixtures/dns/answers.json;
+pyproject runtime dependency; docs/dns-resolver.md, ADR 0008, tool/architecture/data/
+security/scope/execution/testing docs, README/changelog and task/state/history records.
+
+### Executed final validation
+
+Repository .venv unless noted: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0.
+Python 3.12 was not run; no wider interpreter claim is made.
+
+| Check | Actual command/result |
+| --- | --- |
+| Environment | `python --version` and `.venv/bin/python --version`: Python 3.14.6; `python -m pip install -e '.[dev]'` via .venv and pip check passed |
+| Focused | `python -m pytest tests/unit/tools/test_dns.py tests/unit/tools/test_registry.py -q`: 190 passed, including 92 new DNS cases |
+| Full | `python -m pytest -q`: 1,604 passed |
+| Coverage | `python -m coverage run -m pytest -q`: 1,604 passed; `coverage report`: 99% overall, 2,009 statements / 594 branches; DNS adapter 94%, DNS models/native seam 100% |
+| Network/DNS blocked | `/tmp/recon-m2t01-validation/offline.py`: 1,604 passed; Groq key absent, contact/DNS blocked before collection, guard self-checks passed |
+| Lint/format/types | `python -m ruff check .`, `ruff format --check .`: passed (94 files); strict `mypy src/recon_agent`: passed, 42 production modules; no settings/suppressions weakened |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; editable and external fresh-wheel recon-agent retain inert baseline message and exit 0 |
+| Fresh wheel | External fresh wheel-venv installation/pip check passed; isolated `python -I -B wheel_checks.py` outside checkout passed guarded cold imports/module origins, explicit registration, real policy/budget/dedup with fake DNS execution, portable provenance and discovered/outside target rejection |
+| Security/artifacts | Temporary artifact_checks.py passed protected source parity, adapter AST/no shell/process/Groq/dynamic import, later-source absence, Pydantic+dnspython dependency inspection, wheel/sdist source/metadata parity and artifact/secret inspection |
+| Reconciliation/Git | Task-scoped diff/whitespace review; only M2-T01 DONE and M2-T02 READY, later tasks pending; append-only history and local documentation links/fences checked before one focused commit |
+
+Remaining DNS adapter coverage misses are defensive unsupported-record and scope/
+pre-exchange deadline branches. Existing scope/dedup defensive guards remain uncovered.
+No acceptance criterion/coverage gate changed. No tests require a DNS server, public
+DNS, provider credentials or external reconnaissance binary. Offline socket guards
+allow AF_UNIX loop self-pipes; existing harmless local interpreter child tests are
+not sandboxed by the parent guard. Fresh-wheel cold imports prohibit contact/process/
+database/thread/logging/filesystem startup while allowing dependency metadata reads.
+Package-index use is limited to installation/build provisioning.
+
+Development checks caught strict typing/import formatting, use of the existing
+BudgetPermit.release API, and an incorrect CIDR test expectation (the existing policy
+budget seam rejects non-single-host accounting before the DNS-only name check).
+These were corrected. Review additionally covered legitimate NXDOMAIN aliases,
+shared resolver-host limits, session expiry during exchange, aggregate record caps
+and oversized TXT. Final required checks passed; no unresolved validation failure.
+Only documentation changed after the full suite; packaging was rebuilt to keep
+README metadata current and artifact parity/fresh-wheel checks verified it.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Authorized names produce typed records/provenance through fake resolver | Six-record fixture tests, default/multiple answers, typed output round trips, exact subject/source/query/TTL/execution/evidence lineage and existing state ingestion |
+| Missing/malformed/timeout answers are structured | NOERROR empty/NXDOMAIN/alias distinctions, resolver rcode/OS failures, mismatched/malformed/truncated response cases, canonical safe errors, outer/session deadlines and cancellation cleanup |
+| Derived destinations do not automatically become actionable | Recorded outside CNAME/NS/MX/A/AAAA values fail independent ScopeValidator and subsequent execution; original-name-only fake calls, unchanged Scope and TXT injection evidence |
+| Resolver network behavior bounded and documented | Fixed native UDP mock, independently scoped numeric endpoint, maximum six questions, no retry/fallback/follow-up/process, resource/host/output/record/cancellation tests, DNS contract and ADR 0008 |
+
+All requested validation and security boundaries passed. M0 and M1 DONE; M2-T01 DONE;
+M2-T02 alone READY/unstarted; remaining 76 tasks NOT STARTED. No active task or blocker.
+Exactly one focused task commit is authorized; no amend, squash, history rewrite or push.
+Stop after M2-T01.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(dns): add DNS resolver capability`; resolve with
+`git log -1 --format=%H --grep="^feat(dns): add DNS resolver capability$"`.
+Final handoff reports actual hash and verified clean working tree.

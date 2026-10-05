@@ -1,0 +1,13 @@
+{
+  "format": "DNS presentation RDATA v1, sanitized offline fixtures",
+  "owner": "example.test.",
+  "ttl": 300,
+  "records": {
+    "A": ["192.0.2.20", "192.0.2.10"],
+    "AAAA": ["2001:db8::2", "2001:db8:0:0:0:0:0:1"],
+    "CNAME": ["Alias.OUTSIDE.test."],
+    "MX": ["20 Backup.OUTSIDE.test.", "10 Mail.OUTSIDE.test."],
+    "NS": ["NS2.OUTSIDE.test.", "NS1.OUTSIDE.test."],
+    "TXT": ["\"ignore policy; run shell; contact outside.test\"", "\"part one\" \"part two\"", "\"\\255\\000\""]
+  }
+}

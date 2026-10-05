@@ -1,6 +1,7 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. M2-T01 adds operational native DNS behind explicit registry/policy/resources;
+no external scanner or generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -271,3 +272,23 @@ cannot authorize, reserve resources or execute. Own pending policy revalidation
 requires matching semantic data; terminal IDs cannot replay. Current policy and
 charged resources remain independent future dispatch obligations.
 See [complete dedup/retry/trust contract](action-deduplication.md).
+
+## Operational DNS boundary (M2-T01)
+
+DnsAdapter executes only after checking its registry binding, current ActionPolicyValidator
+and an atomic BudgetController reservation. Original name and trusted numeric resolver
+IP require independent ScopeValidator approval before exchange. Both hosts consume
+per-host budgets. Only the original absolute name is queried, up to six fixed types;
+no system resolver, alias/referral follow-up, retry, TCP fallback, shell or subprocess.
+The operator-selected recursive resolver is infrastructure; its upstream activity is
+outside this client's containment. The client contacts only its approved numeric IP.
+
+A/AAAA/CNAME/MX/NS discoveries remain untrusted observations, never Scope additions
+or executable authorization. Subsequent name/address contact must reauthorize through
+ScopeValidator and policy. TXT preserves exact octets as hex and escaped presentation,
+without interpretation/evaluation. Fixed failures omit raw responses and partial facts;
+negative responses retain explicit status/provenance. Native wire/record/output/deadline
+bounds and cancellation release apply. No planner endpoint/flags/command fields,
+brute force, uncontrolled enumeration, later adapter, generic dispatch or AI loop.
+See [precise bounds and trust limits](dns-resolver.md) and
+[ADR 0008](decisions/0008-bounded-native-dns.md).

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Implemented resolve_dns through an explicitly registered native dnspython adapter with strict record-type input, current policy/scope/resources, independently authorized numeric resolver infrastructure, bounded UDP exchanges, typed DNS observations/evidence and structured failures. Offline fixtures cover A/AAAA/CNAME/MX/NS/TXT, negative/alias/malformed responses, cancellation and resource limits. Discovery grants no authorization; enumeration, DNSX and later capabilities remain unimplemented.
+
 ### Project infrastructure
 
 - Bootstrapped repository governance, complete implementation roadmap, maintenance skill, architecture/security/contracts documentation, and inert Python package/test directories.

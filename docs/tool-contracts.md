@@ -1,7 +1,8 @@
 # Capability and tool contracts
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
-immutable registry composition in `tools/`. No production scanner adapters exist.
+immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
+external scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -25,9 +26,9 @@ command or planner-supplied execution instruction.
 Planner selects capability                 [future runtime]
   → deterministic action policy            [M1-T05, implemented local eligibility]
   → ToolRegistry selects trusted adapter    [implemented foundation]
-  → ToolAdapter validates/prepares execution [interface; implementations future]
-  → ProcessSpec → AsyncProcessRunner        [M1-T03, implemented]
-  → external tool → normalized observations [future adapters]
+  → ToolAdapter validates/prepares execution
+      → bounded native DNS → normalized observations [M2-T01, implemented]
+      → ProcessSpec → AsyncProcessRunner → external tool [future adapters]
 ```
 
 Operators will supply target, authorized scope and configuration to the autonomous
@@ -53,9 +54,10 @@ ActionRequest.parameters against input_schema; the primary target is checked
 separately. Scanner-specific models remain future adapter work.
 
 `ToolAdapter` is a minimal abstract base class with a read-only `definition`
-property. This task adds no execute, parse or binary-probing methods. Future adapter
-tasks will add capability-specific validated input, non-scanning availability checks,
-trusted argv construction, injected ProcessRunner execution and normalized outputs.
+property. Its base API remains unchanged. M2-T01 adds capability-specific async
+DnsAdapter.execute with strict input, current policy/resources, native resolver
+injection and normalized domain output. Later external adapter tasks own binary
+availability, trusted argv and injected ProcessRunner execution.
 
 Planner parameters must flow through capability-specific typed validation to a
 trusted adapter. No dictionary-to-flags translation or argv pass-through is allowed.
@@ -287,3 +289,15 @@ become flags. ActionDeduplicator implements the existing ActionEligibility seam
 without adapter resolution, approval, resource consumption or execution. The same
 state owner atomically admits new/retry requests.
 See [canonical identity, lifecycle rules and policy self-entry handling](action-deduplication.md).
+
+## resolve_dns implementation (M2-T01)
+
+The explicitly registered native_dns adapter implements resolve_dns for scoped
+hostnames and A/AAAA/CNAME/MX/NS/TXT questions. DnsInput exposes only record_types;
+resolver internals never enter planner input/catalog. DnsOutput returns typed query
+outcomes and existing Asset/Observation/Evidence with exact untrusted provenance.
+Native UDP exchanges are independently endpoint-authorized and bounded by existing
+policy/budget settings; no process runner or dig is involved. Default registry remains
+empty. Enumeration and DNSX verification remain unimplemented. See the complete
+[input/contact/normalization/error contract](dns-resolver.md) and
+[ADR 0008](decisions/0008-bounded-native-dns.md).

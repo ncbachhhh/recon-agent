@@ -1,4 +1,4 @@
-"""Minimum trusted adapter interface; no execution or scanner implementations."""
+"""Minimum trusted adapter interface; capability implementations live separately."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -60,8 +60,9 @@ class AdapterDefinition(BaseModel):
 class ToolAdapter(ABC):
     """Trusted application code supplied explicitly by the composition root.
 
-    Future owning tasks add input validation, availability probing, ProcessSpec
-    construction, runner invocation and parsing. No callable execution API yet.
+    Capability-specific implementations own execution and normalization; the
+    base exposes metadata only. Native DNS uses no process runner. Later external
+    adapters own availability probing, ProcessSpec construction and runner use.
     """
 
     @property

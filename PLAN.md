@@ -582,7 +582,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T01`
 - **Title:** DNS resolver capability
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M1-T08`
 
@@ -620,7 +620,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T02`
 - **Title:** Subfinder adapter
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M2-T01`
 

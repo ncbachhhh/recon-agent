@@ -166,3 +166,13 @@ ports/schemes/paths do not create different hosts. It returns None for CIDRs, so
 budget controller rejects unsupported range accounting. This property performs no
 DNS, membership authorization or alias-to-address inference; scope membership and
 wire models are unchanged. See [budget contract](execution-budgets.md).
+
+## Native DNS contact (M2-T01)
+
+resolve_dns authorizes the queried name independently from its trusted resolver's
+numeric IP. Resolver infrastructure needs explicit IP/CIDR membership in the same
+Scope; private/exclusion rules still apply. The client only contacts that IP, never
+answer addresses or discovered alias/mail/nameserver hosts. DNS values remain
+evidence, requiring independent current validation before future contact. This
+implements the DNS boundary of ADR 0002; HTTP/scanner rebinding containment remains
+future adapter work. See [DNS contract](dns-resolver.md).

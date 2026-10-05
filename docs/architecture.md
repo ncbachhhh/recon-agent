@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; other source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; other source boundaries remain package markers. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -12,7 +12,7 @@ Pure data models with no process, network, provider, CLI, or database dependenci
 
 Deterministic authorization is independent of the model. Central responsibilities: scope validation; host/subdomain and IP/CIDR policy; URL/redirect validation; capability allowlist; parameter and planner-output validation; action deduplication; request budgets; rate/resource/execution limits. Policy defaults deny ambiguous or unknown requests. A scope change requires trusted operator input, never remote evidence or planner text.
 
-Scope must be checked when planning, immediately before execution, and before following redirects or scheduling newly discovered targets. Network-capable adapters must prevent tools from silently following out-of-scope redirects, DNS-derived addresses, crawl links, or secondary targets. Domain/IP authorization semantics and rebinding protections are to be resolved in M1-T01; denial is the fallback.
+Scope must be checked when planning, immediately before execution, and before following redirects or scheduling newly discovered targets. Network-capable adapters must prevent tools from silently following out-of-scope redirects, DNS-derived addresses, crawl links, or secondary targets. M1-T01 implements pure synchronous ScopeValidator over explicit Scope snapshots, with canonical Target matches and the existing OperationResult/ErrorInfo/ScopeRejectedError boundary. Exclusions win; domain descendants are explicit; URLs use parsed authorities. No global settings or logging side effects exist. See [scope model](scope-model.md) and [ADR 0002](decisions/0002-scope-and-derived-addresses.md). Domain membership never authorizes DNS answers; future adapters must independently validate and constrain actual addresses before contact and revalidate changes. Rebinding/contact enforcement remains unimplemented; denial is the fallback.
 
 ## Execution layer — `execution/`
 

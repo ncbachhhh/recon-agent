@@ -346,6 +346,7 @@ def test_error_imports_conversion_and_serialization_have_no_runtime_side_effects
         "ConfigurationError",
         "PolicyError",
         "ScopeRejectedError",
+        "ScopeRejectionReason",
         "BudgetExhaustedError",
         "ToolError",
         "ToolUnavailableError",

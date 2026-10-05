@@ -306,3 +306,60 @@ Python 3.12 was not separately exercised. Installation/build provisioning may ac
 M0-T06 adds infrastructure only. No scope enforcement, process runner, registry, scanner adapter, Groq/provider/planner runtime, autonomous loop, persistence, operational report or real CLI was implemented. No future event producer or private reasoning/chat model exists. PLAN closes M0-T06, makes only M1-T01 READY and leaves 85 later tasks NOT STARTED; CURRENT_TASK says No active task. Known blockers: none; no additional follow-up discovered. Stop without beginning M1-T01.
 
 Commit reference: the single focused commit containing this entry, titled `feat(core): establish logging and audit foundation`; resolve with `git log -1 --format=%H --grep="^feat(core): establish logging and audit foundation$"`. Following the existing convention, no circular hash is invented and no amendment or second task commit is made. Final handoff reports the actual hash and post-commit clean tree. No push.
+
+## 2026-10-05 — M1-T01 — Scope model and validator
+
+Status: DONE
+
+Objective: Establish centralized deterministic fail-closed declaration membership for every supplied target and derived destination, without network activity or executable capabilities.
+
+Startup: Read AGENTS/state/CURRENT_TASK, complete M1-T01 PLAN specification, required subsystem docs/ADR/history, maintenance skill/references, current source/tests and pyproject. Inspected clean tree/index, both diffs and recent log; verified predecessor HEAD and ancestor `823fc3eda3ae02b1e7b3eab0c0ba46c03c1d4fa2`, M0-T01–M0-T06 DONE, only M1-T01 READY, no active task/blockers. Recorded M1-T01 as the only IN PROGRESS task before implementation. No unrelated user modifications existed.
+
+### Authorization contracts
+
+Added pure synchronous ScopeValidator and ScopeMatch in policy/scope.py with a small public policy API. Scope/Target remain unchanged data. The validator revalidates and compiles an immutable declaration snapshot; invalid roots/exclusions fail construction with canonical ScopeRejectedError, never ignored configuration. validate returns existing OperationResult[ScopeMatch] Success/Failure; require_allowed raises the same canonical policy exception. Canonical Target and matching declaration preserve IDs/kinds. Added ScopeRejectionReason and optional typed scope_reason/target_kind/normalized_candidate to existing ErrorContext; no duplicate result/error hierarchy. Decisions have no audit/logging side effects or execution/replay authority.
+
+Domains authorize exact normalized names and optional proper label descendants; hostname/URL rules stay exact authorities. ASCII DNS normalization lowercases/removes one final dot, rejects malformed labels, numeric/alternate address spellings, whitespace/controls and unsupported Unicode/punycode. Parsed IPv4/IPv6 comparisons support equivalent spellings; aligned numeric-prefix CIDRs authorize contained addresses or ranges within a single root. Zones/mapped IPv6 and malformed/host-bit CIDRs fail closed. HTTP/HTTPS URL scope uses parsed actual authorities and validates brackets/ports; userinfo is rejected entirely, and path/query/fragment do not influence membership or appear in rejection context. Canonical successful URLs preserve those components' case/content.
+
+Exclusions always win: domain exclusions cover descendants regardless of allow_subdomains; hostname/URL exclusions are exact; candidate ranges overlapping excluded IP/CIDR data are rejected in full. Deterministic match reporting uses canonical specificity/kind/value/ID, independent of declaration order. Private-address gating covers explicit RFC1918/IPv6 ULA networks and any overlapping candidate CIDR. Enabling the flag only permits otherwise declared membership; unrelated private networks remain rejected. Documentation ranges and other special categories do not infer authority or broader execution permission.
+
+ADR 0002 resolves derived-address semantics: discovery does not imply authorization; planner recommendation does not imply authorization; every newly introduced network target requires deterministic validation before future execution. The same callable boundary accepts each absolute redirect/discovered name/supplied IP independently. No automatic scope expansion, DNS lookup or inherited origin authority exists. Future adapters must independently validate concrete addresses and constrain/pin approved contacts/revalidate changes; no resolver/rebinding/contact runtime is claimed today. Application preferences are applied only by future explicit trusted session assembly; the validator reads effective Scope flags, with no global config or implicit option combination.
+
+Files: added policy/scope.py, tests/unit/test_scope.py, docs/scope-model.md and ADR 0002. Updated policy exports, shared errors and its one explicit export-set regression assertion; README, CHANGELOG, architecture/security/data/config/error/logging/tool/testing documentation; PLAN, PROJECT_STATE, CURRENT_TASK and this append-only history. Domain models, dependencies/pyproject, config loaders/models, audit/logging implementation, CLI, runner and other future subsystem markers remain unchanged.
+
+### Executed validation
+
+Commands used repository .venv unless stated:
+
+| Check | Actual result |
+| --- | --- |
+| Interpreter/install | Python 3.14.6, Pydantic 2.13.5; `pip install -e ".[dev]"` and `pip check` passed |
+| Focused scope | `pytest tests/unit -k scope`: final 122 passed, 432 deselected; includes 108 new implementation cases |
+| Ruff | `ruff check .` and `ruff format --check .`: passed, 57 Python files formatted |
+| Types | `mypy src/recon_agent`: 27 production modules passed; `mypy src/recon_agent tests/unit/test_results.py`: 28 files passed, no weakened checks/Any/ignores |
+| Full tests | `pytest`: final 554 passed |
+| Coverage | `coverage run -m pytest`: 554 passed; `coverage report`: 99%, 781 statements / 216 branches, two defensive policy lines unexecuted; no threshold/acceptance weakened |
+| Offline full suite | Temporary socket connection/send/bind/listen and DNS-function blocking wrapper, Groq key absent: 554 passed |
+| Build/CLI | Final `python -m build` succeeded (sdist/wheel, isolated setuptools 84.0.0); `recon-agent` unchanged inert message, successful exit |
+| Fresh wheel | External temporary venv installed final wheel; isolated `python -I -B` guarded cold imports verified site-packages origin, declaration matching, scope errors/typed results and JSON round trips; installed CLI/pip check passed |
+| Runtime guards | Wheel check blocked socket/DNS/process/database/directory/thread/global logging startup, application Path access and file writes; allowed normal dependency metadata/import reads; no project logger was created by imports |
+| Manual security | Fresh-wheel exact/case/trailing-dot and lookalike cases; domain descendants on/off; authorized origin/out-of-scope redirect; userinfo confusion; independent supplied-IP rejection; IPv6 URL; private declared member on/off and unrelated private address rejection all passed |
+| Source/package | AST and targeted searches showed no network/process/scanner/Groq/database behavior or broad permissive exception fallback in policy. The hostname suffix comparison includes explicit dot boundary. Sole runtime dependency remains Pydantic; wheel/sdist source bytes match checkout; no generated artifacts/secrets staged; protected files unchanged |
+| Review/reconciliation | Reviewed every changed/new source/test/doc, scope/security/architecture contracts and state/history. Final Markdown links, task statuses/dependencies, append-only history, secret/artifact checks and working/staged Git diff/whitespace inspections passed before commit |
+
+Development checks caught an initial test import of a non-exported config model, strict typing of URL IP union/range comparisons, and the existing explicit error export-set assertion. Corrected imports/types and updated that assertion to reflect the intended additive enum API. Review tightened alternate numeric hostname and bracketed URL authority rejection. Subsequent focused/full/offline/type/build/wheel checks passed. Python 3.12 was not separately executed; the explicit bracket-suffix check also defends older parser behavior. Unsupported-kind parsing is defensive behind Target revalidation. No artificial branches/tests or acceptance relaxation were introduced for coverage.
+
+Installation/build provisioning can access the package index; product policy/imports/tests/CLI perform no network activity. No real credential, live target or reconnaissance binary was used. Synthetic token text only exercises safe diagnostic omission.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Deterministic allow/deny, canonical targets and reasons | Existing Success/Failure plus canonical Target/matched declaration; ScopeRejectionReason/ErrorInfo; repeated/order-independent matches and Python/JSON tests passed |
+| Lookalikes/malformed targets/ambiguous scope fail closed | Exact/label suffix, malformed DNS/IP/CIDR/URL, exclusion precedence, private gates, invalid declaration and parser failure tests; manual/wheel checks passed |
+| Redirect/new names require new validation | Independent origin/redirect/discovered name/address cases rejected absent their own membership; pure callable boundary and docs introduce no origin exceptions |
+| DNS/address semantics documented, no arbitrary IP expansion | ADR 0002/scope/security/tool contracts require independent concrete-address checks and constrained future contact; name-only scope rejects supplied IPs; no DNS/network code introduced |
+
+M0-T01–M0-T06 and M1-T01 are DONE. M1-T02 dependency/prerequisite gate is satisfied and it alone becomes READY; 84 later tasks remain NOT STARTED. CURRENT_TASK says No active task. The broader M1-T02 corpus/property/fake dispatch work has not begun. No action policy, execution capability, scanner, provider/planner, orchestration, persistence or CLI behavior was added. Known blockers: none; documented future contact/address constraints belong to their existing owning tasks. Stop after M1-T01.
+
+Commit reference: the single focused commit containing this entry, titled `feat(policy): implement deterministic scope validation`; resolve with `git log -1 --format=%H --grep="^feat(policy): implement deterministic scope validation$"`. Established convention avoids a circular self-hash, amendment or second task commit. Final handoff reports actual hash and clean post-commit tree. No push.

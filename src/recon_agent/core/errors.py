@@ -15,6 +15,14 @@ class ErrorCategory(StrEnum):
     CANCELLATION = "cancellation"
 
 
+class ScopeRejectionReason(StrEnum):
+    INVALID_SCOPE = "invalid_scope"
+    INVALID_TARGET = "invalid_target"
+    NOT_IN_SCOPE = "not_in_scope"
+    EXCLUDED = "excluded"
+    PRIVATE_IP_NOT_ALLOWED = "private_ip_not_allowed"
+
+
 class ErrorCode(StrEnum):
     CONFIGURATION_INVALID = "configuration_invalid"
     SCOPE_REJECTED = "scope_rejected"
@@ -83,6 +91,9 @@ class ErrorContext(_Contract):
     timeout_seconds: Annotated[float, Field(gt=0)] | None = None
     exit_code: int | None = None
     configuration_source: Literal["file", "environment", "validation"] | None = None
+    scope_reason: ScopeRejectionReason | None = None
+    target_kind: Literal["domain", "hostname", "ip", "cidr", "url"] | None = None
+    normalized_candidate: _Reference | None = None
 
 
 class ErrorInfo(_Contract):
@@ -229,6 +240,7 @@ __all__ = [
     "ProviderError",
     "ReconAgentError",
     "ScopeRejectedError",
+    "ScopeRejectionReason",
     "ToolError",
     "ToolExecutionError",
     "ToolTimeoutError",

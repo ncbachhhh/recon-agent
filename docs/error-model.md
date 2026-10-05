@@ -27,8 +27,8 @@ Instantiate a concrete error with a short, sanitized message and optional typed
 
 Cancellation supplies the category for M0-T04's existing terminal status, rather
 than mislabeling cancellation as tool failure. It does not implement cancellation,
-child cleanup or orchestration. All other operational boundaries in this table
-remain planned; configuration loading is the only integrated operation today.
+child cleanup or orchestration. Configuration loading and M1-T01 scope membership are integrated boundaries;
+other operational boundaries in this table remain planned.
 
 All errors default to `retryable=False`. A producer may explicitly set it to true
 for a known transient tool/provider failure. It means a retry **may** be useful;
@@ -50,7 +50,10 @@ there is no global mapper or invented fallback for unknown exceptions.
 `ErrorContext` allows only optional scalar fields: `action_id`, `target_id`,
 `capability`, `tool`, `provider`, positive finite `timeout_seconds`, integer
 `exit_code`, and `configuration_source` (`file`, `environment`, `validation`).
-Absent fields default to null. Reference text is non-blank and at most 256
+M1-T01 adds optional typed `scope_reason` (ScopeRejectionReason), `target_kind`
+and bounded `normalized_candidate` authority/CIDR fields for deterministic policy
+failures. Raw malformed inputs and URL paths/queries/userinfo are omitted; see
+[scope model](scope-model.md). Absent fields default to null. Reference text is non-blank and at most 256
 characters; messages are non-blank and at most 1024. These limits keep diagnostic
 records from absorbing unbounded remote output; full evidence belongs in its
 own bounded collection/artifact contract. Negative exit codes are valid data.
@@ -149,5 +152,5 @@ strict nested serialization, typed payload narrowing, result invariants,
 configuration cause chaining and ActionResult distinctions. The [testing strategy](testing-strategy.md)
 requires full validation as well. M0-T05 introduced no logging behavior; M0-T06
 now implements the separate local sink. No new runtime dependency,
-scope validator, process runner, tool registry, scanner, Groq/provider implementation,
+process runner, tool registry, scanner, Groq/provider implementation,
 planner runtime, autonomous loop, database, report or CLI command is added.

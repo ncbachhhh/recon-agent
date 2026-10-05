@@ -68,8 +68,10 @@ There are no arbitrary upper bounds unrelated to architecture.
 
 Scope preferences never establish authorization, including when set to `true`.
 Missing scope cannot grant permission: this configuration contains no target
-scope at all. Explicit authorization and target rules belong to future domain and
-M1 scope-engine work. Tool paths, tool-specific limits, provider retry/evidence
+scope at all. Explicit authorization comes from operator Scope roots/exclusions.
+M1-T01 ScopeValidator consumes effective Scope flags; future trusted session assembly
+must explicitly apply application preferences to that declaration. The validator
+never reads AppConfig or combines options implicitly. See [scope model](scope-model.md). Tool paths, tool-specific limits, provider retry/evidence
 limits and policy profiles remain deferred to their owning tasks. Future adapters
 own executable selection and argv construction; configuration cannot supply
 arbitrary commands or bypass capability policy.
@@ -187,7 +189,6 @@ Tests isolate environment sources and cover defaults, all sections, precedence,
 strict/unknown settings, file failures, secret exclusion, diagnostics and absence
 of runtime filesystem/logging side effects. See [testing strategy](testing-strategy.md)
 for mandatory complete validation. Domain data models now exist (M0-T04);
-scope enforcement,
 process runners/adapters, Groq, AI planning, database persistence,
 operational reports and real CLI commands remain unimplemented. M0-T06 explicitly
 consumes LoggingConfig level/structured through configure_logging; loading settings

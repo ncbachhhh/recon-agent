@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: Foundation / configuration, domain, errors/results and local logging/audit
+Project phase: M1 / deterministic scope membership foundation
 
 Completed:
 
@@ -10,12 +10,13 @@ Completed:
 - M0-T04 — Core domain model foundation (DONE)
 - M0-T05 — Error taxonomy and result model (DONE)
 - M0-T06 — Logging and audit-event foundation (DONE)
+- M1-T01 — Scope model and validator (DONE)
 
 Active task: None.
 
 Next READY:
 
-- M1-T01 — Scope model and validator (not started)
+- M1-T02 — Scope regression suite (not started)
 
 ## Implementation reality
 
@@ -29,12 +30,15 @@ The 92-task roadmap, governance, maintenance skill and design documentation exis
 
 M0-T06 adds pure `core/audit.py` with 16 stable event types, explicit UTC time/session IDs and optional action/execution/decision/asset correlation. `core/redaction.py` copies and bounds diagnostic JSON, masks known sensitive keys/wrappers and accepts explicitly registered secret values. `core/diagnostics.py` explicitly configures only the project logger, replaces its owned console handler, supports escaped human/JSON output and emits revalidated records through recon_agent.audit. Existing LoggingConfig and ErrorInfo are reused. Native causes/stacks are omitted; malformed records produce fixed omission output and sink failures raise fixed ConfigurationError without raw-record fallback. Imports and data constructors do not configure logging. See docs/logging-and-audit.md for precise redaction and delivery limits.
 
-Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, scope enforcement, registry/policy, runner, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T01 is READY; remaining 85 tasks are NOT STARTED.
+M1-T01 adds pure synchronous `policy/ScopeValidator` compiled from an explicit immutable Scope snapshot. Exact DNS names, optional domain descendants, IPv4/IPv6, aligned CIDRs and host-level HTTP/HTTPS URLs use deterministic comparisons; exclusions always win. Canonical Target/matched-rule data use existing Success/Failure outcomes; canonical ScopeRejectedError/ErrorInfo carries typed scope reason and safe authority context. RFC1918/IPv6 ULA gating never grants authorization. Unicode/IDN, scoped/mapped IPv6 and ambiguous representations fail closed. No declaration mutation, global config read, audit producer, DNS or contact occurs. See docs/scope-model.md and ADR 0002 for independent concrete-address authorization and future contact/rebinding obligations.
+
+Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, broader action policy/registry, runner, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T02 is READY; remaining 84 tasks are NOT STARTED.
 
 ## Major architecture decisions
 
 - Capability intent never becomes LLM-generated shell/argv; future registry/policy/adapters own authorization and execution.
-- Centralized deterministic fail-closed scope/action validation must precede contact, including derived destinations.
+- Pure centralized scope membership is implemented; broader action validation and contact enforcement remain future work. Discovery/planner recommendations grant no authority.
+- ADR 0002 requires independently declared address membership, constrained/pinned approved contacts and revalidation on address/destination changes; no DNS runtime or implicit name-to-IP expansion exists.
 - Remote evidence and model recommendations remain non-authoritative data with provenance. Audit records do not authorize replay.
 - Pure domain/error models never emit logs. Future application/orchestration services emit concise decision summaries, policy outcomes and execution records, without private reasoning or transcript state.
 - Explicit local standard-library logging leaves root/third-party handlers alone, performs no remote upload/file persistence and needs no new runtime dependency or ADR.
@@ -44,6 +48,6 @@ Audit events describe autonomous recon operations and confer no authorization. E
 
 ## Validation
 
-Python 3.14.6 / Pydantic 2.13.5: editable install/pip check; 116 focused logging/audit tests; Ruff lint/format; strict Mypy (26 production modules, plus the existing result typing test); full 446-test suite; coverage (100%, 621 statements / 150 branches); sdist/wheel build and unchanged CLI passed. All 446 tests also passed with connection/DNS functions blocked and Groq key absent. Fresh external wheel installation passed guarded cold imports, pure event JSON serialization, explicit local setup/emission, handler safety, redaction/error metadata, UTC/correlation, CLI and pip check. Runtime guards blocked network/process/database/directory/file/global-logging/thread startup, allowing only ordinary dependency entry-point metadata reads. Source/field security, protected-file, archive/dependency, documentation/status/history and Git inspections passed. See TASK_HISTORY for actual evidence. Python 3.12 was not separately exercised.
+Python 3.14.6 / Pydantic 2.13.5: editable install and pip check passed; 122 focused scope-selected tests (108 new implementation cases); Ruff lint/format; strict Mypy (27 production modules, 28 including the existing result typing test); all 554 tests and coverage passed (99%, 781 statements / 216 branches; two policy defensive lines unexecuted). All 554 tests also passed with network/DNS blocked and Groq key absent. Final sdist/wheel build, guarded external fresh-wheel imports, scope/error/result JSON round trips, manual domain/redirect/private-IP checks, installed CLI and pip check passed. Guards blocked network/process/database/directory/thread/global logging startup and application file use; normal dependency metadata/import reads remained allowed. Source AST, boundary suffix/fallback review, protected-file and archive/dependency parity checks passed. CLI remains the unchanged inert placeholder. Documentation/status/history, secret/artifact and final Git inspections accompany the focused closeout; see TASK_HISTORY for actual evidence and corrected development failures. Python 3.12 was not separately exercised.
 
 Known blockers: None.

@@ -34,7 +34,7 @@ These are data examples, not scan authorization or runnable sessions.
   later canonicalization/deduplication work must preserve these lineage references.
 - Required text must contain a non-whitespace character. Strings are preserved,
   not stripped or rewritten. Target kinds label declarations without validating
-  their domain/IP/CIDR/URL syntax; M1 owns parsing/canonicalization and authorization.
+  their domain/IP/CIDR/URL syntax; M1-T01 policy owns parsing/canonicalization and authorization; domain constructors still preserve declarations.
 - Evidence/observation collection times, decision/result recording times and session
   creation time are required caller-supplied aware datetimes. Values normalize to
   UTC; JSON emits ISO 8601 values with `Z`. No clocks or randomness run on construction.
@@ -60,7 +60,7 @@ These are data examples, not scan authorization or runnable sessions.
 | Model | Fields and relationships | Meaning and boundary |
 | --- | --- | --- |
 | Target | `id`, `kind`, `value`; kinds `domain`, `hostname`, `ip`, `cidr`, `url` | Operator-declared starting subject; presence does not confer authorization, resolve DNS or classify syntax |
-| Scope | `id`, `roots`/`exclusions` tuples of Target, false-default `allow_subdomains`/`allow_private_ips`, optional `authorization_context` | Declaration snapshot only. Empty roots are valid data and grant nothing; ScopeValidator and exact semantics belong to M1-T01 |
+| Scope | `id`, `roots`/`exclusions` tuples of Target, false-default `allow_subdomains`/`allow_private_ips`, optional `authorization_context` | Declaration snapshot only. Empty roots are valid data and grant nothing; the separate M1-T01 ScopeValidator implements exact semantics; see [scope model](scope-model.md) |
 | Asset | `id`, `kind` (`host`/`web_resource`), `value`, `observation_ids` | The discovered subject, independent of scanner identity; no raw stdout or computed scope/actionability flag |
 | Host | `id`, `asset_id`, `value`, reported `addresses`, `observation_ids` | Network-host detail associated with an Asset; addresses are supplied text, not DNS results obtained by construction or IP authorization |
 | Service | `id`, `asset_id`, `host_id`, `port`, `transport`, optional `protocol`/`product`/`version`, `observation_ids` | Observed network metadata. Port is a strict integer 1–65535; transport is `tcp`/`udp`; product/version never imply a vulnerability |
@@ -150,7 +150,7 @@ package; the following are absent, with ownership made explicit:
   adapter work. Current execution IDs are opaque provenance references only.
 - **Finding:** interpreted conclusion records belong with M5-T04 finding
   normalization. ReconState deliberately has no untyped findings placeholder.
-- **Session configuration/budgets, policy outcomes, canonicalization, retention and
+- **Session configuration/budgets, broader action policy outcomes, asset/action canonicalization, retention and
   stop/resume rules:** extended by their owning policy/orchestration/storage tasks;
   no generic executable configuration or budget/state-machine implementation here.
 
@@ -173,3 +173,12 @@ observation and finding event types are forward contracts, not producers or new
 Finding/ToolExecution entities. No domain constructor logs, and diagnostic copying
 never mutates collected evidence. Events record decisions without authority or
 execution/replay methods. See [logging and audit](logging-and-audit.md).
+
+## Scope policy integration
+
+M1-T01 implements a separate pure ScopeValidator; Target/Scope fields and constructors
+are unchanged. It returns existing OperationResult with canonical Target/matched-root
+data or shared ErrorInfo, and raises ScopeRejectedError at the require boundary.
+Declaration IDs are preserved; source declarations are never rewritten. Host/CIDR
+canonicalization here is comparison policy, not asset identity/deduplication. See
+[scope semantics](scope-model.md) for exclusions, options and derived-address limits.

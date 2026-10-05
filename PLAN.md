@@ -262,7 +262,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T01`
 - **Title:** Scope model and validator
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M0-T06`
 
@@ -300,7 +300,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T02`
 - **Title:** Scope regression suite
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P0
 - **Dependencies:** `M1-T01`
 

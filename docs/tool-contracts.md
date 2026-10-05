@@ -24,6 +24,15 @@ Capability names and parameter schemas form a finite catalog. Unsupported parame
 
 Adapters also declare effective scope/redirect/recursion behavior, output limits, supported versions/formats, and tool-specific budgets. Unknown behavior must fail closed. Availability does not establish authorization. No adapter can follow a new hostname or redirect before policy approval; where a tool cannot be constrained, reject that mode.
 
+## Scope validation boundary
+
+M1-T01 now supplies `ScopeValidator.validate(Target)` / `require_allowed(Target)`
+for local membership only; see [scope model](scope-model.md) and
+[ADR 0002](decisions/0002-scope-and-derived-addresses.md). Future adapters must check
+each absolute redirect destination, discovered hostname and concrete resolved
+address independently before contact, pin/constrain approved addresses and recheck
+changes. No adapter, resolver, redirect follower or dispatch integration exists yet.
+
 ## Normalized outputs
 
 Outputs should include source adapter/version, target, timestamp, execution reference, evidence reference, and typed facts. Service observations include port, transport, service/protocol, and optional product/version. DNS observations include name/type/value and resolution context. HTTP observations include URL, status, title, server, content type, redirect destination, and technology hints with provenance. TLS observations include certificate fields and SAN names; discovered names remain unactionable until validated. Web outputs include canonical endpoints and bounded metadata. Template results become findings with supporting evidence.

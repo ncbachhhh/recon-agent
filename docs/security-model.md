@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; no operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -36,7 +36,7 @@ Remote reconnaissance content may be sensitive even when authorized to collect. 
 
 ## Implemented configuration boundary
 
-M0-T03 rejects unknown keys and invalid effective types/limits in trusted configuration. The explicit loader performs no runtime startup. Scope preferences contain no targets or authorization grants; enabling tools/planner/persistence only sets preferences. `GROQ_API_KEY` is loaded separately into an excluded `SecretStr` field, never ordinary configuration or diagnostic dumps. Displayed validation errors hide raw inputs; diagnostic callers of Pydantic structured errors must omit input values. No arbitrary commands, argv or policy-bypass options exist. See [configuration](configuration.md) for sources, precedence and failure behavior. These contracts do not implement scope enforcement, capability policy, budgets, logging or provider communication.
+M0-T03 rejects unknown keys and invalid effective types/limits in trusted configuration. The explicit loader performs no runtime startup. Scope preferences contain no targets or authorization grants; enabling tools/planner/persistence only sets preferences. `GROQ_API_KEY` is loaded separately into an excluded `SecretStr` field, never ordinary configuration or diagnostic dumps. Displayed validation errors hide raw inputs; diagnostic callers of Pydantic structured errors must omit input values. No arbitrary commands, argv or policy-bypass options exist. See [configuration](configuration.md) for sources, precedence and failure behavior. Configuration contracts do not implement scope enforcement, capability policy, budgets, logging or provider communication. ScopeValidator consumes explicitly assembled Scope data; application settings never authorize targets.
 
 ## Implemented domain boundary
 
@@ -98,7 +98,11 @@ Do not let remote content trigger local reads, uploads, expanded targets, templa
 
 Centralized validation covers domain/subdomain boundaries, canonical hostnames, IPv4/IPv6, CIDRs, URLs, ports where constrained, and redirect-derived targets. Exact domain authorization and subdomain authorization must be distinguished explicitly; suffix/lookalike confusion must fail. Discovered DNS addresses, certificate SANs, links, and redirect destinations require independent validation before contact or actionable promotion.
 
-A domain resolving to an address is evidence, not unlimited IP authorization. M1-T01 must specify resolution/IP policy and revalidation against address changes. Tools must not bypass scope via their own recursion, redirect following, secondary lookup targets, or automatic feature discovery. Disable unsafe implicit behavior or reject execution when the adapter cannot constrain it. A post-scan filter cannot undo an out-of-scope network request.
+Discovery does not imply authorization. Planner recommendation does not imply authorization. Every newly introduced network target must pass deterministic scope validation before future execution.
+
+M1-T01 implements local ScopeValidator with exact roots, label-aware domain descendants, parsed IP/CIDR membership, host-level HTTP/HTTPS URLs, exclusion precedence and canonical structured failures. Private-address preferences gate RFC1918/IPv6 ULA membership; they grant no scope. Unsupported Unicode/IDN, zones/mapped IPv6, malformed/ambiguous targets and invalid declarations fail closed. The validator emits no logs, performs no DNS/network and mutates no declarations. See [scope model](scope-model.md) for authoritative semantics and [ADR 0002](decisions/0002-scope-and-derived-addresses.md).
+
+A domain resolving to an address is evidence, not IP authorization. Future adapters must independently validate every supplied concrete address, constrain/pin approved destinations and revalidate address changes before contact; no resolution or rebinding runtime exists yet. Tools must not bypass scope via their own recursion, redirect following, secondary lookup targets, or automatic feature discovery. Disable unsafe implicit behavior or reject execution when the adapter cannot constrain it. A post-scan filter cannot undo an out-of-scope network request.
 
 If scope cannot be established reliably, **do not execute the action**. Malformed targets, ambiguous parsing, unresolved policy semantics, unsupported tool behavior, and missing authorization are fail-closed cases. Record the rejection with enough evidence to explain it without leaking secrets.
 

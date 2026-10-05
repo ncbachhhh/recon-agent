@@ -6,7 +6,7 @@ The problem is coordinating discovery, follow-up metadata collection, and eviden
 
 ## Current status
 
-**Foundation/configuration/domain/error contracts and local logging only.** M0-T01 provides governance and design; M0-T02 provides an installable Python >=3.12 package, developer tooling, and an inert `recon-agent` console entry point. M0-T03 adds typed Pydantic configuration with defaults, explicit TOML loading, environment/programmatic overrides and separate redacted credentials. See the [configuration reference](docs/configuration.md) and [safe example](config.example.toml). The command still only prints `recon-agent is not yet implemented (development baseline only).` and exits successfully. M0-T04 adds pure typed domain data models with provenance and safe capability-intent contracts; see the [data model](docs/data-model.md). M0-T05 adds shared operational errors, serializable diagnostic failures and typed explicit outcomes; see [error/result contracts](docs/error-model.md). M0-T06 adds explicit local diagnostic logging, typed audit records and redaction; see [logging/audit contracts](docs/logging-and-audit.md). Scope enforcement, scanner adapters, process runner, Groq client, planner, database and operational reporting remain unimplemented; conceptual examples below describe future behavior.
+**Foundation contracts, local logging and deterministic scope membership only.** M0-T01 provides governance and design; M0-T02 provides an installable Python >=3.12 package, developer tooling, and an inert `recon-agent` console entry point. M0-T03 adds typed Pydantic configuration with defaults, explicit TOML loading, environment/programmatic overrides and separate redacted credentials. See the [configuration reference](docs/configuration.md) and [safe example](config.example.toml). The command still only prints `recon-agent is not yet implemented (development baseline only).` and exits successfully. M0-T04 adds pure typed domain data models with provenance and safe capability-intent contracts; see the [data model](docs/data-model.md). M0-T05 adds shared operational errors, serializable diagnostic failures and typed explicit outcomes; see [error/result contracts](docs/error-model.md). M0-T06 adds explicit local diagnostic logging, typed audit records and redaction; see [logging/audit contracts](docs/logging-and-audit.md). M1-T01 adds local deterministic scope membership; see [scope semantics](docs/scope-model.md). Scanner adapters, process runner, Groq client, planner, database and operational reporting remain unimplemented; conceptual examples below describe future behavior.
 
 ## Adaptive architecture
 
@@ -46,14 +46,14 @@ TASK_HISTORY.md        Append-only completed work
 CHANGELOG.md           User-visible changes
 .codex/skills/         Repository maintenance workflow
 pyproject.toml         Package/build and developer tool configuration
-src/recon_agent/       Typed config/domain/errors, local logging and inert CLI
+src/recon_agent/       Typed foundations, scope policy, local logging and inert CLI
   core/ domain/ policy/ execution/ tools/ providers/
   orchestration/ persistence/ reporting/ cli/
 tests/                 unit/, integration/, fixtures/
 docs/                  Architecture, contracts, security, testing, configuration, ADRs
 ```
 
-Start repository work with the startup sequence in [AGENTS.md](AGENTS.md). See [PLAN.md](PLAN.md) for the roadmap, [PROJECT_STATE.md](PROJECT_STATE.md) for implementation reality, and [testing strategy](docs/testing-strategy.md) for phase-specific validation. M0-T01–M0-T06 are DONE; M1-T01 is READY and has not started. All later tasks are NOT STARTED; no active task remains. Development proceeds one implementation task at a time.
+Start repository work with the startup sequence in [AGENTS.md](AGENTS.md). See [PLAN.md](PLAN.md) for the roadmap, [PROJECT_STATE.md](PROJECT_STATE.md) for implementation reality, and [testing strategy](docs/testing-strategy.md) for phase-specific validation. M0-T01–M0-T06 and M1-T01 are DONE; M1-T02 is READY and has not started. All later tasks are NOT STARTED; no active task remains. Development proceeds one implementation task at a time.
 
 ## Development baseline
 

@@ -43,6 +43,14 @@ class ScopeMatch(BaseModel):
     canonical_target: Target
     matched_rule: Target
 
+    @property
+    def host_identity(self) -> str | None:
+        """Canonical accounting host; CIDR sets have no single host identity."""
+        parsed = _parse(Target.model_validate(self.canonical_target))
+        if parsed.host is not None:
+            return parsed.host
+        return str(parsed.address) if parsed.address is not None else None
+
 
 @dataclass(frozen=True)
 class _Parsed:

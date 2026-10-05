@@ -238,11 +238,12 @@ tool_unavailable for missing/unavailable registrations; budget_exhausted for mis
 budget eligibility. Callers correlate rejections with the supplied request; no new
 failure envelope/taxonomy exists. Reasons are fixed policy text, never planner reasons.
 
-Two injected ActionEligibility.check(ActionRequest) services return OperationResult[None]
-for budget and completed-action eligibility. Missing services deny; allowing fakes
-exist only in offline tests. Returned malformed outcomes also reject. This adds no
-budget accounting, reservations, clock/rate checks or deduplication logic. M1-T06 and
-M1-T08 own those implementations. No production permitting stub exists.
+BudgetEligibility.check(ApprovedAction) and the completed-action
+ActionEligibility.check(ActionRequest) return OperationResult[None]. Missing services
+deny; returned malformed outcomes also reject. M1-T06 evolves the budget seam to
+consume canonical primary/secondary targets without repeating schema/scope checks
+and supplies BudgetController. M1-T08 still owns completed-action semantics; its
+permitting fakes exist only in tests. No production permitting stub exists.
 
 Future dispatch must revalidate the original request against current scope, registry,
 parameters, risk and eligibility; atomically reserve budgets and enforce deduplication.
@@ -251,3 +252,15 @@ Adapters must independently check newly introduced redirect/discovery/DNS destin
 and constrain actual contact. Policy validation is synchronous local checking only:
 no registry mutation, adapter execution, binary selection, runner, network/DNS, Groq,
 audit emission or tool.execution_started event.
+
+## Resource reservations (M1-T06)
+
+Policy authorization != budget availability. After current policy revalidation,
+future dispatch calls BudgetController.reserve on the normalized ApprovedAction and
+immediately enters the returned BudgetPermit. This atomically bounds permitted
+attempts, all host buckets, selected-tool/capability rates, concurrency, session time
+and two-stream output allowance; no adapter or runner is invoked. Context exit
+releases only concurrency and records a typed outcome; retries need new charged
+reservations. No implicit multi-process/tool-internal traffic allowance exists.
+AI planner cannot raise resource limits. See [budget contract](execution-budgets.md)
+for exact ownership, counting, CIDR rejection and future adapter obligations.

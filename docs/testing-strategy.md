@@ -148,12 +148,33 @@ contact/DNS blocking and fresh-wheel cold import/composition checks remain requi
 Run `.venv/bin/python -m pytest tests/unit/policy/test_action_policy.py`, followed
 by registry/scope regressions and the full baseline. Fixtures use only trusted fake
 schemas/adapters and permitting/denying eligibility services; no scanner models or
-production permitting service exists. Guards block socket/DNS/subprocess/runner,
+production completed-action permitting service exists. M1-T06 supplies real budget
+checks. Guards block socket/DNS/subprocess/runner,
 registry adapter resolution, dynamic imports and logging. Tests cover canonical
 approvals, malformed/unknown/unavailable/disallowed intent, strict/extra/executable
 parameters, every declared secondary target/default, missing target semantics,
 unsupported target representations, missing eligibility and malformed outcomes.
 Planner metadata cannot change denials. Test-only dispatch rechecks stale approval
 and remains untouched on rejection. Full contact/DNS-blocked suite and guarded
-fresh-wheel imports/policy checks are required. No production dispatch, resource
-reservation, deduplication or concrete-address contact guarantee is claimed.
+fresh-wheel imports/policy checks are required. No production dispatch, deduplication
+or concrete-address contact guarantee is claimed. M1-T06 separately supplies resource reservations.
+
+## Budget regressions (M1-T06)
+
+Run `.venv/bin/python -m pytest tests/unit/test_budgets.py` plus configuration/action
+policy regressions, then the full baseline and contact/DNS-blocked suite. Injected
+clock values advance without sleep. Offline simultaneous contenders test each
+reservation dimension under a shared ledger, without scanner tasks or a worker pool.
+Real asyncio cancellation is exercised only against Event-based fake owned work;
+no runner/adapter is invoked. Runtime guards forbid subprocess/network/DNS/runner,
+registry adapter resolution, dynamic loading and logging startup where relevant.
+
+Cases cover initial/read-only state, exact action/rate/time/output boundaries,
+no underflow/partial consumption, independent sessions/capabilities/hosts,
+canonical DNS/URL/IP/IPv6 representations, secondary/default targets and duplicate
+host accounting, fail-closed CIDRs/unknown/malformed inputs, bad/regressing clocks,
+failure/retry/cancellation/timeout charges and idempotent/non-nested permit ownership.
+Configuration tests cover strict invalid/new fields, loading/snapshots and planner
+metadata/field isolation. Fresh-wheel guarded imports/composition/reservations,
+artifact/secret/source inspection and inert CLI remain required. No claims about
+running-work cancellation or future internal scanner traffic follow from these tests.

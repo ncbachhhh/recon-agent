@@ -6,6 +6,14 @@ from recon_agent.policy.actions import (
     ActionPolicyConfig,
     ActionPolicyValidator,
     ApprovedAction,
+    BudgetEligibility,
+)
+from recon_agent.policy.budgets import (
+    BudgetController,
+    BudgetPermit,
+    BudgetState,
+    ExecutionBudget,
+    ReservationOutcome,
 )
 from recon_agent.policy.scope import ScopeMatch, ScopeValidator
 
@@ -14,6 +22,12 @@ __all__ = [
     "ActionPolicyConfig",
     "ActionPolicyValidator",
     "ApprovedAction",
+    "BudgetController",
+    "BudgetEligibility",
+    "BudgetPermit",
+    "BudgetState",
+    "ExecutionBudget",
+    "ReservationOutcome",
     "ScopeMatch",
     "ScopeRejectionReason",
     "ScopeValidator",

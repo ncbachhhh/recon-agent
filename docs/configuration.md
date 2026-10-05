@@ -3,6 +3,7 @@
 M0-T03 implements typed configuration contracts and explicit local loading in
 `recon_agent.core.config`. Loading these settings does not start subsystems. M1-T03 explicitly consumes the
 execution default timeout and per-stream output cap in its internal process runner.
+M1-T06 explicitly snapshots execution resource settings in ExecutionBudget.
 The console entry point remains the inert M0-T02 placeholder.
 
 ## Application API and sources
@@ -53,7 +54,7 @@ without NUL characters. JSON diagnostic serialization represents paths as string
 | Section | Fields and defaults | Validation / meaning |
 | --- | --- | --- |
 | `scope` | `allow_subdomains=false`, `allow_private_ips=false` | Boolean preferences only; contains no targets or authorization grants |
-| `execution` | `default_timeout_seconds=30.0`, `max_concurrency=1`, `max_output_bytes=1048576`, `max_actions=100`, `max_duration_seconds=600.0` | Positive finite seconds; positive integer counts/bytes; default timeout must fit within the session duration |
+| `execution` | `default_timeout_seconds=30.0`, `max_concurrency=1`, `max_output_bytes=1048576`, `max_actions=100`, `max_actions_per_host=10`, `capability_rate_actions=1`, `capability_rate_window_seconds=1.0`, `max_session_output_bytes=16777216`, `max_duration_seconds=600.0` | Positive finite seconds; positive integer counts/bytes; default timeout must fit within the session duration |
 | `planner` | `enabled=false`, `provider="groq"`, `model=""`, `max_iterations=10` | Only planned provider `groq`; positive iteration limit; enabled planner requires a non-blank model identifier |
 | `tools` | `enabled=false` | Boolean adapter enablement preference; no command, arguments or executable paths |
 | `persistence` | `enabled=false`, `database_path="recon-agent.sqlite3"` | Local path contract for planned SQLite persistence; no file is created |
@@ -62,8 +63,9 @@ without NUL characters. JSON diagnostic serialization represents paths as string
 
 The defaults disable planner, external tools and persistence. No model identifier
 is chosen from a changing online catalog: the operator supplies a string when
-enabling the future planner. Positive execution budgets establish future bounded
-session contracts, without implementing enforcement. The timeout/budget relation
+enabling the future planner. Positive execution budgets establish bounded session
+contracts; M1-T06 supplies explicit local enforcement without runtime startup.
+The timeout/budget relation
 ensures a default operation can fit in the configured session time envelope.
 There are no arbitrary upper bounds unrelated to architecture.
 
@@ -202,7 +204,7 @@ ProcessSpec timeout overrides default_timeout_seconds; no second global default 
 introduced. max_output_bytes now caps retained bytes **per stream**, so at most N
 stdout bytes plus N stderr bytes are retained while excess is drained/discarded.
 Truncation is explicit. max_concurrency, max_actions and max_duration_seconds remain
-future session budget/orchestration preferences, not runner-enforced limits.
+session budget settings consumed separately by M1-T06, not runner-enforced limits.
 No per-request output override, env/cwd/stdin options or new config field is added.
 See [execution model](execution-model.md) for deadline/cleanup and direct-child limits.
 
@@ -222,3 +224,29 @@ into ActionPolicyValidator. Finite capability/risk allowlists default empty. It 
 not read environment/TOML/global AppConfig or consume ToolsConfig.enabled. Trusted
 future composition must assemble policy and actual eligibility services explicitly.
 No seven-section settings/loader or configuration-source behavior changes.
+
+## Execution budget snapshot (M1-T06)
+
+ExecutionBudget.from_config(config.execution) revalidates all effective execution
+limits into a frozen snapshot. Explicit BudgetController construction also requires
+the session's ToolRegistry and optionally an injected monotonic clock. Loading
+configuration does not create a controller, reserve work or execute anything.
+Zero/negative counts, boolean/string coercion and non-finite seconds reject through
+the existing strict config contract; environment/TOML/programmatic precedence is
+unchanged. New fields use the same namespaced source handling.
+
+max_actions counts granted attempts, including failures/cancellations/aborts;
+max_actions_per_host counts distinct canonical primary/secondary hosts per attempt.
+capability_rate_actions/window_seconds apply independently to each registered
+capability/selected tool with rolling monotonic windows. max_session_output_bytes
+caps aggregate worst-case stdout+stderr allowances; max_output_bytes still caps each
+process stream. No allowances are refunded. A positive session envelope smaller
+than two stream caps denies every reservation; it never expands limits. Defaults
+permit at most eight full output allowances (16 MiB total / 2 MiB per attempt),
+which may exhaust before the 100-attempt ceiling. These are intentionally independent
+upper limits, not promised execution counts. See [counting semantics](execution-budgets.md).
+
+Policy authorization != budget availability. AI planner cannot raise resource
+limits. Only trusted new-session assembly chooses a snapshot; later config edits
+cannot change its limits or reset consumption. No scanner rate flags or global
+consumer/startup is implemented.

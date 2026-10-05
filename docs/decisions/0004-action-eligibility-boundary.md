@@ -87,3 +87,10 @@ policy facts, metadata changes and stale-approval rechecks with untouched mock d
 M1-T06 implements budgets/rates/reservations; M1-T08 implements deduplication.
 Scanner and orchestration tasks enforce current-policy dispatch and contact
 containment. None is started here. See [tool contracts](../tool-contracts.md).
+
+
+M1-T06 update: BudgetEligibility now accepts normalized ApprovedAction so resource
+accounting includes all validated secondary targets/defaults without duplicating
+scope/schema logic. Completed-action eligibility remains ActionRequest-based and
+default deny. See [ADR 0005](0005-budget-reservations.md) for reservation/counting
+semantics; original M1-T05 choices above describe that task's initial boundary.

@@ -455,7 +455,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T06`
 - **Title:** Execution budgets and rate limiting
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P0
 - **Dependencies:** `M1-T05`
 
@@ -494,7 +494,7 @@ Library/client/CLI/migration choices remain open where not mandated. Decide cons
 
 - **ID:** `M1-T07`
 - **Title:** ReconState state machine
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P0
 - **Dependencies:** `M1-T06`, `M0-T04`
 

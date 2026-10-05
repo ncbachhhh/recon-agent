@@ -738,3 +738,137 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(policy): validate reconnaissance actions$"`.
 No circular self-hash, amendment or second task commit. Final handoff reports actual
 full commit hash and verified clean tree. No push.
+
+## 2026-10-05 — M1-T06 — Execution budgets and rate limiting
+
+Status: DONE
+
+Objective: Bound work and traffic independently of planner recommendations through
+local atomic resource reservations without scanners or autonomous orchestration.
+
+Startup: Followed AGENTS, recon-project-maintainer skill and its lifecycle/validation
+references. Read state/current task, M1-T06/adjacent PLAN boundaries, architecture/
+security/config/tool/execution/policy/error/result/audit/scope/data/planner/testing
+docs, ADRs and recent history before inspecting Git status, both diffs/log and
+relevant source/tests. HEAD matched 6ee48a7b675c37c4fa12fcedae1e154278d7f860; clean
+tree/index, all prerequisites DONE, only M1-T06 READY, no active task/blocker.
+Marked only M1-T06 IN PROGRESS before implementation. No unrelated changes existed.
+
+### Implementation and decisions
+
+- Added policy/budgets.py: frozen strict ExecutionBudget limits, detached frozen
+  BudgetState snapshots, explicitly composed session-local BudgetController,
+  synchronous BudgetPermit ownership and finite ReservationOutcome counters.
+  No global ledger, config reads, reset/refund/limit-update API or state import.
+- Extended ExecutionConfig/example with positive max_actions_per_host (10),
+  capability_rate_actions (1), capability_rate_window_seconds (1.0) and
+  max_session_output_bytes (16 MiB). Existing source precedence/validation is reused.
+  ExecutionBudget.from_config revalidates/snapshots all relevant execution settings;
+  later config edits cannot raise the controller's limits. No planner fields changed.
+- ActionPolicyValidator budget seam now uses BudgetEligibility.check(ApprovedAction),
+  consuming already validated canonical primary/secondary matches including schema
+  defaults, without repeating registry/schema/scope authorization. Completed-action
+  ActionEligibility remains request-based and restrictive until M1-T08. Approval
+  instance revalidation is enabled. Policy authorization != budget availability.
+- ScopeMatch.host_identity reuses centralized parsing: DNS case/trailing dots, URL
+  scheme/port/path variants and canonical IP/IPv6 URL literals share host accounting.
+  No DNS/address equivalence is inferred. All distinct declared hosts count once
+  per permitted attempt. CIDRs fail closed without concrete-host accounting; future
+  range adapters must bound independently authorized concrete work, never one range
+  bucket. Existing scope membership and domain wire contracts are unchanged.
+- check is advisory and consumes nothing. reserve rechecks action/concurrency/host/
+  rolling capability rate/time/output allowance under one local lock without await.
+  Buckets exist only for explicitly registered capabilities. One selected registry
+  adapter per capability gives a per-tool execution-rate foundation; no request/
+  packet-rate or scanner-specific traffic guarantee is claimed. Exact window
+  boundary expires entries in (now-window, now]; injectable monotonic clock avoids
+  real waiting. Invalid/backward/error clocks permanently exhaust session time.
+- Granted reservations permanently charge one permitted attempt, each distinct host,
+  one capability timestamp and two per-stream worst-case output allowances. Rejected
+  requests/checks charge nothing. Aborted/failed/cancelled/timed-out attempts retain
+  charges; every retry must reserve/pay again. Only concurrency is released.
+  Conservative counting prevents failures from replenishing traffic/output budgets.
+- Context exit releases concurrency once on normal/exception/timeout/cancellation
+  paths and records typed outcome counts. Cleanup is synchronous and cannot be
+  interrupted by repeated task cancellation at an await. Explicit release is
+  idempotent; invalid outcomes and released/nested context entry reject. Abandoned
+  ownership is a caller error, not an implicit GC refund. Tests exercise real async
+  cancellation only against Event-based fake work, not a scanner/runner.
+- State supplies expired/remaining_seconds without timers or running-work interrupts.
+  M1-T03 capture is unchanged. M1-T06 reserves aggregate output allowance only;
+  future dispatch must use same/smaller stream bounds, remaining-time deadlines,
+  immediate permit ownership and one reservation per execution. Default output
+  envelope permits eight full allowances independent of the 100-attempt ceiling.
+  Positive too-small envelopes reject all work without expanding limits.
+- Existing Success/Failure/ErrorInfo/BudgetExhaustedError encode resource outcomes;
+  fixed safe messages and conservative retryable=false are retained. Invalid initial
+  controller limits/clock use ConfigurationError. No new errors/audit producer,
+  process/network/DNS/scanner/Groq/dynamic loading/shell, deduplication/state machine,
+  worker/orchestrator, persistence/reporting or operational CLI is added. A permit
+  is resource ownership, never authorization; future dispatch revalidates policy.
+- ADR 0005 documents atomicity, permanent attempt/output accounting, rolling windows,
+  normalized target seam and ownership choices. ADR 0004 notes the budget-seam
+  evolution without rewriting its initial decision. Relevant docs, README, changelog,
+  state/current task and PLAN are reconciled; history is appended only.
+
+Files: new policy/budgets.py, tests/unit/test_budgets.py (78 cases),
+docs/execution-budgets.md and ADR 0005; updated config model/example, policy exports/
+actions/scope, ADR 0004, architecture/security/config/execution/tool/data/error/scope/
+planner/audit/testing docs and lifecycle/README/changelog. Registry, runner, shared
+error/result/audit contracts, config loader, domain/planner wire models, CLI, runtime
+dependencies and future subsystem source are unchanged. No artifacts/secrets staged.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6 / Pydantic 2.13.5. Python 3.12 was not
+executed; no broader runtime compatibility claim is made.
+
+| Check | Actual command/result |
+| --- | --- |
+| Setup | `.venv/bin/python --version`; `pip install -e ".[dev]"`; `pip check`: passed |
+| Focused final | `pytest tests/unit/test_budgets.py tests/unit/policy/test_action_policy.py tests/unit/test_config.py -q`: 246 passed (78 budget + 103 action policy + 65 config) |
+| Full final | `pytest -q`: 1,245 passed |
+| Coverage final | `coverage run -m pytest -q`: 1,245 passed; `coverage report`: 99% overall, 1,355 statements / 336 branches; budget and action policy 100%; only existing defensive scope.py:121 unsupported-kind line/branch missing |
+| Network/DNS-blocked final | `/tmp/recon-m1t06-validation/offline.py`: 1,245 passed; key absent, Internet/loopback contact and DNS blocked before collection; guard self-checks passed |
+| Lint/format/types | `ruff check .`, `ruff format --check .`: passed, 77 files; `mypy src/recon_agent`: strict pass, 34 modules; no suppressions or weakened checks |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; rebuilt after final README state; editable and external installed-wheel `recon-agent`: unchanged inert message, exit 0 |
+| Fresh wheel | New external `/tmp/recon-m1t06-validation/wheel-venv`; wheel install and pip check passed. Isolated `python -I -B wheel_checks.py`: guarded cold imports/site-packages origins, policy/registry and real budget snapshot/check/reservation/release/exhaustion passed; final rebuilt wheel reinstalled/rechecked |
+| Security/artifacts | Temporary artifact_checks.py: policy/resource AST no execution/network/provider/dynamic imports/global ledger/timer/thread startup, protected-source byte parity, no new planner fields/scanners, unchanged Pydantic-only direct dependency, secret/generated-artifact scans and wheel/sdist source/README/dependency parity passed |
+| Git/reconciliation | Working/index/final diffs and whitespace, exact authorized PLAN transitions/dependencies, append-only history, coherent state/current task, local Markdown links/fences and task-owned staged paths inspected before the single commit |
+
+Development checks caught a forward annotation, typed callable tuple, overly narrow
+annotation for a runtime malformed-input guard, test fixtures using tuple data where
+ActionRequest requires JSON lists, and an interfering host limit in a rate-specific
+fixture. Corrected within scope without relaxing acceptance. Documentation diff
+inspection caught an editing script's inherited buffer; original reference contents
+were restored and only their task sections applied. Final checks above supersede
+those development failures; no unresolved validation failure/blocker remains.
+
+Network guard permits AF_UNIX event-loop self-pipes for existing harmless local
+runner tests and fake async ownership tests. Parent guards do not sandbox children;
+existing local interpreter scripts were reviewed for no networking. Fresh-wheel
+cold-import guards prohibit network/DNS/process/database/thread/logging/filesystem
+startup while allowing dependency metadata reads. Installation/build provisioning
+may access package indexes; product validation needs no credentials/live targets.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Every specified limit enforceable with documented counting | Strict frozen settings and locked action/concurrency/host/rate/time/output checks; exact boundary/read-only/retry/default-host/CIDR/output tests and budget docs/ADR |
+| Concurrent requests cannot oversubscribe | Twelve simultaneous offline contenders per action/concurrency/host/rate/output dimension, all sharing one ledger; exactly three reservations granted and released |
+| Exhaustion prevents dispatch | Canonical budget failures; policy-approved stale action rejected by reserve/current policy, unknown buckets deny, adapter/runner/process/contact guards untouched |
+| Timeout/cancellation release/account correctly | Typed outcome counts, permanent attempt/host/rate/output charges, real repeated async cancellation, timeout/session expiry, exception/idempotent/non-nested cleanup tests; active count returns to zero |
+| Planner cannot extend budgets | Frozen limits/controller/snapshots, config-copy isolation and no reset/refund API; reason/priority injection tests, unchanged planner/action fields and protected source checks |
+
+All focused/full/offline/lint/types/coverage/build/wheel/inert CLI/artifact/secret/Git
+checks passed. No process capture duplication; budget layer never executes anything.
+No new follow-up task or blocker; future contact/running-work/dedup/state obligations
+remain in existing owning tasks. M0-T01–M0-T06/M1-T01–M1-T06 DONE; M1-T07 alone READY
+and unstarted; remaining 79 tasks NOT STARTED. No active task. Stop after M1-T06.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(policy): add execution budgets and rate limits`; resolve using
+`git log -1 --format=%H --grep="^feat(policy): add execution budgets and rate limits$"`.
+Final handoff reports its actual hash and verified clean tree. No amendment, second
+task commit, history rewrite or push.

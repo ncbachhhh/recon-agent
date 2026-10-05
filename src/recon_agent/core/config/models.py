@@ -53,6 +53,10 @@ class ExecutionConfig(ConfigurationModel):
     max_concurrency: PositiveInt = 1
     max_output_bytes: PositiveInt = 1_048_576
     max_actions: PositiveInt = 100
+    max_actions_per_host: PositiveInt = 10
+    capability_rate_actions: PositiveInt = 1
+    capability_rate_window_seconds: PositiveSeconds = 1.0
+    max_session_output_bytes: PositiveInt = 16_777_216
     max_duration_seconds: PositiveSeconds = 600.0
 
     @model_validator(mode="after")

@@ -9,6 +9,11 @@ default_timeout_seconds = 30.0
 max_concurrency = 1
 max_output_bytes = 1048576
 max_actions = 100
+max_actions_per_host = 10
+capability_rate_actions = 1
+capability_rate_window_seconds = 1.0
+# Aggregate reserved stdout + stderr allowances, separate from each stream cap.
+max_session_output_bytes = 16777216
 max_duration_seconds = 600.0
 
 [planner]

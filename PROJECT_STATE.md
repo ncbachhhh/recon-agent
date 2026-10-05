@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M1 / deterministic action policy validated
+Project phase: M1 / deterministic execution resource controls validated
 
 Completed:
 
@@ -15,12 +15,13 @@ Completed:
 - M1-T03 — Execution runner abstraction (DONE)
 - M1-T04 — Capability and Tool Registry (DONE)
 - M1-T05 — Action policy validator (DONE)
+- M1-T06 — Execution budgets and rate limiting (DONE)
 
 Active task: None.
 
 Next READY:
 
-- M1-T06 — Execution budgets and rate limiting (not started)
+- M1-T07 — ReconState state machine (not started)
 
 ## Implementation reality
 
@@ -91,18 +92,41 @@ request ID/capability, scope matches and an internal typed parameter model exclu
 from dumps/repr, never a reusable permission token. Unknown, unavailable, malformed,
 unsupported, disallowed and schema-invalid requests reject with existing canonical
 codes. Planner reason/priority/analysis and discovery confer no authority. Explicit
-budget/completed-action eligibility interfaces default deny; permitting services exist
-only in tests. No actual budgets/rate/reservation/dedup logic, execution, network/DNS,
-Groq, dynamic loading or audit producer. Future dispatch must revalidate current facts,
+missing budget/completed-action eligibility services default deny; completed-action
+permitting services exist only in tests. M1-T06 now supplies budget checks/reservations;
+no dedup logic, execution, network/DNS, Groq, dynamic loading or audit producer. Future dispatch must revalidate current facts,
 reserve resources atomically and constrain/recheck actual contact. See tool-contracts
 and ADR 0004. Existing configuration loader, domain wire fields, errors/results,
 runner, CLI, dependencies and future runtime subsystems are unchanged.
 
-Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, scanners, Groq/provider/planner runtime, state transitions/deduplication/budget/retry enforcement, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T06 is READY; remaining 80 tasks are NOT STARTED.
+M1-T06 adds policy/ExecutionBudget, BudgetState, BudgetController, BudgetPermit and
+ReservationOutcome. Strict execution settings add per-host counts, per-capability
+rolling rate windows and aggregate output allowances. Frozen explicit limits are
+separate from the local locked ledger and injected monotonic clock. Policy's budget
+seam consumes ApprovedAction with canonical primary/secondary ScopeMatches;
+ScopeMatch.host_identity reuses centralized parsing without DNS or duplicate scope
+logic. Unsupported CIDR accounting and unknown/unregistered/malformed inputs deny.
+
+Read-only checks consume nothing; atomic reservations recheck all dimensions and
+permanently charge one permitted attempt, distinct hosts, rate entry and two-stream
+worst-case output allowance. Rejections spend nothing; retry/failure/cancellation/
+timeout/abort retain charges. Only concurrency is released. Synchronous idempotent
+context cleanup records typed outcomes and survives cancellation without awaits.
+Detached immutable snapshots cannot reset counters; no reset/refund/limit-update API.
+Exact session deadlines and bad/regressing clocks fail closed. No running-work timer,
+background worker, orchestration, persistence or audit producer is implemented.
+M1-T03 capture remains unchanged; future dispatch must obey the same/smaller stream
+bounds and remaining time, constrain contact and reserve each execution. Default
+aggregate output envelope permits eight full allowances; budgets are independent
+upper limits rather than a promised action count. See execution-budgets.md and ADR
+0005. Policy authorization != budget availability; AI planner cannot raise limits.
+
+Audit events describe autonomous recon operations and confer no authorization. Event producers, Action/ToolExecution/Finding entities, scanners, Groq/provider/planner runtime, state transitions/deduplication/automatic retries, autonomous loop, persistence and operational reports remain unimplemented. No chat transcript or private reasoning contract exists. Only M1-T07 is READY; remaining 79 tasks are NOT STARTED.
 
 ## Major architecture decisions
 
 - Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; local action policy checks eligibility and future adapters own executable construction.
+- ADR 0005 selects atomic local reservations, permanent attempt/output charges, rolling monotonic rates and synchronous concurrency ownership without runtime dispatch.
 - ADR 0003 selects explicit immutable composition, one selected adapter per capability and semantic-only planner catalog; declared availability defaults fail closed.
 - Pure centralized scope and action eligibility are implemented; operational dispatch/contact enforcement remain future work. Discovery/planner recommendations grant no authority.
 - ADR 0002 requires independently declared address membership, constrained/pinned approved contacts and revalidation on address/destination changes; no DNS runtime or implicit name-to-IP expansion exists.
@@ -115,19 +139,20 @@ Audit events describe autonomous recon operations and confer no authorization. E
 
 ## Validation
 
-M1-T05: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
-Editable install/pip check passed. Focused final policy: 103 cases (included in the
-309-case policy/registry/scope pass). Full, coverage and network/DNS-blocked suites:
-each 1,167 passed. Ruff lint/format (73 files), strict Mypy (33 production modules),
-sdist/wheel build, editable/fresh-wheel inert CLI, fresh-wheel guarded cold imports/
-policy checks/pip check, static security/secret/artifact/source/README/dependency
-checks and Git whitespace checks passed. Coverage 99% overall (1,132 statements /
-288 branches); new action-policy and registry/base changes 100%. Only the existing
-defensive scope unsupported-kind line/branch remains uncovered. Unit/wheel guards
-prohibit policy execution/network/DNS/runner/dynamic imports/log startup; no scanner
-or provider call exists. Offline full-suite allows AF_UNIX event-loop self-pipes for
-existing local runner tests; parent guards do not sandbox children, whose harmless
-local interpreter scripts were reviewed for no networking. Package-index access is
-limited to installation/build provisioning. See TASK_HISTORY for acceptance/evidence.
+M1-T06: Python 3.14.6 / Pydantic 2.13.5 only; Python 3.12 was not tested.
+Editable install/pip check passed. Focused budget/config/action-policy: 246 passed
+(78 new budget cases). Full, coverage and network/DNS-blocked suites: each 1,245
+passed. Ruff lint/format (77 files), strict Mypy (34 production modules), sdist/wheel
+build, editable/fresh-wheel inert CLI, guarded fresh-wheel cold imports/policy and
+real budget reservations/cleanup/exhaustion, pip check, static security/secret/
+artifact/source/README/dependency and Git whitespace checks passed. Coverage 99%
+overall (1,355 statements / 336 branches); budget and action policy 100%. Only the
+existing defensive scope unsupported-kind line/branch remains uncovered.
+Unit and installed guards prohibit budget/policy network/DNS/process/runner/adapter
+resolution/dynamic import/log startup. No scanner/provider call exists. Offline
+suite permits AF_UNIX event-loop self-pipes for local fake cancellation/runner tests;
+parent guards do not sandbox children, whose harmless local interpreter scripts
+were reviewed for no networking. Package-index access is limited to install/build
+provisioning. See TASK_HISTORY for acceptance/evidence.
 
 Known blockers: None.

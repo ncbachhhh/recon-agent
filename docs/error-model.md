@@ -192,3 +192,14 @@ scope_rejected/context; unavailable budget eligibility retains budget_exhausted.
 No new code/category, exception hierarchy or competing rejection envelope exists.
 Fixed policy messages omit planner reasons, raw inputs and native validation errors.
 Callers correlate Failure with the requested action; ApprovedAction includes action_id.
+
+## Budget failures (M1-T06)
+
+BudgetController check/reserve reuse Failure/ErrorInfo from BudgetExhaustedError
+for exhausted action/concurrency/host/rate/time/output limits and unknown/unsupported
+budget semantics. Fixed messages identify the dimension; raw planner/clock data
+is omitted. The existing conservative retryable=false remains: a rate window can
+later admit a separately revalidated/reserved action, but no failure grants retry
+permission. Invalid controller limits/initial clock use ConfigurationError; direct
+model/config-snapshot validation uses ValidationError. No new code/context field or
+error hierarchy is introduced. See [budget contract](execution-budgets.md).

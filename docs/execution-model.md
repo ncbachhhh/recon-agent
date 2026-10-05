@@ -136,7 +136,21 @@ truncation flags with their own correlation IDs. No environment is logged.
 
 M1-T04 now implements immutable registry/capability mapping and the minimal trusted
 adapter interface, without execution. M1-T05 adds pure action eligibility without
-runner calls. Session budgets/concurrency/rate limits, scanner adapters, provider/planner runtime, orchestration, persistence, reporting
+runner calls. M1-T06 supplies a separate local budget/concurrency/rate controller
+without runner calls. Scanner adapters, provider/planner runtime, orchestration, persistence, reporting
 and real CLI remain future tasks. See [tool contracts](tool-contracts.md),
 [security model](security-model.md), [error contracts](error-model.md) and
 [testing strategy](testing-strategy.md) for the surrounding boundaries.
+
+## Aggregate resource layer (M1-T06)
+
+BudgetController atomically reserves one attempt/concurrency permit and two stream
+allowances before future dispatch. BudgetPermit context cleanup also works around
+awaits and releases on exceptions, timeout and cancellation without awaiting.
+Session elapsed/remaining time is monotonic and queried explicitly; this component
+does not launch or interrupt a process. Future dispatch must clamp process deadlines
+to remaining session time and use the same or smaller max_output_bytes as the budget
+snapshot. M1-T03's bounded draining/capture remains unchanged. Aggregate allowance
+is permanently charged per permitted attempt, including failed/cancelled attempts;
+additional execution requires additional reservations. See
+[resource ownership and limitations](execution-budgets.md).

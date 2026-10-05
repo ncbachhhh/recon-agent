@@ -217,3 +217,14 @@ with action_id, finite capability, primary/secondary ScopeMatch records and a ty
 parameter model excluded from dumps/repr. It is not a new domain ActionResult,
 a persisted permission or a dispatch token. The original request must be revalidated
 at future dispatch. See [policy contract](tool-contracts.md#action-policy-contract-m1-t05).
+
+## Internal budget records (M1-T06)
+
+policy/ now supplies frozen ExecutionBudget limits and detached frozen BudgetState
+snapshots with attempted-action, active-concurrency, reserved-output, remaining-time,
+canonical-host, capability-window and typed completion-outcome counts. These are
+internal session-local resource records, separate from ReconSession/ReconState and
+planner/action wire models. BudgetPermit is opaque live resource ownership, never
+a replay/serialization token. Existing Success/Failure/ErrorInfo carry checks and
+reservations; no broader entity, state transition or persistent history is added.
+See [budget semantics](execution-budgets.md).

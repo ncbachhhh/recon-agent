@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts and M1-T05 composes pure action eligibility. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations. No scanner or operational reconnaissance dispatch exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -36,7 +36,7 @@ Remote reconnaissance content may be sensitive even when authorized to collect. 
 
 ## Implemented configuration boundary
 
-M0-T03 rejects unknown keys and invalid effective types/limits in trusted configuration. The explicit loader performs no runtime startup. Scope preferences contain no targets or authorization grants; enabling tools/planner/persistence only sets preferences. `GROQ_API_KEY` is loaded separately into an excluded `SecretStr` field, never ordinary configuration or diagnostic dumps. Displayed validation errors hide raw inputs; diagnostic callers of Pydantic structured errors must omit input values. No arbitrary commands, argv or policy-bypass options exist. See [configuration](configuration.md) for sources, precedence and failure behavior. Configuration contracts do not implement scope enforcement, capability policy, budgets, logging or provider communication. ScopeValidator consumes explicitly assembled Scope data; application settings never authorize targets.
+M0-T03 rejects unknown keys and invalid effective types/limits in trusted configuration. The explicit loader performs no runtime startup. Scope preferences contain no targets or authorization grants; enabling tools/planner/persistence only sets preferences. `GROQ_API_KEY` is loaded separately into an excluded `SecretStr` field, never ordinary configuration or diagnostic dumps. Displayed validation errors hide raw inputs; diagnostic callers of Pydantic structured errors must omit input values. No arbitrary commands, argv or policy-bypass options exist. See [configuration](configuration.md) for sources, precedence and failure behavior. Configuration contracts do not operate subsystems; explicit consumers implement scope/action policy, budgets and logging. ScopeValidator consumes explicitly assembled Scope data; application settings never authorize targets.
 
 ## Implemented domain boundary
 
@@ -205,10 +205,32 @@ No production dispatcher exists and the runner is unchanged.
 
 PLAN's budget/completed-action seams are restrictive local interfaces: missing
 budget eligibility returns budget_exhausted; missing completed-action eligibility
-returns planner_validation_failed. Only offline tests inject permitting fakes.
-Actual budgets/rates/reservations and deduplication remain M1-T06/M1-T08. Validation
+returns planner_validation_failed. Only offline tests inject completed-action
+permitting fakes. M1-T06 implements budgets/rates/reservations; deduplication remains
+M1-T08. Validation
 performs no network, DNS, subprocess, dynamic loading, adapter/runner execution,
 provider calls or audit/log emission. No tool.execution_started event is emitted.
 Trusted schema/check implementations must be pure local code; application code is
 not sandboxed. See [policy contract](tool-contracts.md#action-policy-contract-m1-t05)
 and [ADR 0004](decisions/0004-action-eligibility-boundary.md).
+
+## Resource enforcement (M1-T06)
+
+Policy authorization != budget availability. AI planner cannot raise resource
+limits. Only trusted session assembly constructs immutable ExecutionBudget limits;
+no override/reset/refund surface is present on planner models or the controller.
+BudgetController atomically checks/reserves action, concurrency, all declared hosts,
+rolling capability rate, monotonic time and aggregate output allowance. Unknown or
+unregistered capabilities never create buckets; unsupported CIDR host accounting
+fails closed. ScopeMatch canonical parsing prevents case/dot/URL/IP aliases from
+splitting host counts; names never implicitly authorize or equate to DNS answers.
+
+Checks/rejections do not spend attempts. Granted attempts keep action/host/rate/output
+charges through failure, timeout, cancellation or abort; retries pay again. Context
+ownership releases concurrency synchronously, once, including across cancelled
+awaits. Bad/backward clocks permanently exhaust time, with release still available.
+No failure resets limits. BudgetExhaustedError supplies canonical fixed Failure data;
+future callers own audit/history recording. A permit grants resources, never scope
+or execution authority. Future adapters must obey traffic/output/time envelopes;
+there is no scanner containment or running-work interrupt added here. See
+[precise contracts](execution-budgets.md) and [ADR 0005](decisions/0005-budget-reservations.md).

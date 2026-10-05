@@ -165,7 +165,7 @@ formats, event types, filters, repeated setup, error integration and safety.
 
 Future application/orchestration services explicitly emit events; pure domain
 records do not depend on logging. No scanner/provider/planner or policy audit producer,
-budget engine, autonomous loop, file/rotating sink,
+autonomous loop, file/rotating sink,
 database, log shipping, analytics, operational report or real CLI is implemented.
 The existing CLI remains inert and does not initialize logging.
 
@@ -188,3 +188,9 @@ audit events. Future orchestration may correlate the request with Failure/ErrorI
 or select ApprovedAction action/capability/scope references. Approval is current
 eligibility, never execution; never emit tool.execution_started for validation.
 Typed parameters and planner reasons are not automatic diagnostic payloads.
+
+M1-T06 adds a local budget controller and typed outcome counters without audit/log
+producers. BudgetExhaustedError/Failure remains explicit caller data; future application
+services own budget.exhausted and correlated execution/outcome recording. Controller
+snapshots and live permits are internal resource state, never automatic diagnostics.
+See [budget contract](execution-budgets.md).

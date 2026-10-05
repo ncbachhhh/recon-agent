@@ -1,5 +1,6 @@
 """Pure local eligibility; structured decisions never dispatch or authorize replay."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Protocol
 
@@ -39,22 +40,12 @@ class ActionPolicyConfig(BaseModel):
 class ActionEligibility(Protocol):
     """Trusted local check only; Success[None] means eligible, never reserved.
 
-    M1-T06 supplies budget semantics; M1-T08 supplies completed/in-flight identity.
+    M1-T08 supplies completed/in-flight identity; budgets use BudgetEligibility.
     Implementations must be deterministic and side-effect free, with no mutation
     of the supplied request. Dispatch will require atomic reservations separately.
     """
 
     def check(self, action: ActionRequest) -> OperationResult[None]: ...
-
-
-@dataclass(frozen=True, slots=True)
-class _MissingBudget:
-    def check(self, action: ActionRequest) -> OperationResult[None]:
-        return Failure(
-            error=BudgetExhaustedError(
-                "Budget eligibility is not established"
-            ).to_error_info()
-        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,12 +61,30 @@ class ApprovedAction(BaseModel):
     its scope matches can be replayed to skip revalidation of the original request.
     """
 
-    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
+    model_config = ConfigDict(
+        extra="forbid", strict=True, frozen=True, revalidate_instances="always"
+    )
     action_id: NonEmptyText
     capability: CapabilityId
     scope_match: ScopeMatch
     parameter_scope_matches: tuple[ScopeMatch, ...] = ()
     parameters: InstanceOf[BaseModel] = Field(exclude=True, repr=False)
+
+
+class BudgetEligibility(Protocol):
+    """Read-only resource check over policy-normalized targets, never reservation."""
+
+    def check(self, action: ApprovedAction) -> OperationResult[None]: ...
+
+
+@dataclass(frozen=True, slots=True)
+class _MissingBudget:
+    def check(self, action: ApprovedAction) -> OperationResult[None]:
+        return Failure(
+            error=BudgetExhaustedError(
+                "Budget eligibility is not established"
+            ).to_error_info()
+        )
 
 
 def _invalid(message: str) -> Failure:
@@ -93,7 +102,7 @@ class ActionPolicyValidator:
     registry: ToolRegistry
     scope_validator: ScopeValidator
     config: ActionPolicyConfig = field(default_factory=ActionPolicyConfig)
-    budget_eligibility: ActionEligibility = field(default_factory=_MissingBudget)
+    budget_eligibility: BudgetEligibility = field(default_factory=_MissingBudget)
     completed_action_eligibility: ActionEligibility = field(
         default_factory=_MissingCompletedActions
     )
@@ -150,25 +159,28 @@ class ActionPolicyValidator:
                     return match
                 matches.append(match.value)
 
-        for eligibility in (self.budget_eligibility, self.completed_action_eligibility):
+        approved = ApprovedAction(
+            action_id=request.id,
+            capability=descriptor.capability,
+            scope_match=target.value,
+            parameter_scope_matches=tuple(matches),
+            parameters=parameters,
+        )
+        checks: tuple[Callable[[], OperationResult[None]], ...] = (
+            lambda: self.budget_eligibility.check(approved),
+            lambda: self.completed_action_eligibility.check(request),
+        )
+        for check in checks:
             try:
                 outcome: OperationResult[None] = TypeAdapter(
                     OperationResult[None]
-                ).validate_python(eligibility.check(request))
+                ).validate_python(check())
             except (ValidationError, TypeError, ValueError):
                 return _invalid("Action eligibility result is unsupported")
             if isinstance(outcome, Failure):
                 return outcome
 
-        return Success[ApprovedAction](
-            value=ApprovedAction(
-                action_id=request.id,
-                capability=descriptor.capability,
-                scope_match=target.value,
-                parameter_scope_matches=tuple(matches),
-                parameters=parameters,
-            )
-        )
+        return Success[ApprovedAction](value=approved)
 
 
 __all__ = [
@@ -176,4 +188,5 @@ __all__ = [
     "ActionPolicyConfig",
     "ActionPolicyValidator",
     "ApprovedAction",
+    "BudgetEligibility",
 ]

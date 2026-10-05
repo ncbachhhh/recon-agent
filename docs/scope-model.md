@@ -157,3 +157,12 @@ name. Generated candidate IDs are stable internal references. No new hostname/IP
 CIDR/URL matching rules or DNS behavior exist. Primary and trusted declared secondary
 parameter targets use this entry point; each match is only membership, never complete
 action approval. Dispatch/contact revalidation remains a future runtime obligation.
+
+## Host accounting identity (M1-T06)
+
+ScopeMatch.host_identity reuses this module's existing parsing/canonicalization:
+DNS and URL host spellings share canonical identity, as do IPs and URL literals;
+ports/schemes/paths do not create different hosts. It returns None for CIDRs, so the
+budget controller rejects unsupported range accounting. This property performs no
+DNS, membership authorization or alias-to-address inference; scope membership and
+wire models are unchanged. See [budget contract](execution-budgets.md).

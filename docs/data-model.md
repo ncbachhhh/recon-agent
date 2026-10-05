@@ -1,40 +1,155 @@
-# Planned data model
+# Domain data model
 
-Pydantic typed models are planned; there are no runtime schemas yet. Exact fields/storage keys are future design work. Domain models remain independent of subprocesses, providers, and SQLite.
+M0-T04 implements 13 Pydantic v2 contracts under `recon_agent.domain`. They describe
+operator declarations, normalized subjects, collected facts, traceable evidence,
+action intent/outcomes, planner recommendations and session/state composition.
+They perform no configuration, process, network, provider, database or report I/O.
 
-## Entities
+```python
+from datetime import UTC, datetime
+from recon_agent.domain import ReconSession, Scope, Service, Target
 
-| Entity | Meaning and planned relationships |
-| --- | --- |
-| ReconSession | Run identity, lifecycle, configuration/scope snapshot, timestamps, budgets, stop reason; owns state and action history |
-| Scope | Explicit authorized domain/subdomain/IP/CIDR/URL policy and exclusions; attached to a session; discovered assets do not expand it |
-| Target | Operator-requested starting subject; must validate against session Scope |
-| Asset | Canonical identified subject with provenance and scope/actionability status; may represent a Host or web resource |
-| Host | Domain/IP host identity and resolution context; has Services; resolution is evidence, not blanket authorization |
-| Service | Asset/host plus port, transport, protocol, optional product/version metadata and supporting observations |
-| Endpoint | Canonical URL/path/method identity associated with an asset/service; discovered redirects/hosts require revalidation |
-| Observation | Collected fact or bounded tool-reported fact with kind, timestamp, asset reference, source, and Evidence references |
-| Evidence | Traceable source material/reference with origin, collection time, execution/source ID, trust label, integrity/retention metadata, and truncation/redaction limits |
-| ActionRequest | Typed requested capability, target, permitted parameters, reason/priority, source decision, and canonical dedup identity |
-| Action | Lifecycle record for an ActionRequest: requested, validated/rejected, running, completed/failed/cancelled, with policy outcomes |
-| ActionResult | Structured outcome, observations/evidence, errors, timing and ToolExecution references; not merely a boolean |
-| ToolExecution | Adapter/binary/version, safe argv metadata, timing, exit status, timeout/cancel/truncation flags, bounded output references |
-| Finding | Interpreted security-relevant conclusion, severity/confidence/source attribution, affected assets, and supporting Evidence/Observations |
-| PlannerDecision | Provider recommendation, selected input references, summary/actions, provider/model metadata, validation outcomes; never a scanner fact |
-| ReconState | Session aggregate of assets, observations, findings, evidence, action outcomes, decisions, and remaining budgets |
+target = Target(id="target-1", kind="domain", value="example.test")
+session = ReconSession(
+    id="session-1",
+    targets=(target,),
+    scope=Scope(id="scope-1", roots=(target,)),
+    created_at=datetime(2026, 10, 5, tzinfo=UTC),
+)
+service = Service(
+    id="service-1", asset_id="asset-1", host_id="host-1", port=443, transport="tcp"
+)
+snapshot = session.model_dump(mode="json")
+```
 
-## Semantic distinctions
+These are data examples, not scan authorization or runnable sessions.
 
-**Observation = collected fact.** A scanner reporting a product or version records what it observed; certainty/limitations and provenance remain explicit.
+## Common contracts
 
-**Finding = interpreted security-relevant conclusion.** It must cite evidence and disclose inference rather than pretending the model confirmed exploitation.
+- Unknown fields are forbidden throughout nested models. Structural fields use
+  strict types; numeric strings and booleans do not become ports/priorities.
+- IDs and references are caller-supplied non-blank opaque strings. There are no
+  generated IDs, database row keys, scanner-derived identity rules or deduplication
+  algorithms. Existing IDs survive Python/JSON round trips. Producers own uniqueness;
+  later canonicalization/deduplication work must preserve these lineage references.
+- Required text must contain a non-whitespace character. Strings are preserved,
+  not stripped or rewritten. Target kinds label declarations without validating
+  their domain/IP/CIDR/URL syntax; M1 owns parsing/canonicalization and authorization.
+- Evidence/observation collection times, decision/result recording times and session
+  creation time are required caller-supplied aware datetimes. Values normalize to
+  UTC; JSON emits ISO 8601 values with `Z`. No clocks or randomness run on construction.
+  Python inputs require datetimes; JSON inputs use datetime strings with an offset.
+- `model_dump()` preserves Python datetimes/tuples; `model_dump(mode="json")` and
+  `model_dump_json()` produce portable strings/arrays/objects. Both dump forms can
+  be validated back into the corresponding model. Ordinary model equality compares
+  data, not a canonical deduplication identity.
+- Record attributes (all models except ReconState/ReconSession) are frozen, and
+  reference collections use tuples. Observation data and action parameters are
+  ordinary nested JSON dictionaries/lists, not deeply immutable objects. Aggregate
+  containers are mutable with independent default factories and validated field
+  assignment. In-place list/dict edits are not validation or approved transitions;
+  nested instances are revalidated at model-construction boundaries. M1-T07 owns
+  controlled mutation and concurrency semantics. Revalidate snapshots before use.
+- Optional metadata defaults to `None`; no inferred product/version, authority or
+  timestamps are manufactured. Provider credentials have no domain field. Flexible
+  evidence text can still contain sensitive remote content; future collection and
+  report/provider layers must bound/redact it.
 
-**Evidence = traceable source supporting an observation/finding.** Raw remote content remains untrusted, even if stored or normalized. References must remain resolvable in reports and resume.
+## Implemented entities
 
-**PlannerDecision = recommendation, not fact.** A model's proposed next action or suspected issue cannot be inserted as a collected observation.
+| Model | Fields and relationships | Meaning and boundary |
+| --- | --- | --- |
+| Target | `id`, `kind`, `value`; kinds `domain`, `hostname`, `ip`, `cidr`, `url` | Operator-declared starting subject; presence does not confer authorization, resolve DNS or classify syntax |
+| Scope | `id`, `roots`/`exclusions` tuples of Target, false-default `allow_subdomains`/`allow_private_ips`, optional `authorization_context` | Declaration snapshot only. Empty roots are valid data and grant nothing; ScopeValidator and exact semantics belong to M1-T01 |
+| Asset | `id`, `kind` (`host`/`web_resource`), `value`, `observation_ids` | The discovered subject, independent of scanner identity; no raw stdout or computed scope/actionability flag |
+| Host | `id`, `asset_id`, `value`, reported `addresses`, `observation_ids` | Network-host detail associated with an Asset; addresses are supplied text, not DNS results obtained by construction or IP authorization |
+| Service | `id`, `asset_id`, `host_id`, `port`, `transport`, optional `protocol`/`product`/`version`, `observation_ids` | Observed network metadata. Port is a strict integer 1–65535; transport is `tcp`/`udp`; product/version never imply a vulnerability |
+| Endpoint | `id`, `asset_id`, preserved `url`, `method` (default `GET`), optional `service_id`, `observation_ids` | URL/method identity data. Method must be a non-empty HTTP token and is preserved, including case/extension methods; URL text is not parsed, canonicalized, fetched or crawled |
+| Evidence | `id`, `source`, `origin`, `artifact_reference`, `collected_at`, optional `execution_id`/`capability`/`locator`/`sha256`, `trust`, `truncated`/`redacted` flags | Traceable reference to source material. Trust is always `untrusted`; optional digest is 64 lowercase hexadecimal characters. No raw-output blob, artifact reads/writes, integrity verification or retention engine |
+| Observation | `id`, `kind`, `asset_id`, `source`, `data`, `observed_at`, non-empty `evidence_ids`, optional `execution_id` | A collected/tool-reported fact with provenance. Kinds: `dns`, `service`, `http`, `tls`, `endpoint`, `metadata`; no interpreted Finding |
+| ActionRequest | `id`, `capability`, `target`, `parameters`, `reason`, integer `priority` (default 0), optional `asset_id`/`decision_id` | Unapproved capability intent, never argv. Capability name has lowercase identifier shape; registry membership and priority bounds are later validation work |
+| ActionResult | `id`, `action_id`, terminal `status`, `recorded_at`, `observations`, `evidence`, `execution_ids`, optional `failure_reason` | Outcome data, not process execution. Status is `completed`, `partial`, `rejected`, `failed`, `cancelled` or `timeout`; M0-T05 will add structured error categories |
+| PlannerDecision | `id`, `analysis_summary`, `actions`, `finished`, `created_at`, optional `provider`/`model`, `input_observation_ids`/`input_evidence_ids` | Untrusted recommendation with input lineage. Provider metadata is text only; no Groq SDK, prompts, policy outcomes or authorization |
+| ReconState | Independent lists of assets, hosts, services, endpoints, observations, evidence, action requests/results and planner decisions | Empty by default. Typed snapshot containers only; no apply/dedup/transition/budget/stop methods |
+| ReconSession | `id`, non-empty `targets`, explicit `scope`, default empty `state`, `status`, `created_at`, optional `stop_reason` | Session composition only. Default status `created`; other structural statuses `running`, `completed`, `failed`, `cancelled`; no lifecycle enforcement, persistence, resume or execution |
 
-## Relationships and invariants
+## Provenance and relationships
 
-A session owns a scope snapshot and starting targets. Targets lead to assets/hosts; hosts expose services; web services expose endpoints. Actions reference session, target/asset, capability, and optional planner decision. Tool executions reference actions; evidence references executions or explicit collection sources; observations link evidence and assets; findings link supporting observations/evidence. Decisions reference bounded input state and policy outcomes. ReconState aggregates these with remaining budgets.
+A session owns starting targets, a scope declaration snapshot and aggregate state.
+Assets represent subjects; hosts reference assets, services reference assets/hosts,
+and endpoints reference assets and optionally services. Subject records may cite
+supporting observation IDs. Observations require a source and at least one evidence
+ID; evidence requires source/origin and an opaque artifact reference, optionally
+with an execution ID, capability and record/line locator. Reference strings are
+never opened or resolved by these models.
 
-Identifiers and canonicalization must preserve lineage while preventing duplicate actions/assets/findings. Rejection or failure must not create successful observations. State mutation and budget reservation are controlled transitions, eventually safe under concurrency. Resume validates policy changes and does not erase earlier evidence/history. Storage interfaces and migrations are planned in M8, not implemented here.
+Action requests may cite an asset and source decision. Results cite an action,
+may carry observations/evidence, and preserve opaque execution references.
+Decisions cite the selected input observations/evidence. The model layer checks
+reference shape, not existence in a database or consistency across an entire
+partial snapshot. Future ingestion/state/storage layers must keep links resolvable
+and enforce ownership/uniqueness; M0-T04 does not infer missing provenance.
+
+## JSON payloads and action safety
+
+Observation `data` and ActionRequest `parameters` use Pydantic `JsonValue` mappings
+with non-blank top-level string keys: null, boolean, integer, finite float, string, arrays
+and nested objects only. Arbitrary Python objects, bytes, datetimes and non-finite
+numbers fail validation. No scanner-specific result hierarchy or unrestricted
+`Any` payload is introduced.
+
+ActionRequest has no command, shell, script or raw-argument field. Its parameter
+schema also rejects these reserved executable keys, case-insensitively at any
+nested object/list level: `command`, `shell_command`, `raw_command`,
+`command_template`, `script`, `bash`, `raw_args`, `argv`, `extra_shell_args`,
+`executable`, `executable_path`.
+
+This is structural defense, not a capability policy validator. Other parameter
+names/values remain unapproved JSON data. M1 registry/policy and later adapters
+must validate each capability's permitted schema, target, risk and limits before
+constructing fixed argv. No string is evaluated or dispatched by the domain layer.
+Remote instruction-like text in observations remains evidence; planner reasons and
+summaries remain recommendations. Neither can redefine scope or create authority.
+M6-T04 still owns priority bounds and planner validation semantics.
+
+## Outcome and interpretation distinctions
+
+Observation means a collected/tool-reported fact. Finding means an interpreted
+security-relevant conclusion and is staged. For example, TCP 445 being open is a
+service observation; any conclusion about exposure needs a future Finding and
+supporting lineage. Normalization does not turn product/version metadata into
+vulnerability claims or planner analysis into observations.
+
+A completed ActionResult cannot carry a failure reason. Every non-completed result
+requires a failure/limitation reason. Only completed/partial results may carry
+observations; rejected/failed/cancelled/timeout results can preserve evidence but
+cannot claim successful observations. A partial result must explicitly explain
+its limitation. These structural rules do not execute tools, retry, assign full
+error codes or implement the M0-T05 error taxonomy.
+
+## Explicitly staged contracts and behavior
+
+PLAN permits associated Action/ToolExecution/Finding models to be staged. M0-T04
+implements the 13 required models and exports only those models from the public
+package; the following are absent, with ownership made explicit:
+
+- **Action:** lifecycle/policy record and canonical action identity belong with
+  M1-T07 state transitions / M1-T08 deduplication. ActionRequest/ActionResult supply
+  the present intent/outcome data; no Action placeholder or transition API exists.
+- **ToolExecution:** runner/adapter execution metadata belongs with M1-T03 and later
+  adapter work. Current execution IDs are opaque provenance references only.
+- **Finding:** interpreted conclusion records belong with M5-T04 finding
+  normalization. ReconState deliberately has no untyped findings placeholder.
+- **Session configuration/budgets, policy outcomes, canonicalization, retention and
+  stop/resume rules:** extended by their owning policy/orchestration/storage tasks;
+  no generic executable configuration or budget/state-machine implementation here.
+
+Scope data is distinct from ScopeValidator. ReconState data is distinct from a
+state machine. ReconSession is distinct from persistence. PlannerDecision is
+non-authoritative recommendation data. None of these contracts implement scope
+matching, process runners, registry/policy, scanners, Groq/provider communication,
+AI reasoning, autonomous loops, SQLite, reporting or real CLI commands.
+
+Run focused offline validation with
+`.venv/bin/python -m pytest tests/unit/test_domain.py`, then the complete baseline
+in [testing strategy](testing-strategy.md).

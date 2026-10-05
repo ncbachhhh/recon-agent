@@ -58,6 +58,7 @@ precedence, malformed/unknown settings, secret exclusion and side-effect boundar
 
 ## Follow-up
 
-M0-T04 domain models and M1 scope enforcement remain deferred. Provider, adapter,
+M0-T04 now supplies domain data contracts; M1 scope enforcement remains deferred.
+Provider, adapter,
 persistence and CLI tasks may extend contracts within their own scopes. See the
 [configuration reference](../configuration.md) and [roadmap](../../PLAN.md).

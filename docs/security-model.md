@@ -1,6 +1,6 @@
 # Security model
 
-Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. No operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. No operational reconnaissance code exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -37,6 +37,10 @@ Remote reconnaissance content may be sensitive even when authorized to collect. 
 ## Implemented configuration boundary
 
 M0-T03 rejects unknown keys and invalid effective types/limits in trusted configuration. The explicit loader performs no runtime startup. Scope preferences contain no targets or authorization grants; enabling tools/planner/persistence only sets preferences. `GROQ_API_KEY` is loaded separately into an excluded `SecretStr` field, never ordinary configuration or diagnostic dumps. Displayed validation errors hide raw inputs; diagnostic callers of Pydantic structured errors must omit input values. No arbitrary commands, argv or policy-bypass options exist. See [configuration](configuration.md) for sources, precedence and failure behavior. These contracts do not implement scope enforcement, capability policy, budgets, logging or provider communication.
+
+## Implemented domain boundary
+
+M0-T04 rejects unexpected domain fields and invalid structural types, requires observation/evidence provenance, and labels evidence untrusted. Target and Scope are declaration data; neither performs authorization. ActionRequest and PlannerDecision carry unapproved intent/recommendations and expose no executable behavior. Executable fields and reserved executable parameter keys are rejected structurally; allowed JSON data still requires future capability-specific policy validation. Domain code imports no configuration or higher layers and performs no I/O. It does not enforce scope, capability membership, budgets, lifecycle transitions or policy. See [data model](data-model.md) for the exact contracts and staged models.
 
 ## Untrusted inputs
 

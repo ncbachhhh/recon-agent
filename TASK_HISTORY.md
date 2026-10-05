@@ -143,3 +143,57 @@ Python 3.12 was not separately executed. Dependency provisioning/build isolation
 All additional packaging/quality/docs/scope requirements passed. No M0-T04 entities, M0-T05 taxonomy, M0-T06 audit logger, M1 scope engine, process runner, adapters, Groq client, planner, SQLite state or operational reports were implemented. Configuration contracts do not enforce operational policy/budgets. PLAN closes M0-T03, makes only M0-T04 READY, leaves remaining 88 tasks NOT STARTED and CURRENT_TASK idle. No blockers or new follow-up work; stop here.
 
 Commit reference: the single focused commit containing this entry, titled `feat(config): establish typed configuration foundation`; resolve with `git log -1 --format=%H --grep="^feat(config): establish typed configuration foundation$"`. Following prior-task convention, no circular hash is invented, amendment or second task commit is made. Actual hash and clean post-commit tree are reported in the final handoff. No push.
+
+## 2026-10-05 — M0-T04 — Core domain model foundation
+
+Status: DONE
+
+Objective: Establish pure typed domain data contracts, structural validation and deterministic portable serialization before policy, execution, orchestration or persistence.
+
+Startup: Re-read ordered governance/state/PLAN/subsystem docs/ADRs/history, maintenance skill/references, source/tests and pyproject; inspected status, working/index diffs and log. Verified clean tree/index, no active task/blockers, M0-T01–M0-T03 DONE, M0-T04 READY, all later tasks NOT STARTED, and expected HEAD `494ab7dde65000e9cd5f1481c5adc503ab4e11a0`. Recorded only M0-T04 IN PROGRESS before implementation. No unrelated work existed.
+
+### Changes and modeling decisions
+
+Implemented the 13 required contracts: Target, Scope, Asset, Host, Service, Endpoint, Observation, Evidence, ActionRequest, ActionResult, PlannerDecision, ReconState and ReconSession. PLAN explicitly permits staging the associated Action/ToolExecution/Finding records; documentation stages them with M1-T07/M1-T08 lifecycle/identity work, M1-T03 runner metadata and M5-T04 interpreted finding normalization respectively. No placeholder classes or untyped future-state fields are added.
+
+Models use existing Pydantic v2 only, strict types, extra=forbid, finite JSON values and structural constraints. Caller-supplied non-blank opaque IDs preserve lineage/restoration without a database or identity algorithm. Required aware timestamps are explicit and normalize to UTC; no random IDs/system clocks. Targets/URLs are preserved declaration text, not parsed/authorized; HTTP method token validation preserves case/extensions. Services validate ports 1–65535 and tcp/udp without inferring vulnerabilities.
+
+Observations carry a source, collection time, asset and non-empty evidence references. Evidence has source/origin, time, opaque artifact/execution references, untrusted label and optional integrity/truncation/redaction metadata; no raw blobs or artifact I/O. Observation payloads/action parameters use finite recursive JsonValue data, not Any or executable objects. Request fields and nested parameters reject executable syntax keys; capability-specific validation and priority semantics remain future registry/policy/planner work. PlannerDecision is recommendation only. ActionResult terminal statuses and minimal failure/limitation reasons reject inconsistent success/failure claims; structured project errors remain M0-T05.
+
+Record attributes are frozen with tuple references; nested JSON mappings remain ordinary data. ReconState/ReconSession are mutable typed containers with independent factories and validated assignment, not transition engines. In-place container edits require revalidation; nested model instances are revalidated on construction. These scoped contract choices are documented in data-model.md; no architectural departure or new ADR/runtime dependency was necessary. ADR 0001's follow-up was reconciled without changing its source/secret decision.
+
+Files: modified domain/__init__.py; added domain/_base.py, targets.py, assets.py, observations.py, actions.py and sessions.py; added tests/unit/test_domain.py. Updated docs/data-model.md, architecture/security/configuration/testing docs, ADR 0001 follow-up, README, CHANGELOG, PLAN, PROJECT_STATE, CURRENT_TASK and this append-only history. Configuration code, pyproject/dependencies, CLI and prior tests/subsystem markers are unchanged.
+
+### Executed validation
+
+Commands used repository .venv unless noted:
+
+| Check | Actual command/result |
+| --- | --- |
+| Interpreter/install | `python --version`: Python 3.14.6; `.venv/bin/python -m pip install -e ".[dev]"` succeeded using existing Pydantic 2.13.5; `.venv/bin/python -m pip check` passed |
+| Focused models | `.venv/bin/python -m pytest tests/unit/test_domain.py`: 151 passed; includes all 13 construction/round trips, strict/unknown fields, aware UTC times, ports/transports, provenance, nested composition, executable rejection, data-only recommendations, independent aggregates and record mutability |
+| Ruff | `.venv/bin/python -m ruff check .` / `.venv/bin/python -m ruff format --check .`: passed; targeted formatting/import sorting applied during development |
+| Types | `.venv/bin/python -m mypy src/recon_agent`: passed, 21 production modules; no weakened settings, Any, casts or suppressions introduced |
+| Full tests | `.venv/bin/python -m pytest`: 217 passed |
+| Coverage | `.venv/bin/python -m coverage run -m pytest`: 217 passed; `.venv/bin/python -m coverage report`: 100%, 269 statements / 52 branches, none missing |
+| Build/CLI | `.venv/bin/python -m build`: sdist/wheel succeeded with isolated setuptools 84.0.0; `.venv/bin/recon-agent`: unchanged placeholder, success |
+| Clean wheel | Fresh external temporary venv installed built wheel with runtime dependencies; `python -I -B` verified site-packages domain exports/import, no config import, representative Service/ActionRequest/PlannerDecision/session construction/validation and nested JSON round trip; installed CLI and pip check passed |
+| Side effects/offline | Temporary socket-blocking wrapper: all 217 tests passed. Fresh wheel audit blocked network/process/database/directory creation and application file/logging activity during imports/construction/serialization; ordinary installed dependency entry-point metadata reads allowed |
+| Targeted model checks | In fresh wheel: port 443 accepted, ports 0/65536 rejected; shell_command field and parameters.command rejected; decision carries a valid action without execute behavior; ActionRequest JSON schema lacks shell_command; nested session round trip passed |
+| Security/packaging | Temporary AST/archive inspection: domain imports only datetime/typing/Pydantic/domain, no eval/exec/process/network/env/config/scanner/provider/database behavior or command fields; unchanged protected source/tests/dependencies; archive domain bytes match inspected code, Python >=3.12 metadata and only Pydantic runtime requirement |
+| Git/docs | Reviewed every changed/new source/test/doc; Git working/index diff, whitespace, exact staged path/content, append-only history, local link, task status and artifact/secret checks passed; generated files excluded |
+
+No required final validation failed. Python 3.12 was not separately exercised; Python >=3.12 remains declared. Dependency provisioning/build isolation accessed the package index; domain construction/imports, CLI and default tests perform no network/scanner/Groq activity and require no credentials. No live target or real secret was used.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Required models construct/serialize/round-trip and reject malformed fields | 13-model Python/JSON construction and round-trip matrix; invalid structural/unknown/nested tests and manual wheel checks passed |
+| Observations/evidence/decisions remain distinct | Separate fact/reference/recommendation contracts; provenance mandatory for observations/evidence; finding kind and executable/credential fields rejected; data-model/security documentation reviewed |
+| Pure side-effect-free domain imports | Domain dependency AST inspection and guarded fresh-wheel import/construction/serialization passed; no config/higher-layer imports or operational side effects |
+| Staged entities explicit | Action/ToolExecution/Finding staging and owning tasks documented; public API exposes only 13 implemented models and tests confirm absence of staged classes |
+
+No M0-T05 errors, M0-T06 logging, M1 authorization/runner/registry/policy/budgets/dedup/state-machine work, scanner adapters, Groq/planner runtime, loops, SQLite/persistence, reporting or real CLI commands were implemented. Scope declarations and planner recommendations grant no authorization; allowed JSON parameters still require future deterministic capability validation. PLAN closes M0-T04, makes only M0-T05 READY, leaves 87 later tasks NOT STARTED; CURRENT_TASK says No active task. Known blockers: none; no additional follow-up task discovered. Stop here without starting M0-T05.
+
+Commit reference: the single focused commit containing this entry, titled `feat(domain): establish core reconnaissance models`; resolve with `git log -1 --format=%H --grep="^feat(domain): establish core reconnaissance models$"`. Following existing convention, no circular hash is invented, amendment or second task commit made. Final handoff reports actual hash and clean post-commit tree. No push.

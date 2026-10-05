@@ -176,6 +176,7 @@ Run focused offline checks with:
 Tests isolate environment sources and cover defaults, all sections, precedence,
 strict/unknown settings, file failures, secret exclusion, diagnostics and absence
 of runtime filesystem/logging side effects. See [testing strategy](testing-strategy.md)
-for mandatory complete validation. ReconState/domain models, scope enforcement,
+for mandatory complete validation. Domain data models now exist (M0-T04);
+scope enforcement,
 process runners/adapters, Groq, AI planning, database persistence, audit logging,
 operational reports and real CLI commands remain unimplemented.

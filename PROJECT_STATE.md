@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 — native DNS implemented; Subfinder prerequisite gate ready
+Project phase: M2 — native DNS and passive Subfinder implemented; DNSX gate ready
 
 Completed:
 
@@ -19,12 +19,13 @@ Completed:
 - M1-T07 — ReconState state machine (DONE)
 - M1-T08 — Action deduplication (DONE)
 - M2-T01 — DNS resolver capability (DONE)
+- M2-T02 — Subfinder adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T02 — Subfinder adapter (READY; not started)
+- M2-T03 — DNSX adapter (READY; not started)
 
 ## Implementation reality
 
@@ -186,16 +187,52 @@ hex. Negative answers are explicit successful evidence; malformed/truncated, res
 and timeout failures use canonical errors. Caller time/execution/subject identity and
 stable memory snapshot references/hashes preserve provenance. TXT remains untrusted.
 Discovered hosts/IPs never change Scope or gain authority. Caller owns lifecycle and
-state ingestion; no generic dispatcher, enumeration, DNSX, later adapter, planner/loop,
+state ingestion; no generic dispatcher, DNSX, later adapter, planner/loop,
 persistence/reporting or operational CLI. See docs/dns-resolver.md and ADR 0008.
 
+M2-T02 adds tools.subfinder.SubfinderAdapter for enumerate_subdomains, passive risk,
+strict empty planner parameters and explicit immutable registry composition. Default
+registry remains empty. Trusted binary/PATH lookup plus an isolated no-target version
+probe establishes availability; only reviewed Subfinder 2.9.0 is accepted. Operator
+composition opts into credential-free HackerTarget hostsearch, fixed JSONL/source
+attribution and one HTTP request/second. No all/default sources, active resolution,
+provider credentials, proxies, arbitrary flags or executable fields enter planner
+input. Current registry/policy/root scope/dedup/shared budgets precede one process.
+
+Upstream goflags can apply ambient YAML despite false-valued CLI flags. ADR 0009
+adds one internal bounded immutable complete ProcessSpec.environment snapshot,
+passed only by the runner to create_subprocess_exec. Default inheritance and all
+existing capture/deadline/cancellation behavior remain unchanged. Subfinder supplies
+fresh temporary HOME/config paths, null-device config/provider inputs and no ambient
+secrets/proxy/config variables. Cleanup follows runner cleanup on every outcome.
+Other protected domain/policy/config/error contracts and registry logic are unchanged.
+
+Strict UTF-8 host/input/sources JSONL validates canonical proper descendants through
+centralized syntax/membership, sorts/deduplicates deterministically and bounds lines,
+hosts/capture/normalized output. Malformed/outside-root/truncated output fails
+atomically; empty output succeeds with zero observations and untrusted empty evidence.
+Generic root-owned metadata Observations and Evidence retain source subfinder,
+enumerate_subdomains, source_version/provider_sources, explicit subject/time/execution
+and normalized snapshot memory reference/SHA-256. Excluded/unauthorized descendants
+remain data, never contact authority. Shared canonical failures retain nonzero exit
+codes; deadlines/cancellation/resources follow runner/budget contracts.
+
+Provider HTTP DNS/TLS/redirect behavior and completeness are external service
+behavior, not Python packet containment; the reviewed source performs no target
+probing and grants no target membership. No real binary/provider test or public
+contact occurs. resolve_dns is already implemented; DNS verification through DNSX
+remains future M2-T03. No generic dispatch, later adapter, planner/runtime/loop,
+persistence/reporting or operational CLI is added. See docs/subfinder-adapter.md.
+
 Audit events describe autonomous recon operations and confer no authorization. Event
-producers, generic Action/ToolExecution/Finding entities, scanners, Groq/provider/planner
+producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T02 is READY; remaining 76 tasks are NOT STARTED.
+Only M2-T03 is READY; remaining 75 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0009 selects reviewed passive Subfinder, one explicit credential-free source and enforced temporary child configuration through a minimal trusted runner environment seam; discovered data grants no authority.
 
 - ADR 0008 selects bounded native dnspython UDP with explicit independently scoped resolver infrastructure, fixed questions, no alias/fallback/retry and existing policy/budget/domain boundaries.
 
@@ -203,7 +240,7 @@ Only M2-T02 is READY; remaining 76 tasks are NOT STARTED.
 
 - ADR 0006 selects validated frozen state snapshots, defensive ownership, atomic local transitions, explicit history/times and read-only budget recording; policy/resources/execution remain independent.
 
-- Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; local action policy checks eligibility and future adapters own executable construction.
+- Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; local action policy checks eligibility and trusted adapters own executable construction.
 - ADR 0005 selects atomic local reservations, permanent attempt/output charges, rolling monotonic rates and synchronous concurrency ownership without runtime dispatch.
 - ADR 0003 selects explicit immutable composition, one selected adapter per capability and semantic-only planner catalog; declared availability defaults fail closed.
 - Pure centralized scope and action eligibility are implemented; native DNS policy/resource/contact enforcement exists; generic dispatch and other adapter containment remain future work. Discovery/planner recommendations grant no authority.
@@ -217,25 +254,24 @@ Only M2-T02 is READY; remaining 76 tasks are NOT STARTED.
 
 ## Validation
 
-M2-T01: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 was not tested.
-Editable development installation and pip check passed. Focused DNS/registry:
-190 passed, including 92 new DNS cases. Full, coverage and network/DNS-blocked suites:
-each 1,604 passed. Ruff lint/format (94 files), strict Mypy (42 production modules),
-isolated sdist/wheel build, editable/fresh-wheel inert CLI, guarded fresh-wheel cold
-imports and real registry/policy/budget/dedup with fake DNS execution passed.
-Coverage: 99% overall (2,009 statements / 594 branches); DNS models/native seam 100%,
-DNS adapter 94% (defensive unsupported-record and pre-exchange scope/deadline guards
-remain uncovered). No coverage gate/settings changed.
+M2-T02: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 was not tested.
+Editable development installation and pip check passed. Focused Subfinder/registry/
+runner: 281 passed (99 Subfinder cases and 15 added environment cases). Full, coverage
+and network/DNS-blocked suites: each 1,718 passed. Ruff lint/format (99 files), strict
+Mypy (44 production modules), isolated sdist/wheel build, editable/fresh-wheel inert
+CLI and guarded fresh-wheel cold imports/composition/fake DNS+Subfinder execution
+passed. Coverage: 99% overall (2,196 statements / 654 branches); Subfinder adapter
+96%, Subfinder schemas and process runner/models 100%. No settings/gates weakened.
 
-Protected policy/scope/budget/state/domain/runner/config/shared error contracts and
-registry logic are byte-identical to starting HEAD. Adapter AST, source/artifact/secret
-inspection, runtime dependencies, wheel/sdist source/metadata parity and Git whitespace
-checks passed. No later capabilities or generated artifacts/secrets are included.
-No tests contact public DNS. Offline guards block contact/DNS before collection and
-allow only AF_UNIX event-loop self-pipes; existing harmless local interpreter children
-are not sandboxed by the parent guard. Fresh-wheel cold imports prohibit contact,
-process/database/thread/logging/filesystem startup, permitting dependency metadata reads.
-Installation/build provisioning may use indexes. See TASK_HISTORY for actual commands,
-acceptance mapping, development corrections, limits and single focused commit reference.
+Protected domain/policy/config/errors/registry/native DNS/later subsystem source
+parity, scoped runner environment diff, AST/source/artifact/secret inspection,
+unchanged runtime dependencies and wheel/sdist parity passed. Git whitespace,
+append-only history, task readiness and local documentation links/fences verified.
+Default tests require no Subfinder, provider credentials or network. Offline guards
+block contact/DNS before collection, allowing only AF_UNIX loop self-pipes; existing
+harmless local interpreter children are not sandboxed by the parent guard. Fresh-wheel
+cold imports prohibit startup/contact/process/availability/temp creation, allowing
+read-only dependency metadata. Installation/build provisioning may use indexes.
+See TASK_HISTORY for actual commands, acceptance mapping, limitations and commit.
 
 Known blockers: None.

@@ -1,0 +1,4 @@
+{"host":"WWW.Example.test.","input":"example.test","sources":["hackertarget"]}
+{"host":"api.example.test","input":"example.test","sources":["hackertarget"]}
+{"host":"www.example.test","input":"EXAMPLE.TEST.","sources":["hackertarget"]}
+{"host":"excluded.example.test","input":"example.test","sources":["hackertarget"]}

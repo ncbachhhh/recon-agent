@@ -39,6 +39,30 @@ class ProcessSpec(_ProcessData):
     executable: str = Field(repr=False)
     args: tuple[str, ...] = Field(default=(), repr=False)
     timeout_seconds: PositiveSeconds | None = None
+    # Trusted complete child environment; None preserves inherited-environment
+    # behavior. Tuple pairs keep this internal snapshot immutable.
+    environment: tuple[tuple[str, str], ...] | None = Field(default=None, repr=False)
+
+    @field_validator("environment")
+    @classmethod
+    def environment_structure(
+        cls, value: tuple[tuple[str, str], ...] | None
+    ) -> tuple[tuple[str, str], ...] | None:
+        if value is not None and (
+            len(value) > 64
+            or len({key for key, _ in value}) != len(value)
+            or any(
+                not key
+                or "=" in key
+                or "\x00" in key
+                or "\x00" in item
+                or len(key) > 256
+                or len(item) > 8192
+                for key, item in value
+            )
+        ):
+            raise ValueError("invalid bounded child environment")
+        return value
 
     @field_validator("executable")
     @classmethod

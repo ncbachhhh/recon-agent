@@ -277,3 +277,14 @@ reference/hash to the returned normalized query snapshot, never a raw packet fil
 Discovered names/addresses are data only; no new Scope or actionable flag is inferred.
 Sorting/deduplication makes identical facts/context deterministic. Caller owns coherent
 state lifecycle/ingestion and retention. See [full DNS contract](dns-resolver.md).
+
+## Passive subdomain observations (M2-T02)
+
+Internal tools.subfinder_models defines empty strict input, caller context, reviewed
+JSONL fields and SubdomainOutput. No top-level domain/entity/Observation.kind changes.
+The root Asset owns kind=metadata/source=subfinder observations with hostname,
+query_target, status=discovered, enumerate_subdomains capability, source_version
+and provider_sources. Generic Evidence is untrusted and references the returned
+normalized discovery snapshot by memory reference/locator/SHA-256. Empty discovery
+returns evidence with no observations. Sorted/deduplicated hosts grant no scope,
+DNS verification or contact authority. See [normalization/provenance](subfinder-adapter.md).

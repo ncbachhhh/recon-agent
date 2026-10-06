@@ -176,3 +176,14 @@ answer addresses or discovered alias/mail/nameserver hosts. DNS values remain
 evidence, requiring independent current validation before future contact. This
 implements the DNS boundary of ADR 0002; HTTP/scanner rebinding containment remains
 future adapter work. See [DNS contract](dns-resolver.md).
+
+## Subfinder discovery (M2-T02)
+
+The enumeration query root passes current centralized ScopeValidator and action
+policy before process execution. Returned proper descendants are evidence only;
+allow_subdomains=false/exclusions still deny future contact. Parser-only syntax/
+root-membership validation never replaces or mutates the operational scope. Names
+outside the queried root reject as malformed tool output. The only configured
+passive source is an explicitly opted-in third-party service; its infrastructure
+is separate from target authorization. No returned hostname/address is probed or
+DNS-verified. DNS verification remains M2-T03. See [contract](subfinder-adapter.md).

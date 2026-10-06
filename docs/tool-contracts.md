@@ -2,7 +2,7 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-external scanner adapters remain unimplemented.
+M2-T02 adds the operational passive Subfinder adapter; later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -19,7 +19,7 @@ A **Tool** is an external program or other implementation mechanism. A
 adapter ID is distinct from capability identity and executable path. A
 **ToolRegistry** is a deterministic mapping/catalog of those explicitly supplied
 trusted instances. A **ProcessSpec** is internal executable/literal argument data
-constructed by future adapters for the M1-T03 runner. None of these is a shell
+constructed by trusted adapters for the M1-T03 runner. None of these is a shell
 command or planner-supplied execution instruction.
 
 ```text
@@ -28,7 +28,7 @@ Planner selects capability                 [future runtime]
   → ToolRegistry selects trusted adapter    [implemented foundation]
   → ToolAdapter validates/prepares execution
       → bounded native DNS → normalized observations [M2-T01, implemented]
-      → ProcessSpec → AsyncProcessRunner → external tool [future adapters]
+      → ProcessSpec → AsyncProcessRunner → Subfinder [M2-T02, implemented]
 ```
 
 Operators will supply target, authorized scope and configuration to the autonomous
@@ -51,20 +51,17 @@ input_schema and output_schema. Schemas are trusted Pydantic model **classes**,
 required to be strict and extra-forbid. They are excluded from ordinary dumps/repr;
 lookup returns the classes internally for policy/adapter validation. M1-T05 validates
 ActionRequest.parameters against input_schema; the primary target is checked
-separately. Scanner-specific models remain future adapter work.
+separately. DNS/Subfinder schemas are internal to their implemented adapters; later scanner schemas remain future work.
 
 `ToolAdapter` is a minimal abstract base class with a read-only `definition`
 property. Its base API remains unchanged. M2-T01 adds capability-specific async
 DnsAdapter.execute with strict input, current policy/resources, native resolver
-injection and normalized domain output. Later external adapter tasks own binary
-availability, trusted argv and injected ProcessRunner execution.
+injection and normalized domain output. M2-T02 adds Subfinder binary/version detection, isolated configuration, trusted argv and injected ProcessRunner execution.
 
 Planner parameters must flow through capability-specific typed validation to a
 trusted adapter. No dictionary-to-flags translation or argv pass-through is allowed.
 Schema classes, adapter instances and implementations never come from planner JSON,
-remote content, arbitrary config imports or deserialized requests. Tool paths, if
-later supported, are trusted operator configuration and cannot appear in planner
-contracts. Current ToolsConfig has only enabled; it is not consumed by the registry
+remote content, arbitrary config imports or deserialized requests. Subfinder paths are trusted operator composition inputs and cannot appear in planner contracts. Current ToolsConfig has only enabled; it is not consumed by the registry
 and cannot introduce commands or registrations.
 
 ## Explicit composition and deterministic selection
@@ -142,8 +139,7 @@ for local membership only; see [scope model](scope-model.md) and
 [ADR 0002](decisions/0002-scope-and-derived-addresses.md). Future adapters must check
 each absolute redirect destination, discovered hostname and concrete resolved
 address independently before contact, pin/constrain approved addresses and recheck
-changes. No scanner adapter, resolver, redirect follower or dispatch integration
-exists yet.
+changes. Native DNS and passive Subfinder have capability-specific execution; generic dispatch, redirect following and later scanner adapters remain future work.
 
 ## Normalized outputs
 
@@ -184,8 +180,7 @@ execution fields; ActionRequest also rejects
 planner-controlled import keys.
 `ProcessRunner.run` is awaitable and returns existing OperationResult with bounded
 raw ProcessExecution facts; fixture runners can implement the same small protocol.
-M1-T04 now supplies the upstream interface/registry described above; no scanner
-implementation or dispatch exists.
+M1-T04 now supplies the upstream interface/registry described above; Subfinder owns external execution; generic dispatch remains future work.
 
 Adapters must interpret non-zero exits, decode bytes, check independent stdout/stderr
 truncation flags, and convert facts into observations/ActionResult. The retained-byte
@@ -202,7 +197,7 @@ Planner request
   ↓
 ActionPolicyValidator.validate(ActionRequest)
   ↓ only approved actions may continue; dispatch must revalidate
-ToolRegistry / trusted Adapter / Runner [dispatch and adapters future]
+ToolRegistry / trusted Adapter / Runner [DNS/Subfinder capability execution; generic dispatch future]
 ```
 
 The validator consumes immutable registry metadata, not adapter instances, plus an
@@ -298,6 +293,18 @@ resolver internals never enter planner input/catalog. DnsOutput returns typed qu
 outcomes and existing Asset/Observation/Evidence with exact untrusted provenance.
 Native UDP exchanges are independently endpoint-authorized and bounded by existing
 policy/budget settings; no process runner or dig is involved. Default registry remains
-empty. Enumeration and DNSX verification remain unimplemented. See the complete
+empty. Enumeration is implemented via Subfinder (M2-T02); DNSX verification remains future M2-T03. See the complete
 [input/contact/normalization/error contract](dns-resolver.md) and
 [ADR 0008](decisions/0008-bounded-native-dns.md).
+
+## enumerate_subdomains implementation (M2-T02)
+
+The explicitly registered subfinder adapter supplies strict empty SubfinderInput,
+operator-only binary/version detection and capability-specific execute. It rechecks
+current registry/policy/scope/dedup/budgets, uses an isolated child environment and
+fixed passive HackerTarget JSONL argv, and normalizes generic metadata observations
+and untrusted evidence. Missing/nonzero/timeout/truncated/malformed outputs use shared
+failures; empty discovery succeeds. No discovered name gains authorization or gets
+contacted. Default registry remains empty. See [complete Subfinder contract](subfinder-adapter.md)
+and [ADR 0009](decisions/0009-isolated-passive-subfinder.md). resolve_dns is already
+implemented; DNS verification remains future M2-T03.

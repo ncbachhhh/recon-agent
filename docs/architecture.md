@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; other operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -47,12 +47,11 @@ Planner [future] → ActionPolicyValidator [M1-T05 local eligibility]
   → BudgetController atomic reservation [M1-T06; resources only]
   → ToolRegistry [M1-T04] → ToolAdapter
       → NativeDnsResolver → approved numeric resolver [M2-T01]
-      → Execution Runner → OS process [future external adapters; M1-T03 runner exists]
+      → Execution Runner → OS process [M2-T02 Subfinder; M1-T03 runner]
 ```
 
 ProcessSpec grants no authority. Future dispatch must recheck approval/scope/budgets
-and select trusted adapters. Registry lookup and local action policy exist; operational
-adapter dispatch remains future work. The execution-neutral ProcessRunner protocol
+and select trusted adapters. Registry lookup and local action policy exist; native DNS and Subfinder implement capability-specific dispatch; generic dispatch remains future work. The execution-neutral ProcessRunner protocol
 allows future fixture runners;
 an internal injected spawn seam already drives deterministic fake-process tests.
 
@@ -71,7 +70,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | Capability | Potential implementation |
 | --- | --- |
 | resolve_dns | Implemented bounded native dnspython adapter (M2-T01); DNSX future (M2-T03) |
-| enumerate_subdomains | subfinder |
+| enumerate_subdomains | Implemented passive Subfinder adapter (M2-T02) |
 | discover_ports | naabu |
 | fingerprint_services | nmap |
 | probe_http | httpx |
@@ -81,7 +80,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | inspect_protocol | Controlled SSH/SMB/FTP/SMTP/database modules |
 | scan_templates | nuclei with named policy profiles |
 
-Except for implemented resolve_dns, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
+Except for implemented resolve_dns and enumerate_subdomains, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
 ## Provider layer — `providers/`
 
@@ -163,5 +162,18 @@ revalidates current policy/scope/dedup, checks independently authorized numeric 
 infrastructure, atomically reserves existing budgets, then exchanges fixed bounded DNS
 questions through NativeDnsResolver. This native path uses no ExecutionRunner/process.
 Typed results normalize into existing Asset/Observation/Evidence; caller owns lifecycle
-and fact ingestion. No generic dispatcher, enumeration, DNSX or later adapter exists.
+and fact ingestion. No generic dispatcher, DNSX or later adapter exists; enumeration is implemented in M2-T02.
 See [resolver contract](dns-resolver.md) and [ADR 0008](decisions/0008-bounded-native-dns.md).
+
+## Passive enumeration (M2-T02)
+
+SubfinderAdapter implements enumerate_subdomains using the existing ToolAdapter →
+ExecutionRunner boundary. Explicit local binary/version probing, isolated child
+configuration and fixed credential-free HackerTarget source prevent planner/ambient
+configuration from selecting execution. Current scope/policy/dedup and atomic budgets
+precede one bounded process. Generic root-owned metadata observations and untrusted
+snapshot evidence record sorted discovery, never DNS verification or follow-up
+permission. Provider transport is an explicit external service boundary; Python does
+not pin its HTTP destination packets. resolve_dns remains implemented; DNSX
+verification is future M2-T03. See [contract](subfinder-adapter.md) and
+[ADR 0009](decisions/0009-isolated-passive-subfinder.md).

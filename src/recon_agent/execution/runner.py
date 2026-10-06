@@ -54,6 +54,7 @@ async def _spawn(spec: ProcessSpec) -> ProcessHandle:
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         limit=_PIPE_BUFFER_BYTES,
+        env=dict(spec.environment) if spec.environment is not None else None,
     )
 
 

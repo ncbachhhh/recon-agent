@@ -1243,3 +1243,129 @@ Commit reference: the single focused commit containing this entry, titled
 `feat(dns): add DNS resolver capability`; resolve with
 `git log -1 --format=%H --grep="^feat(dns): add DNS resolver capability$"`.
 Final handoff reports actual hash and verified clean working tree.
+
+## 2026-10-06 — M2-T02 — Subfinder adapter
+
+Status: DONE. M2-T02 alone progressed READY → IN PROGRESS → DONE; M2-T03 alone
+becomes READY and remains unstarted. M0/M1/M2-T01 prerequisites were DONE. Starting
+HEAD: 696c561eb0038d15982a4a0538e5711bc10ff994; clean tree/index, no active task/blocker.
+Ordered AGENTS/maintenance skill/state/PLAN/subsystem docs/ADRs/history/Git/source/test
+startup matched the prompt. No unrelated modifications existed or were overwritten.
+
+### Objective, implementation and decisions
+
+Implement passive enumerate_subdomains through trusted ToolAdapter → ExecutionRunner,
+with current authorization/resources and generic normalized observations/evidence.
+
+- tools.subfinder.SubfinderAdapter supplies subfinder identity, passive risk, strict
+  empty SubfinderInput and internal SubdomainOutput/Context/Line schemas. Primary
+  target is the sole authorized query root; no parent-domain promotion or extra flags.
+  Explicit registration through unchanged ToolRegistry; default registry stays empty.
+- Operator-only binary/path lookup and bounded no-target version probe through the
+  runner detect Subfinder availability. Reviewed 2.9.0 only; missing/unknown versions
+  fail closed without installing, guessing flags or falling back. Direct construction
+  supports trusted offline fakes; real AVAILABLE declarations require detection.
+- Fixed credential-free HackerTarget hostsearch source, JSONL/source attribution,
+  silent/no-color/update-disabled output, one HTTP request/second, 10-second source
+  timeout and one-minute tool maximum. Source selection/keys/proxies/resolvers/config
+  paths/executable/argv/environment never become planner parameters/catalog fields.
+  Explicit composition opts into third-party disclosure/use; service transport and
+  collection completeness remain external behavior. No target probing occurs.
+- Upstream review found goflags 0.1.74 ambient YAML can override default-valued false
+  CLI flags, so -config alone cannot guarantee passive execution. ADR 0009 records
+  the necessary scoped runner extension: bounded immutable complete environment tuple
+  in internal ProcessSpec, with one env keyword at create_subprocess_exec. None keeps
+  existing inheritance. No launch/capture/deadline/cleanup duplication or parent env
+  mutation. Subfinder's fresh temporary HOME/config paths and null-device config
+  inputs exclude ambient secrets/proxy/config variables and confine automatic default
+  config creation; cleanup follows runner cleanup, including cancellation.
+- execute revalidates original request/context/subject, current binding, capability,
+  risk, scope/schema/dedup and shared BudgetController. Atomic reservations charge
+  attempts/root-host/concurrency/action-rate/two-stream output; same/smaller capture
+  allowance is required. Process timeout clamps to remaining session time. Runner
+  failures persist; permit cleanup releases concurrency and retains charges.
+- Strict UTF-8 JSONL requires unique keys and exact host/input/sources fields. Any
+  malformed/banned/outside-root record rejects the whole output, not partial facts.
+  Blank lines ignore; zero output succeeds with zero hosts/observations and evidence.
+  Central ScopeValidator supplies canonical syntax and queried-root label membership
+  in a parser-only declaration, never replacing/mutating operational scope. Proper
+  descendants deduplicate/sort, including operationally excluded names as data.
+  Bounds: 4,096 lines, 2,048 nonblank-line characters, 254 wire-name characters,
+  1,024 distinct hosts and configured captured/serialized output limits.
+- Existing root Asset, kind=metadata Observation and Evidence contracts remain pure
+  and unchanged. Provenance includes subfinder/enumerate_subdomains, version/source,
+  explicit subject/time/execution IDs and stable memory snapshot reference/SHA-256.
+  Raw lines/stderr/config/native diagnostics are not returned. Discovered names never
+  gain authority or undergo DNS/HTTP follow-up. No new top-level SubfinderResult.
+- Canonical tool_unavailable/tool_execution_failed/tool_timeout/parse_failed and
+  policy/budget failures are reused; nonzero exits retain safe exit_code. Cancellation
+  propagates after existing runner cleanup. Empty discovery does not prove absence or
+  upstream provider success: Subfinder can suppress provider errors with zero exit.
+- 99 offline Subfinder cases plus 15 runner environment regressions (including one
+  harmless local sys.executable case) cover availability, exact argv, scoped/denied
+  dispatch, malicious/metacharacter parameters/data, parser outcomes, provenance,
+  no scope expansion, resources/deadlines/cancellation/config isolation.
+
+Files: tools/subfinder.py and subfinder_models.py; ProcessSpec.environment and runner
+spawn keyword; base adapter docstring; tests/unit/tools/test_subfinder.py, sanitized
+JSONL fixture and runner/local-process regressions; Subfinder contract/ADR 0009;
+tool/architecture/security/data/execution/scope/testing/DNS docs, README/changelog and
+PLAN/state/current/history. Domain/policy/scope/budget/dedup/state/config/shared errors,
+registry logic/native DNS/CLI/dependencies and all later subsystems remain byte-identical
+to starting HEAD. The only protected runtime change is the documented environment seam.
+No DNSX, HTTPX, Naabu, Nmap, Groq/planner, loop, persistence/reporting/real CLI or future
+task implementation. No new blocker/follow-up task beyond existing M2-T03.
+
+### Executed final validation
+
+Repository .venv unless noted: Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0.
+Python 3.12 was not run; no wider interpreter/live-tool claim is made.
+
+| Check | Actual command/result |
+| --- | --- |
+| Setup | `python --version` / `.venv/bin/python --version`: 3.14.6; `python -m pip install -e '.[dev]'` via .venv and pip check passed |
+| Focused | `python -m pytest tests/unit/tools/test_subfinder.py tests/unit/tools/test_registry.py tests/unit/execution -q`: 281 passed; 99 new Subfinder and 15 new environment cases |
+| Full | `python -m pytest -q`: 1,718 passed |
+| Coverage | `python -m coverage run -m pytest -q`: 1,718 passed; `coverage report`: 99% overall, 2,196 statements / 654 branches; Subfinder 96%, its schemas and runner/models 100% |
+| Network/DNS blocked | `python /tmp/recon-m2t02-validation/offline.py`: 1,718 passed; Groq key absent; guard self-checks/contact/DNS denial before collection |
+| Lint/format/types | `python -m ruff check .`, `ruff format --check .`: passed, 99 files; `mypy src/recon_agent`: passed, 44 modules; no suppressions/settings/gates weakened |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; editable and fresh-wheel recon-agent keep inert baseline message and exit 0 |
+| Fresh wheel | External wheel-venv install/pip check passed; `python -I -B wheel_checks.py` outside checkout passed guarded cold imports/module origins, explicit DNS/Subfinder registration, real policy/budget/dedup with fake executions, literal argv/config environment/portable provenance and denied discovered targets/extra flags |
+| Security/artifacts | Temporary artifact_checks.py passed protected source parity, scoped runner diff, adapter AST/no shell/Groq/dynamic import, later-source absence, unchanged Pydantic+dnspython metadata, source wheel/sdist parity and artifacts/secrets |
+| Reconciliation/Git | Final task-owned diff/whitespace review; only M2-T02 DONE and M2-T03 READY, later tasks pending; append-only history and local documentation links/fences verified before one focused commit |
+
+Coverage misses are Windows SystemRoot and defensive post-eligibility reservation/
+pre-dispatch deadline/temp-setup failure paths; existing scope/dedup/DNS defensive
+misses are unchanged. Tests use fake binary outputs; no Subfinder/network integration
+was run or required. Offline socket guards allow AF_UNIX loop machinery and do not
+sandbox reviewed harmless interpreter children. Cold imports prohibit contact/process/
+logging/database/thread/availability/temp startup and allow dependency metadata reads.
+Package-index use is limited to installation/build provisioning. Provider DNS/TLS/
+redirects/accuracy and process descendant/OS containment limits are documented.
+
+Development checks caught strict subprocess kwargs typing, inappropriate generic
+Pydantic dataclass serialization for availability (corrected with InstanceOf), and
+three test assumptions about existing reserved domain keys. The external cold-import
+harness also captured its temporary-directory guard via from-import; the harness
+restores that symbol before explicit runtime testing. Final required checks pass.
+Final review added safe nonzero exit context and reran focused/full/coverage/offline/
+build/wheel/artifact checks afterward. No unresolved validation failure or blocker.
+
+### Acceptance and handoff
+
+| PLAN criterion | Evidence |
+| --- | --- |
+| Known fixture output normalizes candidates/source/evidence | JSONL fixture, canonical duplicate/order/single/multiple tests, generic metadata/evidence IDs, version/provider/time/execution/subject lineage and snapshot hash |
+| Malformed output/missing binary/timeout are structured | Strict JSONL adversarial cases, fake missing/version/timeout/nonzero/truncation outputs, safe shared errors/exit code and zero-result success |
+| Argv honors limits and denies extra parameters | Exact adapter-owned argv, empty strict schema/domain-key denial, isolated environment, policy/scope/resource/session/cancellation guards and denied-call assertions |
+| Outside names remain rejected/unactionable | Outside-query-root records fail atomically; discovered proper descendants/exclusions never alter Scope, fail subsequent authorization and produce no follow-up calls |
+| Passive third-party data handling documented | Fixed HackerTarget source, operator disclosure/use, no provider credentials/active mode, configuration isolation, provider/runner transport limits, complete Subfinder contract and ADR 0009 |
+
+All acceptance checks passed. M0 and M1 DONE; M2-T01–M2-T02 DONE; M2-T03 alone
+READY/unstarted; remaining 75 tasks NOT STARTED. No active task/blocker. Stop here.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(subdomains): add Subfinder adapter`; resolve with
+`git log -1 --format=%H --grep="^feat(subdomains): add Subfinder adapter$"`.
+Final handoff reports actual hash and clean tree. No amend, squash, second task
+commit, history rewrite or push.

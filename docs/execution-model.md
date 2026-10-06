@@ -1,7 +1,7 @@
 # Internal process execution
 
 M1-T03 implements `execution/AsyncProcessRunner`, an awaitable local process
-primitive for future trusted ToolAdapters. It is scanner-agnostic and has no
+primitive for trusted ToolAdapters, including M2-T02 Subfinder. It is scanner-agnostic and has no
 planner, provider, scope, CLI, registry or authorization behavior. Importing the
 package and constructing contracts/runner launch nothing and configure no logging.
 No runtime dependency beyond the existing Pydantic dependency is added.
@@ -14,7 +14,7 @@ Operator supplies target + authorized scope + config
   → AI planner selects capability                          [future]
   → ActionPolicyValidator local eligibility                 [M1-T05]
   → Tool Registry selects trusted adapter                  [M1-T04, implemented foundation]
-  → ToolAdapter owns executable and literal argv           [future]
+  → ToolAdapter owns executable and literal argv           [M2-T02 Subfinder]
   → AsyncProcessRunner                                     [M1-T03, implemented]
   → OS process
   → adapter normalization / observations / planner again    [future]
@@ -37,7 +37,7 @@ internal data. Executable is a separate non-blank string; arguments are a tuple 
 strings, including literal empty strings. Embedded NUL and wrong element/container
 types fail structural validation. JSON arrays round-trip to tuples. No shell-like
 string is parsed or split. There is no command-string overload, template, script,
-pre/post command, environment override, cwd or interactive stdin option.
+pre/post command, cwd or interactive stdin option. M2-T02 adds an internal complete environment snapshot described below.
 
 `await runner.run(spec)` returns the existing `OperationResult[ProcessExecution]`.
 `ProcessRunner` is the small protocol future adapter tests can inject with a
@@ -50,8 +50,7 @@ instances are revalidated, and execution settings are snapshotted at constructio
 Production launch uses only `asyncio.create_subprocess_exec(executable, *args)`.
 There is no shell wrapper, expansion, evaluation or TTY. `$HOME`, wildcards,
 substitutions, quotes, spaces and shell operators remain literal child arguments.
-The child inherits the caller's environment and working directory. Neither is
-inspected, dumped or changed by the runner. Stdin is DEVNULL, providing EOF rather
+The child inherits the caller's environment and working directory by default. A trusted ProcessSpec.environment tuple replaces child inheritance when supplied; the working directory remains unchanged. The runner never logs either. Stdin is DEVNULL, providing EOF rather
 than waiting for operator input. Trusted adapters remain responsible for safe
 executable selection and non-interactive tool options.
 
@@ -137,8 +136,7 @@ truncation flags with their own correlation IDs. No environment is logged.
 M1-T04 now implements immutable registry/capability mapping and the minimal trusted
 adapter interface, without execution. M1-T05 adds pure action eligibility without
 runner calls. M1-T06 supplies a separate local budget/concurrency/rate controller
-without runner calls. Scanner adapters, provider/planner runtime, orchestration, persistence, reporting
-and real CLI remain future tasks. See [tool contracts](tool-contracts.md),
+without runner calls. M2-T02 Subfinder now uses the process boundary. Later scanner adapters, provider/planner runtime, orchestration, persistence, reporting and real CLI remain future tasks. See [tool contracts](tool-contracts.md),
 [security model](security-model.md), [error contracts](error-model.md) and
 [testing strategy](testing-strategy.md) for the surrounding boundaries.
 
@@ -161,3 +159,16 @@ resolve_dns does not use ProcessSpec/ExecutionRunner. Its explicitly registered 
 DnsAdapter rechecks policy, independently scoped resolver infrastructure and atomic
 budgets before bounded asynchronous native UDP exchanges. Existing process contracts
 remain unchanged. See [DNS contact/resource/error semantics](dns-resolver.md).
+
+## Complete child environment (M2-T02)
+
+ProcessSpec.environment is an optional immutable tuple of (name, value) string pairs,
+not a planner input. None preserves inheritance; () supplies an empty environment.
+At most 64 unique entries; names are nonempty, at most 256 characters and cannot
+contain NUL/=; values are at most 8,192 characters without NUL. Wrong types/duplicate
+names reject before spawn. It is excluded from repr, still present in deliberate
+internal dumps, and never added to ProcessExecution or catalog metadata. The runner
+passes a new dict to create_subprocess_exec(env=...), without altering os.environ.
+Argv/capture/timeout/cancellation behavior and default inheritance are unchanged.
+Subfinder uses this seam to isolate ambient YAML/credentials/proxies in temporary
+configuration directories; see [Subfinder execution](subfinder-adapter.md).

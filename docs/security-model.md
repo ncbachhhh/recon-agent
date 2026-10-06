@@ -1,7 +1,7 @@
 # Security model
 
 Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. M2-T01 adds operational native DNS behind explicit registry/policy/resources;
-no external scanner or generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+M2-T02 implements passive Subfinder; no generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -134,7 +134,7 @@ Document controls as planned until implementation and test evidence support them
 
 ## Concrete execution boundary (M1-T03)
 
-Only trusted adapter code may construct ProcessSpec executable/argv after future
+Only trusted adapter code may construct ProcessSpec executable/argv after current
 policy approval and registry resolution. No direct planner-to-runner path exists;
 domain contracts contain no execution fields. The runner performs no target resolution, scope expansion, tool
 allowlisting or policy approval. It is not a public arbitrary-command feature.
@@ -145,7 +145,7 @@ Output retention is bounded while reading: ExecutionConfig.max_output_bytes caps
 each stream, concurrent readers discard excess and report independent truncation.
 Bytes remain untrusted evidence; no automatic argv/output/environment logging or
 policy/audit emission occurs. Returned metadata contains no argv/executable path.
-The child inherits environment/cwd; trusted callers must avoid command-line secrets.
+The child inherits environment/cwd by default; trusted ProcessSpec.environment can replace child inheritance. Subfinder uses isolated config paths and excludes ambient secrets/proxies. Trusted callers must avoid command-line secrets.
 
 Timeout cleans up then returns ToolTimeoutError-derived Failure. Cancellation
 terminates/reaps the direct child and re-raises asyncio.CancelledError; shielded
@@ -292,3 +292,25 @@ bounds and cancellation release apply. No planner endpoint/flags/command fields,
 brute force, uncontrolled enumeration, later adapter, generic dispatch or AI loop.
 See [precise bounds and trust limits](dns-resolver.md) and
 [ADR 0008](decisions/0008-bounded-native-dns.md).
+
+## Passive Subfinder boundary (M2-T02)
+
+The adapter checks the authorized query root and current policy/registry/dedup/shared
+budgets before building fixed argv. Strict empty parameters deny every planner flag,
+source/path/proxy/credential/environment override. Only one explicit credential-free
+HackerTarget source receives the authorized root; operators authorize third-party
+use/disclosure independently of reconnaissance target scope. Provider HTTP transport
+and data are external service behavior, not permission to contact discovered names.
+Subfinder runs without active resolution or target probing. No DNS verification,
+follow-up, shell, fallback scanner or automatic install exists.
+
+Reviewed upstream ambient YAML can enable active mode even with false CLI defaults.
+A bounded internal ProcessSpec complete-environment seam enables temporary HOME/config
+isolation without changing the parent environment; the runner retains sole launch/
+timeout/cancellation ownership. Secrets/proxy/config variables are not inherited.
+Malformed/outside-query-root output fails atomically; operationally excluded proper
+descendants can be recorded as data only. Existing ScopeValidator must authorize
+every future contact; scope snapshots never change. Raw stdout/stderr/configuration
+and paths do not enter errors, planner catalog or normalized evidence. See
+[precise boundaries/limits](subfinder-adapter.md) and
+[ADR 0009](decisions/0009-isolated-passive-subfinder.md).

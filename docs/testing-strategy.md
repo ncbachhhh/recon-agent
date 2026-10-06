@@ -231,3 +231,22 @@ budgets, aggregate record/output bounds, cancellation/session/whole-action deadl
 and existing state/dedup composition. Socket contact/DNS/subprocess guards assert no
 real activity. No local DNS server/live integration is needed. Fresh-wheel imports
 and composition include native DNS under guarded contact/process/startup checks.
+
+## Subfinder regressions (M2-T02)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_subfinder.py tests/unit/tools/test_registry.py tests/unit/execution -q`
+first, then the full baseline, network/DNS-blocked suite, fresh-wheel cold imports/
+fake composition, artifacts/secrets and final whitespace review. Sanitized JSONL
+fixture records Subfinder 2.9.0 -json -cs host/input/sources format for HackerTarget.
+Availability/PATH/version probes and enumeration use injected fake ProcessRunner
+outputs under socket/DNS/process guards; default tests never detect/run Subfinder.
+Tests assert exact argv, isolated environment/config paths, denied roots/extra fields
+with no dispatch, sorted duplicates/single/empty results, canonical/malformed/outside
+records, safe provenance, unchanged scope/no follow-up, structured missing/nonzero/
+timeout/truncation errors, resources, session expiry and cancellation/temp cleanup.
+Runner regressions validate the bounded environment contract and use only a harmless
+local interpreter child to prove ambient secrets/config variables are excluded and
+shell syntax remains literal. No live-binary or provider tests are added. Fresh-wheel
+checks include explicit Subfinder registration and real policy/budget/dedup with fake
+execution; imports remain inert. resolve_dns regressions remain unchanged; DNSX
+verification is future M2-T03.

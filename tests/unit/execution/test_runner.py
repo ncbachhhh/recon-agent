@@ -366,6 +366,7 @@ def test_spawn_uses_literal_argv_devnull_and_bounded_pipes(monkeypatch):
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             limit=65_536,
+            env=None,
         )
 
     asyncio.run(check())
@@ -421,5 +422,43 @@ def test_runner_allows_independent_awaitable_invocations():
         second.finish(2)
         results = await asyncio.gather(*tasks)
         assert [r.value.return_code for r in results if r.status == "success"] == [1, 2]
+
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize(
+    "environment",
+    [
+        (("A", "one"), ("A", "two")),
+        (("", "value"),),
+        (("BAD=NAME", "value"),),
+        (("NUL\x00", "value"),),
+        (("NAME", "nul\x00value"),),
+        (("NAME", "x" * 8193),),
+        (("K" * 257, "value"),),
+        tuple((str(i), "v") for i in range(65)),
+        {"NAME": "value"},
+        [("NAME", "value")],
+        ((1, "value"),),
+        (("NAME", 2),),
+    ],
+)
+def test_invalid_complete_environment(environment):
+    with pytest.raises(ValidationError):
+        spec(environment=environment)
+
+
+@pytest.mark.parametrize("environment", [(), (("SAFE_FIXTURE", "literal;$HOME"),)])
+def test_runner_complete_environment_is_literal_and_snapshot(monkeypatch, environment):
+    async def check():
+        spawn = AsyncMock(return_value=FakeProcess())
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn)
+        request = spec(environment=environment)
+        result = await AsyncProcessRunner(ExecutionConfig()).run(request)
+        assert result.status == "success"
+        assert spawn.call_args.kwargs["env"] == dict(environment)
+        assert request.environment == environment
+        assert ProcessSpec.model_validate_json(request.model_dump_json()) == request
+        assert "SAFE_FIXTURE" not in repr(request)
 
     asyncio.run(check())

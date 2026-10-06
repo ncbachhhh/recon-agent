@@ -61,8 +61,8 @@ class ToolAdapter(ABC):
     """Trusted application code supplied explicitly by the composition root.
 
     Capability-specific implementations own execution and normalization; the
-    base exposes metadata only. Native DNS uses no process runner. Later external
-    adapters own availability probing, ProcessSpec construction and runner use.
+    base exposes metadata only. Native DNS uses no process runner. Subfinder owns
+    availability probing, ProcessSpec construction and runner use.
     """
 
     @property

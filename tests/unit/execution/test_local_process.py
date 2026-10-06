@@ -196,3 +196,38 @@ def test_local_process_timeout_or_cancel_reaps_direct_child(tmp_path, cancel):
             await asyncio.gather(task, return_exceptions=True)
 
     asyncio.run(check())
+
+
+def test_complete_child_environment_excludes_ambient_config_and_secrets(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setenv("RECON_FIXTURE_AMBIENT_SECRET", "private-fixture")
+    config = tmp_path / "ambient-config.yaml"
+    config.write_text("active: true\n")
+    monkeypatch.setenv("SUBFINDER_CONFIG", str(config))
+
+    async def check():
+        request = python_spec(
+            "import os,json; print(json.dumps(dict(os.environ),sort_keys=True))"
+        )
+        request = request.model_copy(
+            update={
+                "environment": (
+                    ("HOME", str(tmp_path)),
+                    ("XDG_CONFIG_HOME", str(tmp_path)),
+                    ("RECON_LITERAL", "$(touch sentinel);$HOME"),
+                )
+            }
+        )
+        result = await AsyncProcessRunner(ExecutionConfig()).run(request)
+        assert result.status == "success"
+        env = json.loads(result.value.stdout)
+        assert env["HOME"] == str(tmp_path)
+        assert env["RECON_LITERAL"] == "$(touch sentinel);$HOME"
+        assert (
+            "RECON_FIXTURE_AMBIENT_SECRET" not in env and "SUBFINDER_CONFIG" not in env
+        )
+        assert not (tmp_path / "sentinel").exists()
+        assert config.read_text() == "active: true\n"
+
+    asyncio.run(check())

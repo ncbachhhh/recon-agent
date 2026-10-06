@@ -127,3 +127,12 @@ partial-result recovery remains future work.
 
 See [ADR 0008](decisions/0008-bounded-native-dns.md), [tool contracts](tool-contracts.md),
 [scope](scope-model.md), [security](security-model.md) and [testing](testing-strategy.md).
+
+## Workflow integration (M2-T07)
+
+The [deterministic pipeline](deterministic-discovery.md) now supplies caller lifecycle,
+atomic state ingestion and normalized-snapshot retention for this adapter. The optional
+trusted `on_started` callback runs inside the single owned budget permit before contact;
+Failure/malformed outcome aborts without contact and releases concurrency. Default
+adapter use is unchanged. Existing profiles/parsers/scope/resource limits remain intact.
+M2 is an integration proof; M6/M7 AI planning/autonomous loops remain future work.

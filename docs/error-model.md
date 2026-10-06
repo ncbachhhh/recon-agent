@@ -133,7 +133,8 @@ to an operational executor. It can record `partial`, `rejected`, `cancelled` and
 
 M0-T05 replaces the temporary `failure_reason` field with `error`. Completed
 results forbid errors; every other status requires structured error information.
-Rejections require policy/planner categories, timeout requires `tool_timeout`,
+Rejections require policy/planner categories or exactly `tool_unavailable`
+(M2-T07 pre-start availability denial), timeout requires `tool_timeout`,
 and cancellation requires `cancelled`. Failed/partial results cannot relabel
 policy/planner rejection or cancellation. Only completed/partial results may
 carry successful observations; other statuses may retain evidence references.

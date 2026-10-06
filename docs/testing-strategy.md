@@ -306,3 +306,18 @@ Fresh-wheel guarded cold imports and fake detected Nmap/policy/budget/dedup comp
 verify packaging. Supported Nmap 7.95 without Lua is source/fixture review only; no live
 Nmap test or installation. Scan flags do not imply packet-rate guarantees for native
 version probes; exact limits are documented in [contract](nmap-adapter.md).
+
+## Deterministic discovery regressions (M2-T07)
+
+Run `.venv/bin/python -m pytest tests/unit/test_discovery.py tests/unit/test_state.py
+tests/unit/test_domain.py tests/unit/tools -q`, then the complete baseline, pre-collection
+network/DNS-blocked suite, coverage/build/fresh-wheel/CLI and artifact/secret/diff checks.
+The pipeline tests use actual six M2 adapters with a fake DNS exchange and fake
+ProcessRunner, real registry/policy/budgets/dedup/state and fixed UTC/monotonic clocks.
+Guards forbid network/process/provider imports; no external scanner or public target.
+Cases cover full ordered flow and metadata/evidence/lifecycle, all missing tools,
+parse/timeout/unavailable/partial/empty outcomes, independent discovered name/IP/
+resolver/redirect/alias scope, semantic duplicate skips, budgets/rates, start-hook
+abort, atomic terminal rollback and cancellation. Fresh-wheel cold imports stay
+inert and installed-wheel pipeline composition runs with the same guarded fakes.
+M2 pipeline = deterministic integration proof; M6/M7 = future AI planning/autonomous loop.

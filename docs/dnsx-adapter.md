@@ -154,3 +154,12 @@ Reviewed primary compatibility sources:
 [retryabledns 1.0.94 queries/RR metadata](https://github.com/projectdiscovery/retryabledns/blob/v1.0.94/client.go),
 [goflags 0.1.65 config](https://github.com/projectdiscovery/goflags/blob/v0.1.65/goflags.go).
 See [ADR 0010](decisions/0010-scoped-bulk-dnsx.md) and [tests](testing-strategy.md).
+
+## Workflow integration (M2-T07)
+
+The [deterministic pipeline](deterministic-discovery.md) now supplies caller lifecycle,
+atomic state ingestion and normalized-snapshot retention for this adapter. The optional
+trusted `on_started` callback runs inside the single owned budget permit before contact;
+Failure/malformed outcome aborts without contact and releases concurrency. Default
+adapter use is unchanged. Existing profiles/parsers/scope/resource limits remain intact.
+M2 is an integration proof; M6/M7 AI planning/autonomous loops remain future work.

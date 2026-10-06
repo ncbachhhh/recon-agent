@@ -247,7 +247,15 @@ class ReconStateMachine:
             }
         )
 
-    def record_action_result(self, result: ActionResult) -> OperationResult[ReconState]:
+    def record_action_result(
+        self,
+        result: ActionResult,
+        *,
+        assets: tuple[Asset, ...] = (),
+        hosts: tuple[Host, ...] = (),
+        services: tuple[Service, ...] = (),
+        endpoints: tuple[Endpoint, ...] = (),
+    ) -> OperationResult[ReconState]:
         """Atomically preserve terminal history and supplied facts, never infer them.
 
         Existing fact IDs can be referenced only with identical payloads; new IDs
@@ -256,6 +264,10 @@ class ReconStateMachine:
 
         def update(current: ReconState) -> dict[str, object]:
             validated = ActionResult.model_validate(result)
+            if validated.status not in ("completed", "partial") and (
+                assets or hosts or services or endpoints
+            ):
+                raise ValueError("unsuccessful results cannot ingest subjects")
             known_observations = {item.id for item in current.observations}
             known_evidence = {item.id for item in current.evidence}
             return {
@@ -269,6 +281,10 @@ class ReconStateMachine:
                     ),
                 ),
                 "action_results": (*current.action_results, validated),
+                "assets": (*current.assets, *assets),
+                "hosts": (*current.hosts, *hosts),
+                "services": (*current.services, *services),
+                "endpoints": (*current.endpoints, *endpoints),
                 "observations": (
                     *current.observations,
                     *(

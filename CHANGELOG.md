@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M2-T07: finite deterministic DNS/subdomain/verification/HTTP/port/service workflow,
+  real policy/budget/dedup integration, atomic ReconState results and in-memory audit/
+  evidence reports. Adapter start notifications and immutable Nmap discovery snapshots
+  preserve existing scope/contact/profile limits. No AI or autonomous loop.
+
+
 - Added fingerprint_services through detected NSE-free Nmap 7.95, trusted prior-discovery selections, required bounded TCP ports, independently scoped numeric contact, fixed native version/XML profile and safe generic Service/Observation/Evidence. Offline fixtures cover containment, hostile XML, provenance and canonical failures; no live compatibility or pipeline is claimed.
 
 - Added discover_ports through trusted Naabu 2.3.5: operator finite TCP ranges, independently scoped numeric hostname bindings, fixed isolated CONNECT stream argv, existing policy/budget/runner limits and generic Host/Service/Observation/Evidence. Offline fixtures/fakes cover partial/failure/security limits; no DNS expansion, arbitrary planner flags or Nmap fingerprinting.

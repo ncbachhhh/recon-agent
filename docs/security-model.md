@@ -1,7 +1,7 @@
 # Security model
 
 Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. M2-T01 adds operational native DNS behind explicit registry/policy/resources;
-M2-T02 implements passive Subfinder; M2-T03 implements independently scoped bulk DNSX verification; M2-T04 implements HTTPX probing with independently scoped contact IP constraints and no redirects; M2-T05 implements numeric bounded Naabu CONNECT discovery; M2-T06 implements NSE-free bounded Nmap service fingerprinting; no generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+M2-T02 implements passive Subfinder; M2-T03 implements independently scoped bulk DNSX verification; M2-T04 implements HTTPX probing with independently scoped contact IP constraints and no redirects; M2-T05 implements numeric bounded Naabu CONNECT discovery; M2-T06 implements NSE-free bounded Nmap service fingerprinting; M2-T07 adds a bounded deterministic six-capability workflow; generic autonomous dispatch remains future work. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -370,3 +370,28 @@ exclude ambient target/config/proxy expansion. Safe bounded UTF-8 XML rejects en
 DTD expansion, extra targets/ports and unsupported modes. Version/banner/CPE strings
 remain untrusted evidence; no vulnerability inference or permission. See
 [contract](nmap-adapter.md) and [ADR](decisions/0013-nse-free-bounded-nmap.md).
+
+## Deterministic M2 integration (M2-T07)
+
+M2 pipeline = deterministic integration proof.
+M6/M7 = future AI planning/autonomous loop.
+
+The bounded explicit DiscoveryWorkflow now coordinates only the six M2 capabilities
+through current policy, real dedup admission, registry and shared adapter-owned budgets.
+Each adapter accepts an optional trusted post-reservation/pre-contact `on_started`
+notification; failed notification prevents contact and releases its charged permit.
+No policy/dedup bypass or second reservation exists. Terminal state ingestion now
+accepts related assets/hosts/services/endpoints atomically with observations/evidence;
+unsuccessful results cannot ingest those subjects. Exactly tool_unavailable may be
+recorded as a pre-start rejection without an invented execution ID. Existing lifecycle
+edges and all other failure restrictions remain unchanged.
+
+Nmap selection snapshots derive only from recorded completed/partial Naabu actions;
+`with_selections` preserves the same detected installation and limits in a detached
+adapter/registry snapshot. Contact scope is independently rechecked by adapters.
+Discovered subdomains, IPs, redirects and CNAME/MX/NS hosts grant no authorization.
+No M3 scanner, provider/planner, autonomous loop, persistence, reporting or real CLI.
+Safe correlated AuditEvents and normalized output envelopes remain in memory, with
+no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
+and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
+atomic rollback and unchanged infrastructure/compatibility limitations.

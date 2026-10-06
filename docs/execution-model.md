@@ -213,3 +213,28 @@ service concurrency is one; scan packet rate/delay do not promise a global nativ
 request rate. Shared reservation/session/capture/normalization limits and direct-child
 cancellation cleanup remain unchanged. No shell, NSE or new process runner. See
 [contract](nmap-adapter.md) for exact supported behavior/compatibility assumptions.
+
+## Deterministic M2 integration (M2-T07)
+
+M2 pipeline = deterministic integration proof.
+M6/M7 = future AI planning/autonomous loop.
+
+The bounded explicit DiscoveryWorkflow now coordinates only the six M2 capabilities
+through current policy, real dedup admission, registry and shared adapter-owned budgets.
+Each adapter accepts an optional trusted post-reservation/pre-contact `on_started`
+notification; failed notification prevents contact and releases its charged permit.
+No policy/dedup bypass or second reservation exists. Terminal state ingestion now
+accepts related assets/hosts/services/endpoints atomically with observations/evidence;
+unsuccessful results cannot ingest those subjects. Exactly tool_unavailable may be
+recorded as a pre-start rejection without an invented execution ID. Existing lifecycle
+edges and all other failure restrictions remain unchanged.
+
+Nmap selection snapshots derive only from recorded completed/partial Naabu actions;
+`with_selections` preserves the same detected installation and limits in a detached
+adapter/registry snapshot. Contact scope is independently rechecked by adapters.
+Discovered subdomains, IPs, redirects and CNAME/MX/NS hosts grant no authorization.
+No M3 scanner, provider/planner, autonomous loop, persistence, reporting or real CLI.
+Safe correlated AuditEvents and normalized output envelopes remain in memory, with
+no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
+and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
+atomic rollback and unchanged infrastructure/compatibility limitations.

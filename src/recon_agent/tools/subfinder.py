@@ -43,6 +43,7 @@ from recon_agent.execution import (
     ProcessRunner,
     ProcessSpec,
 )
+from recon_agent.execution.lifecycle import ExecutionStart, notify_execution_start
 from recon_agent.policy.actions import ActionPolicyValidator
 from recon_agent.policy.budgets import BudgetController
 from recon_agent.policy.scope import ScopeValidator
@@ -340,6 +341,7 @@ class SubfinderAdapter(ToolAdapter):
         policy: ActionPolicyValidator,
         budgets: BudgetController,
         context: SubfinderContext,
+        on_started: ExecutionStart | None = None,
     ) -> OperationResult[SubdomainOutput]:
         try:
             request = ActionRequest.model_validate(request)
@@ -381,6 +383,10 @@ class SubfinderAdapter(ToolAdapter):
             return reserved
         assert self.runner is not None
         with reserved.value as permit:
+            started = notify_execution_start(on_started)
+            if isinstance(started, Failure):
+                permit.release(ReservationOutcome.ABORTED)
+                return started
             timeout = min(self._timeout, budgets.state.remaining_seconds)
             if timeout <= 0:
                 permit.release(ReservationOutcome.TIMEOUT)

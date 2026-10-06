@@ -137,3 +137,12 @@ See [ADR 0012](decisions/0012-numeric-bounded-naabu.md), [scope](scope-model.md)
 [execution](execution-model.md), [budgets](execution-budgets.md) and
 [testing](testing-strategy.md). Binary replacement/operator assertions remain trusted
 composition concerns; version matching alone is not executable integrity verification.
+
+## Workflow integration (M2-T07)
+
+The [deterministic pipeline](deterministic-discovery.md) now supplies caller lifecycle,
+atomic state ingestion and normalized-snapshot retention for this adapter. The optional
+trusted `on_started` callback runs inside the single owned budget permit before contact;
+Failure/malformed outcome aborts without contact and releases concurrency. Default
+adapter use is unchanged. Existing profiles/parsers/scope/resource limits remain intact.
+M2 is an integration proof; M6/M7 AI planning/autonomous loops remain future work.

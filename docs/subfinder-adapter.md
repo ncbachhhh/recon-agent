@@ -153,3 +153,12 @@ and [goflags 0.1.74 configuration precedence](https://github.com/projectdiscover
 These are reviewed compatibility facts, not claims of a live-binary/network test.
 See [ADR 0009](decisions/0009-isolated-passive-subfinder.md) and
 [testing](testing-strategy.md).
+
+## Workflow integration (M2-T07)
+
+The [deterministic pipeline](deterministic-discovery.md) now supplies caller lifecycle,
+atomic state ingestion and normalized-snapshot retention for this adapter. The optional
+trusted `on_started` callback runs inside the single owned budget permit before contact;
+Failure/malformed outcome aborts without contact and releases concurrency. Default
+adapter use is unchanged. Existing profiles/parsers/scope/resource limits remain intact.
+M2 is an integration proof; M6/M7 AI planning/autonomous loops remain future work.

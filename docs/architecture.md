@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; M2-T05 adds bounded discover_ports through isolated numeric Naabu; M2-T06 adds native bounded fingerprint_services through NSE-free Nmap; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; M2-T05 adds bounded discover_ports through isolated numeric Naabu; M2-T06 adds native bounded fingerprint_services through NSE-free Nmap; M2-T07 adds bounded deterministic orchestration over those six capabilities; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -89,7 +89,22 @@ A provider interface isolates Groq, the first planned LLM backend. It handles bo
 
 ## Orchestration layer — `orchestration/`
 
-Implements observe → normalize → reason/plan → validate → execute → normalize → update state → stop or repeat. It coordinates domain, policy, adapter registry, provider, runner, budgets, and persistence through explicit interfaces. Rejections and failures remain auditable; neither opens a policy bypass. Initial deterministic workflows precede AI orchestration. Future application/orchestration services emit operational diagnostics and AuditEvents, linking recon sessions, internal planner decisions, policy outcomes and executions. Operators supply target/scope/config, rather than interacting through an AI chat loop. Only concise decision summaries/reasons are recorded; no private reasoning or transcript state is introduced. Audit records never authorize replay. The event contracts/sink exist; those producers and the recon loop do not.
+M2-T07 implements `DiscoveryWorkflow`: finite resolve → enumerate → verify →
+HTTP → ports → services coordination through current policy, real dedup admission,
+registry and adapter-owned shared budget reservations. Post-reservation callbacks
+record STARTED; terminal subject/fact ingestion is atomic. Nmap receives immutable
+selections from recorded Naabu open-port actions. Normalized output snapshots and
+safe correlated AuditEvents are returned in memory. Expected tool failures continue;
+fatal policy/resource/state failures stop. No provider/planner or session loop exists.
+See [deterministic discovery](deterministic-discovery.md).
+
+M2 pipeline = deterministic integration proof.
+M6/M7 = future AI planning/autonomous loop.
+
+Future orchestration coordinates observe → normalize → reason/plan → validate →
+execute → update state → stop/repeat, with provider and persistence interfaces.
+Operators supply explicit targets/scope/config; no chat, transcript or private
+reasoning runtime is implemented. Audit records never authorize replay.
 
 ## Persistence layer — `persistence/`
 

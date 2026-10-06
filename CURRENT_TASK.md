@@ -2,6 +2,6 @@
 
 No active task.
 
-Next task: M2-T07 — Initial deterministic discovery pipeline (READY; not started).
-Prerequisites M2-T01–M2-T06 are DONE. M0 and M1 are complete.
-Known blockers: None. Stop after M2-T06; no M2-T07 implementation begun.
+Next task: M3-T01 — Common-file inspector (READY; not started).
+M0, M1 and M2 are DONE. Known blockers: None.
+Stop after M2-T07; no M3-T01 or later implementation begun.

@@ -85,11 +85,18 @@ class ActionResult(Record):
                 "non-completed result requires structured error information"
             )
         if self.error is not None:
-            if self.status == "rejected" and self.error.category not in (
-                ErrorCategory.POLICY,
-                ErrorCategory.PLANNER,
+            if (
+                self.status == "rejected"
+                and self.error.category
+                not in (
+                    ErrorCategory.POLICY,
+                    ErrorCategory.PLANNER,
+                )
+                and self.error.code is not ErrorCode.TOOL_UNAVAILABLE
             ):
-                raise ValueError("rejected result requires a policy/planner rejection")
+                raise ValueError(
+                    "rejected result requires a policy or unavailable tool"
+                )
             if (
                 self.status == "timeout"
                 and self.error.code is not ErrorCode.TOOL_TIMEOUT

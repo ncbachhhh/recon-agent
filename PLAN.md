@@ -815,7 +815,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T07`
 - **Title:** Initial deterministic discovery pipeline
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M2-T06`
 
@@ -857,7 +857,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M3-T01`
 - **Title:** Common-file inspector
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M2-T07`
 

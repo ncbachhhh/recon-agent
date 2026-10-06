@@ -1900,3 +1900,114 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(services): add Nmap fingerprint adapter$"`.
 Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+
+## 2026-10-06 — M2-T07 — Initial deterministic discovery pipeline
+
+### Objective and repository evidence
+
+Prove the six M2 adapters populate ReconState under one explicit deterministic
+workflow before AI planning. Startup followed AGENTS/maintenance skill and inspected
+PLAN/state/current task, architecture/security/state/tools/execution/budget/dedup,
+all M2 contracts and ADRs/history, then Git and source/tests. HEAD matched
+183afc8c5980d837e9dd1c6f678f1a870de62360; clean working/staged tree, M0/M1 and
+M2-T01–M2-T06 DONE, M2-T07 alone READY, no active task/blocker. Recorded M2-T07
+IN PROGRESS before implementation; no unrelated work existed or was included.
+
+### Implementation and decisions
+
+- Added DiscoveryRequest/DiscoveryWorkflow/DiscoveryReport under orchestration with
+  finite resolve_dns → enumerate_subdomains → verify_dns → probe_http → discover_ports
+  → fingerprint_services stages. Real current action policy, atomic dedup admission,
+  registry selection, shared charged budgets and existing adapters/runners are used.
+  No provider/PlannerDecision generation, retry scheduler or autonomous loop.
+- Scope-filter discovered names independently before executable batches; outside
+  discoveries stay original evidence plus policy audit, never contact inputs. DNS
+  answers/CNAME/MX/NS and HTTP redirects grant no bindings or authorization. Existing
+  operator numeric contacts/resolvers and every final adapter scope gate remain intact.
+- At most 64 batch names and 64 service contacts/128 ports/128 refs per contact. Fixed
+  five initial actions and one sorted fingerprint action per discovered numeric contact;
+  zero ports schedule no fingerprint. Overflow stops, never silently truncates. Expected
+  unavailable/timeout/parser/execution failures and partial/empty results preserve their
+  distinctions; independent stages continue. Fatal policy/resource/state errors stop.
+- Four necessary integration fixes, documented in ADR 0014: optional trusted
+  post-reservation/pre-contact start callbacks across six adapters; atomic optional
+  terminal subject batches in ReconStateMachine; exactly tool_unavailable as pre-start
+  ActionResult rejection; immutable Nmap.with_selections snapshots for recorded Naabu
+  ports, preserving detected no-Lua installation, runner, effective limits/data path.
+  Registry snapshots stay immutable; policy/budget/dedup/runner arithmetic is unchanged.
+  No double reservation or weakening of pending-only dedup revalidation.
+- Requested/approved/started/terminal state records remain correlated. Invalid terminal
+  facts commit nothing, retain prior pending state and stop with state_transition_invalid.
+  Start-hook failure prevents contact and releases concurrency while retaining charges.
+  Post-start final policy abort uses existing cancellation plus original denial in audit
+  and returned Failure. Caller cancellation records terminal state and propagates after
+  adapter cleanup. Duplicate attempts skip with no history admission/contact/spending.
+- Detached reports preserve state, normalized output envelopes for memory evidence refs,
+  safe correlated AuditEvents and skipped IDs. No raw output/commands/remote text in audit
+  summaries, implicit logger setup or persistence. Only completed/partial adapter action
+  results supply discovery candidates/selections; standalone raw facts cannot select work.
+- Added 48 guarded offline tests with actual M2 adapters, fake DNS/process contacts and
+  real policy/budget/dedup/state; deterministic full flow, scope, all missing tools,
+  rate/budget exhaustion, timeout/unavailable/parse/partial/empty outcomes, immutable
+  Nmap detection, start-hook failure for every adapter, atomic rollback and cancellation.
+  Updated pipeline/ADR, architecture/state/data/error/tools/security/execution/testing/
+  six adapter docs, README/CHANGELOG and governance state. Protected profiles/parsers,
+  policy/core/runner/registry/dependencies/CLI/later subsystems remain unchanged.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0.
+Python 3.12/live binaries/network compatibility not tested. Provisioning used package
+index access only for editable/build/fresh-wheel dependencies, never reconnaissance.
+Logs/scripts reside outside checkout under /tmp/recon-m2t07-validation and
+/tmp/recon-m2t07-*.log; reused pre-collection guard from
+/tmp/recon-m2t05-validation/offline.py.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | python and .venv Python 3.14.6; pip install -e '.[dev]' and pip check passed |
+| Focused | Pipeline alone 48 passed; pipeline/state/domain/all tools 1,102 passed |
+| Full | python -m pytest -q: 2,219 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 2,219 passed |
+| Coverage | coverage run -m pytest -q: 2,219 passed; report 97% overall, 3,606 statements / 1,152 branches; workflow 92%, lifecycle helper 100% |
+| Lint/format/types | Ruff check and format passed (128 files); strict Mypy passed (58 production modules) |
+| Build/CLI | Isolated sdist/wheel build passed; editable and fresh-wheel inert recon-agent message, exit 0 |
+| Fresh wheel | New external venv wheel/pytest install and pip check; isolated -I -B guarded cold imports/origins, six actual adapter fake compositions and installed pipeline full/repeated/dedup/scope/empty-partial flow passed |
+| Artifacts/security | Protected source parity, AST/no shell/direct subprocess/provider/dynamic import, unchanged dependency metadata, wheel/sdist source parity and tracked/untracked artifacts/secrets passed |
+| Final reconciliation | 92 tasks: 21 DONE, M3-T01 alone READY, 70 NOT STARTED; no active task; append-only history, Markdown links/fences, task-owned working/staged diff/whitespace reviewed |
+
+No gates/criteria weakened. Defensive workflow binding/transition/malformed-input/
+aggregate-history branches remain uncovered locally; shared policy/adapter/state
+regressions independently exercise underlying failures. Network guard permits AF_UNIX
+loop plumbing, not Internet/loopback traffic; harmless local interpreter children are
+not sandboxed. Cold imports prohibit runtime/contact/process/availability/temp startup.
+Existing binary/infrastructure/native-rate/OS/process-tree limits remain documented.
+
+Development harness corrections: strict policy allowlists use frozensets, newly created
+asset references cannot precede atomic fact ingestion, and a scope-check test initially
+reentered the state lock during pure dedup admission. A timed diagnostic identified the
+harness deadlock; replaced it with a detached injected flag. Final source/tests passed
+every required check. No unresolved validation failure, blocker or new follow-up task.
+
+### Acceptance and handoff
+
+| PLAN criterion | Concrete evidence |
+| --- | --- |
+| Offline workflow produces traceable assets/services/observations | Full six actual adapter fake flow, products/endpoints/ports, canonical state round trip and provenance/normalized report tests |
+| No action skips policy | Workflow current validator plus adapters' repeated validation; real dedup admission, exactly one charged reservation and finite registry-selected M2 branches |
+| Outside discoveries never dispatch | Excluded subdomain retained as evidence and omitted from DNS/HTTP/port inputs; outside resolved IP/CNAME/MX/NS/redirect remain evidence; independent resolver/bound-IP denial and final scope abort tests |
+| Failures/rejections remain recorded | Every missing capability, timeout/unavailable/parser, partial/empty, policy/cancellation and failed-transition rollback regressions; canonical result/audit lineage |
+| Budgets/dedup prevent repeats | Deterministic repeated flow skips six actions without state/charges/contact; action/host/output budgets and rolling rate exhaustion stop with unstarted rejection; all start-hook aborts release permits |
+| No provider required | Import/runtime guards, empty planner records, actual offline/fresh-wheel composition, no provider/planner imports/calls or new dependencies |
+
+M0/M1/M2 DONE; M3-T01 READY/unstarted; no active task/blocker. M2 pipeline is a
+deterministic integration proof; M6/M7 AI planning/autonomous loop remain future work.
+No M3 capability, Groq/AI/planner, persistence/reporting/real CLI or public target test.
+Stop after M2-T07.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(discovery): integrate deterministic recon pipeline`; resolve via
+`git log -1 --format=%H --grep="^feat(discovery): integrate deterministic recon pipeline$"`.
+Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
+second task commit or push.

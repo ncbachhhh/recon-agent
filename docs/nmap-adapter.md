@@ -3,7 +3,7 @@
 M2-T06 implements `tools.nmap.NmapAdapter`, adapter `nmap`, capability
 `fingerprint_services`, risk `active_safe`. Naabu discovers bounded open ports;
 Nmap identifies services on explicitly selected, previously discovered ports.
-No pipeline or automatic follow-up is implemented.
+M2-T07 supplies explicit finite pipeline coordination; no autonomous follow-up exists.
 
 Trusted composition calls `NmapAdapter.detect(ExecutionConfig, settings=...)` and
 explicitly registers the returned adapter AVAILABLE in ToolRegistry. Default registry
@@ -56,7 +56,7 @@ Each selection has one canonical numeric `address`, optional canonical `hostname
 Subjects must be unique. Trusted composition selects/approves these prior facts;
 planner claims and arbitrary remote records cannot populate this operator contract.
 Evidence references preserve the discovery basis but do not independently authenticate
-facts or grant permission. M2-T07 will own state-to-adapter workflow composition.
+facts or grant permission. M2-T07 now owns state-to-adapter workflow composition.
 
 Each action selects exactly one existing subject and a nonempty subset of its approved
 ports. A named selection is used only for its hostname; a numeric subject requires its
@@ -153,3 +153,18 @@ the stable normalized fact snapshot (not raw XML or argv). Discovery IDs are met
 new observations cite their own Nmap evidence, preserving generic state referential
 validation. Unselected bookkeeping is omitted; bounded servicefp banner fingerprints and supported
 version/banner metadata stays verbatim data. Caller must preserve partial status.
+
+## Workflow integration (M2-T07)
+
+The [deterministic pipeline](deterministic-discovery.md) now supplies caller lifecycle,
+atomic state ingestion and normalized-snapshot retention for this adapter. The optional
+trusted `on_started` callback runs inside the single owned budget permit before contact;
+Failure/malformed outcome aborts without contact and releases concurrency. Default
+adapter use is unchanged. Existing profiles/parsers/scope/resource limits remain intact.
+M2 is an integration proof; M6/M7 AI planning/autonomous loops remain future work.
+
+`with_selections` creates a detached snapshot for the same trusted installation,
+runner, effective timeout/capture limits and data directory, retaining its detected
+no-Lua gate. It performs no probe and cannot enable an undetected adapter. Workflow
+selections use recorded completed/partial Naabu open-port observations and evidence;
+registry/policy/budgets and independent numeric scope still gate every execution.

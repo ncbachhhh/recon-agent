@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 — DNS, Subfinder, DNSX, HTTPX, Naabu and Nmap implemented; pipeline gate ready
+Project phase: M2 DONE — deterministic discovery integration complete; M3 entry gate ready
 
 Completed:
 
@@ -24,12 +24,13 @@ Completed:
 - M2-T04 — HTTPX adapter (DONE)
 - M2-T05 — Naabu port discovery adapter (DONE)
 - M2-T06 — Nmap service fingerprint adapter (DONE)
+- M2-T07 — Initial deterministic discovery pipeline (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T07 — Initial deterministic discovery pipeline (READY; not started)
+- M3-T01 — Common-file inspector (READY; not started)
 
 ## Implementation reality
 
@@ -344,13 +345,36 @@ services. No pipeline/M2-T07+, planner/loop/persistence/reporting/real CLI work.
 See docs/nmap-adapter.md and ADR 0013. Protected existing production/contracts/deps
 remain unchanged. No blocker or added follow-up; stop after M2-T06.
 
-Audit events describe autonomous recon operations and confer no authorization. Event
+M2-T07 adds orchestration/DiscoveryWorkflow, the first deterministic end-to-end
+integration of all six M2 capabilities with current ActionPolicyValidator, atomic
+ActionDeduplicator admission, ToolRegistry, shared adapter-owned BudgetController
+and atomic ReconState results. Finite root DNS → passive enumeration → scoped batch
+verification → HTTP → port discovery → numeric service fingerprinting; at most 64
+candidates/contacts and 128 ports/address. Failed tool branches continue independently;
+fatal scope/policy/resources/state errors stop. Duplicates skip without admission,
+contact or charges. Normalized outputs and correlated audit records remain in memory.
+
+Integration fixes add optional post-reservation/pre-contact start notifications,
+terminal subject ingestion in the existing state commit, exactly tool_unavailable
+pre-start rejection, and detached Nmap selection snapshots preserving detection/
+installation/limits. Nmap selections derive from recorded completed/partial Naabu
+open-port actions. No address binding is inferred from DNS; contacts/resolvers remain
+independently authorized and rechecked by existing adapters. Failed transitions leave
+prior state intact. State/data contracts otherwise retain their existing semantics.
+See docs/deterministic-discovery.md and ADR 0014 for limits and failure mappings.
+M2 pipeline = deterministic integration proof; M6/M7 = future AI planning/autonomous
+loop. No provider/PlannerDecision generation, Groq, M3 capability, retry scheduling,
+persistence/reporting/real CLI or live scanner added. M0/M1/M2 DONE; M3-T01 READY.
+
+Audit events describe autonomous recon operations and confer no authorization. Autonomous event
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T07 is READY; remaining 71 tasks are NOT STARTED.
+Only M3-T01 is READY; remaining 70 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0014 selects bounded deterministic M2 integration, adapter-owned reservations/start callbacks, atomic terminal subjects and immutable evidence-derived Nmap snapshots; no AI loop.
 
 - ADR 0013 selects detected Nmap 7.95 without Lua, trusted prior-discovery port selections, independently scoped numeric contact and bounded native service/XML evidence; no NSE or pipeline.
 
@@ -382,27 +406,26 @@ Only M2-T07 is READY; remaining 71 tasks are NOT STARTED.
 
 ## Validation
 
-M2-T06: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
-Editable development install/pip check passed. Focused Nmap/registry/previous adapters:
-742 passed, including 135 new Nmap cases. Full, coverage and network/DNS-blocked
-suites: each 2,171 passed. Ruff lint/format (123 files), strict Mypy (56 production
-modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI and guarded
-fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX+HTTPX+Naabu+Nmap passed.
-Coverage: 98% overall (3,332 statements / 1,046 branches); Nmap adapter 96%, parser
-98%, schemas 100%. No validation settings/gates weakened. Defensive SystemRoot,
-registry-binding/atomic reservation/deadline and parser fixed-byte-cap branches remain
-uncovered locally; shared runner/policy/budget regressions protect those seams.
+M2-T07: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
+Editable dev install/pip check passed. Pipeline: 48 passed; focused pipeline/state/
+domain/all tools: 1,102 passed. Full, coverage and pre-collection network/DNS-blocked
+suites: each 2,219 passed. Ruff lint/format (128 files), strict Mypy (58 production
+modules), isolated sdist/wheel build and editable/fresh-wheel inert CLI passed.
+Fresh external wheel venv/pip check, guarded cold imports and six-adapter fake
+composition plus installed pipeline full/repeated/dedup/scope/empty-partial flow passed.
+Coverage: 97% overall (3,606 statements / 1,152 branches); workflow 92%, start helper
+100%. No validation settings/gates weakened. Uncovered workflow branches are defensive
+binding/transition/malformed-input/aggregate-history bounds; shared adapter/state tests
+also protect underlying boundaries. No live scanner or additional interpreter claim.
 
-Protected production/previous-adapter parity, AST/no shell/direct subprocess, unchanged
-dependencies, wheel/sdist source parity and artifact/secret checks passed. Final Git
-whitespace, append-only history, 92-task readiness and local Markdown links/fences
-checked at closeout. Tests need no real Nmap/scanner/network/credentials. Contact/DNS
-guards precede collection and allow only AF_UNIX event-loop plumbing; they do not
-sandbox harmless local interpreter children. Fresh-wheel cold imports prohibit runtime
-startup/contact/process/availability/temp creation while allowing metadata reads.
-Index/source retrieval was limited to provisioning and official source review; no
-scanner installed or run. Supported no-Lua Nmap 7.95 is source/fixture reviewed without
-live compatibility, additional interpreter, global packet-rate, OS CPU/memory or
-process-tree guarantees. See TASK_HISTORY for checks, acceptance and commit reference.
+Protected policy/core/registry/parsers/runner/config/CLI/later subsystem parity,
+AST/no shell/direct subprocess/provider/dynamic import, unchanged dependencies,
+wheel/sdist source parity and artifact/secret checks passed. Append-only history,
+92-task readiness, Markdown links/fences and final working/staged whitespace/diff
+checked at closeout. Network guards precede collection and allow AF_UNIX event-loop
+plumbing only; harmless local interpreter children are not sandboxed. Fresh-wheel
+imports prohibit contact/process/availability/temp/runtime startup. Existing third-
+party Subfinder, recursive resolver, supported binary/OS/native packet-rate and
+process-tree limits remain unchanged; no public target or scanner binary was used.
 
 Known blockers: None.

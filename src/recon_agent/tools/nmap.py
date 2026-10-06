@@ -40,11 +40,13 @@ from recon_agent.execution import (
     ProcessRunner,
     ProcessSpec,
 )
+from recon_agent.execution.lifecycle import ExecutionStart, notify_execution_start
 from recon_agent.policy.actions import ActionPolicyValidator
 from recon_agent.policy.budgets import BudgetController
 from recon_agent.policy.scope import ScopeValidator
 from recon_agent.tools.base import AdapterDefinition, ToolAdapter
 from recon_agent.tools.nmap_models import (
+    DiscoveredPortSelection,
     NmapContext,
     NmapInput,
     NmapSettings,
@@ -198,6 +200,30 @@ class NmapAdapter(ToolAdapter):
         if self.runner is None:
             object.__setattr__(self, "runner", AsyncProcessRunner(snapshot))
 
+    def with_selections(
+        self, selections: tuple[DiscoveredPortSelection, ...]
+    ) -> "NmapAdapter":
+        """Trusted workflow snapshot; retain detection for the same installation.
+
+        Does not authorize selections, alter this adapter, or probe the binary.
+        Execution still checks policy, independent scope and selected port subsets.
+        """
+        adapter = NmapAdapter(
+            self.executable,
+            self.config.model_copy(
+                update={
+                    "default_timeout_seconds": self._timeout,
+                    "max_output_bytes": self._output_limit,
+                }
+            ),
+            NmapSettings(
+                data_directory=self.settings.data_directory, selections=selections
+            ),
+            self.runner,
+        )
+        object.__setattr__(adapter, "_verified", self._verified)
+        return adapter
+
     @property
     def definition(self) -> AdapterDefinition:
         return AdapterDefinition(
@@ -283,6 +309,7 @@ class NmapAdapter(ToolAdapter):
         policy: ActionPolicyValidator,
         budgets: BudgetController,
         context: NmapContext,
+        on_started: ExecutionStart | None = None,
     ) -> OperationResult[ServiceFingerprintOutput]:
         if not self._verified:
             return _failure(
@@ -349,6 +376,10 @@ class NmapAdapter(ToolAdapter):
             return reserved
         assert self.runner is not None
         with reserved.value as permit:
+            started = notify_execution_start(on_started)
+            if isinstance(started, Failure):
+                permit.release(ReservationOutcome.ABORTED)
+                return started
             timeout = min(self._timeout, budgets.state.remaining_seconds)
             if timeout <= 0:
                 permit.release(ReservationOutcome.TIMEOUT)

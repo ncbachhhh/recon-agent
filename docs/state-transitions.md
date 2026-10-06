@@ -160,7 +160,7 @@ independent. See [identity and retry rules](action-deduplication.md).
 The capability-local DNSX output explicitly carries completed/partial status and
 canonical completeness errors. Callers own lifecycle/ActionResult construction and
 correlated fact ingestion; partial output must use PARTIAL, not COMPLETED. Existing
-state ownership rules remain unchanged. No new dispatcher/ingestion runtime exists.
+state ownership rules remain unchanged. The M2-T07 workflow now owns correlated ingestion.
 See [DNSX contract](dnsx-adapter.md).
 
 ## HTTPX partial evidence (M2-T04)
@@ -172,3 +172,28 @@ lifecycle/results and ingest only valid retained facts. Empty output creates no 
 endpoint or negative service fact; malformed/unreported URLs remain explicit limits.
 Redirects/technology are observations, never scope or action changes. Existing state
 contracts and transitions are unchanged. See [HTTPX contract](httpx-adapter.md).
+
+## Deterministic M2 integration (M2-T07)
+
+M2 pipeline = deterministic integration proof.
+M6/M7 = future AI planning/autonomous loop.
+
+The bounded explicit DiscoveryWorkflow now coordinates only the six M2 capabilities
+through current policy, real dedup admission, registry and shared adapter-owned budgets.
+Each adapter accepts an optional trusted post-reservation/pre-contact `on_started`
+notification; failed notification prevents contact and releases its charged permit.
+No policy/dedup bypass or second reservation exists. Terminal state ingestion now
+accepts related assets/hosts/services/endpoints atomically with observations/evidence;
+unsuccessful results cannot ingest those subjects. Exactly tool_unavailable may be
+recorded as a pre-start rejection without an invented execution ID. Existing lifecycle
+edges and all other failure restrictions remain unchanged.
+
+Nmap selection snapshots derive only from recorded completed/partial Naabu actions;
+`with_selections` preserves the same detected installation and limits in a detached
+adapter/registry snapshot. Contact scope is independently rechecked by adapters.
+Discovered subdomains, IPs, redirects and CNAME/MX/NS hosts grant no authorization.
+No M3 scanner, provider/planner, autonomous loop, persistence, reporting or real CLI.
+Safe correlated AuditEvents and normalized output envelopes remain in memory, with
+no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
+and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
+atomic rollback and unchanged infrastructure/compatibility limitations.

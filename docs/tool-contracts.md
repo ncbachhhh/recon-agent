@@ -2,7 +2,7 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX. Later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX. Later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -139,7 +139,7 @@ for local membership only; see [scope model](scope-model.md) and
 [ADR 0002](decisions/0002-scope-and-derived-addresses.md). Future adapters must check
 each absolute redirect destination, discovered hostname and concrete resolved
 address independently before contact, pin/constrain approved addresses and recheck
-changes. Native DNS and passive Subfinder have capability-specific execution; generic dispatch, redirect following and later scanner adapters remain future work.
+changes. Native DNS and passive Subfinder have capability-specific execution; HTTPX supplies constrained no-follow probing; generic dispatch, redirect following and later scanner adapters remain future work.
 
 ## Normalized outputs
 
@@ -322,3 +322,16 @@ preserve owners/types/TTL; merged sections/wildcard ambiguity and incomplete out
 are explicit. Partial Success carries status/errors; callers must preserve partial
 lifecycle. No derived value grants authority. See [DNSX contract](dnsx-adapter.md)
 and [ADR 0010](decisions/0010-scoped-bulk-dnsx.md).
+
+## HTTP probing contract (M2-T04)
+
+Explicit HttpxAdapter registration implements probe_http/active_safe through reviewed
+HTTPX 1.9.0. Strict optional candidates declare all secondary targets; mixed batches
+reject before input. Operator numeric resolver and finite contact IPs independently
+pass scope and host budgets. Fixed GET/JSONL/no-fallback, concrete-IP allow enforcement,
+no redirects and isolated configuration constrain contact before execution. Only
+adapter-owned argv reaches the existing runner. Canonical failures/partial output
+preserve limits; generic Endpoint/HTTP Observation/untrusted Evidence retain provenance.
+Technology/redirect evidence grants no authorization or scanner selection. HTTPX probes;
+Katana crawling and Feroxbuster/FFUF content discovery remain future tasks. See
+[HTTPX contract](httpx-adapter.md) and [ADR 0011](decisions/0011-constrained-httpx-probing.md).

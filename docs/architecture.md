@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -74,7 +74,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | enumerate_subdomains | Implemented passive Subfinder adapter (M2-T02) |
 | discover_ports | naabu |
 | fingerprint_services | nmap |
-| probe_http | httpx |
+| probe_http | Implemented constrained HTTPX metadata probing (M2-T04) |
 | inspect_tls | tlsx |
 | crawl_web | katana |
 | discover_content | feroxbuster or defined ffuf modes |
@@ -189,3 +189,16 @@ Numeric resolver scope and shared budgets precede fixed isolated runner executio
 Generic observations/evidence retain actual RR owners, provenance, ambiguity and
 partial limits. Default registry stays empty; no generic dispatcher or later adapter.
 See [DNSX contract](dnsx-adapter.md) and [ADR 0010](decisions/0010-scoped-bulk-dnsx.md).
+
+## HTTP endpoint probing (M2-T04)
+
+HttpxAdapter supplies capability-specific probe_http execution through the existing
+registry/policy/shared budgets/runner. Approved host/IP/URL candidates, independently
+scoped resolver/contact addresses and trusted isolated HTTPX 1.9.0 configuration
+precede one bounded process. The upstream concrete-IP allow gate constrains resolution
+changes; redirects and discovery probes are disabled. Generic endpoints/HTTP facts/
+untrusted evidence normalize deterministically, with explicit partial/error limits.
+Caller owns lifecycle and ingestion; no orchestration/CLI startup is added. HTTPX
+probing, future Katana crawling and future Feroxbuster/FFUF content discovery are
+separate capabilities. See [contract](httpx-adapter.md) and
+[ADR 0011](decisions/0011-constrained-httpx-probing.md).

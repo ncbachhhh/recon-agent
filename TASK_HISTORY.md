@@ -1504,3 +1504,141 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(dns): add DNSX verification adapter$"`.
 Final handoff reports actual hash and clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-06 — M2-T04 — HTTPX adapter
+
+Status: DONE. Objective: trusted probe_http HTTP endpoint probing and normalized
+scoped HTTP metadata. Only M2-T04 was implemented; M2-T05 becomes READY/unstarted.
+
+### Repository evidence and scope
+
+Startup read AGENTS, maintenance skill/references, PROJECT_STATE, CURRENT_TASK,
+M2-T04/M2-T05 PLAN specifications, relevant tool/execution/security/scope/state/data/
+testing docs, contact/registry/policy/budget ADRs, recent append-only history, Git and
+source/tests. Starting HEAD was the expected
+9a9ef0c4bd6625759f58128a7f91aadc0273adf7; working/staged trees were clean.
+M0/M1 and M2-T01–M2-T03 were DONE, M2-T04 READY, no active task/blocker.
+Recorded M2-T04 IN PROGRESS before implementation. No unrelated work was present.
+
+Protected existing production adapters, runner, registry/interface, domain, policy/
+scope/budgets/dedup/state, config/shared errors, CLI and dependencies remain byte-identical
+to starting HEAD. Only three new tools modules implement this capability. No Naabu,
+Nmap, Katana, Feroxbuster/FFUF, Nuclei, Groq/planner runtime, autonomous loop, persistence,
+reporting or operational CLI was introduced. No new follow-up task or blocker.
+
+### Implementation and decisions
+
+- tools.httpx.HttpxAdapter implements existing probe_http/active_safe identity with
+  explicit immutable registry composition. Default registry remains empty. Strict
+  HttpxInput exposes only optional candidates: omitted/empty probes the primary;
+  nonempty lists are atomic batches of at most 64 entries. Every original member
+  independently passes policy/scope before canonicalization/input. Rejected mixed
+  batches never create a temporary directory/list or dispatch. Host/IP inputs select
+  one explicit HTTPS root URL; supplied URLs retain path/query/nondefault port.
+  Unsupported forms, fragments, commas, non-ASCII and unsafe encodings reject.
+- Operator executable, numeric IPv4 resolver and finite immutable numeric IPv4/IPv6
+  HTTP contact addresses are separate from planner input. All addresses/resolver
+  independently pass centralized scope and join host-budget accounting, with final
+  rechecks before writing approved URLs. Numeric candidates also need configured
+  contact membership. No DNS/name-to-address authorization inference occurs.
+- Source review pinned HTTPX 1.9.0 at f66e469116d8de3416dcdfa7b8f4083e7e7dc246.
+  Its allow list reaches networkpolicy 0.1.34 and fastdialer 0.5.4, which checks concrete
+  addresses before numeric socket dial. Changed DNS answers outside the checked set
+  cannot connect. One scoped custom resolver disables system/public resolver and
+  syscall fallback; retryabledns 1.0.113 resolves original names via A/AAAA only.
+  Reviewed HTTPX 1.7.1 declared Allow/Deny without applying them; it is unsupported.
+  ADR 0011 and the HTTPX contract record exact source links/assumptions/alternatives.
+- Fixed GET/JSONL/stream argv: one worker/probe per second, zero configured HTTP
+  retries, explicit scheme without fallback and 65,536-byte response read/save bounds.
+  No follow-redirects/follow-host-redirects/HSTS, TLS/CSP discovery, favicon, headless,
+  raw request, arbitrary headers/proxy/flags or authentication behavior. Fresh complete
+  HOME/config/temp child environment plus null flag config exclude ambient secrets,
+  proxies/YAML. Cloud auth/update and CDN checks are disabled. Bounded isolated
+  no-target availability/version detection fails closed for other versions; no install.
+- Existing ProcessRunner/ProcessSpec owns shell-free execution and bounded separate
+  capture, direct-child timeout/cancellation cleanup. Adapter rechecks registry binding,
+  current policy/dedup/resources and atomically reserves shared budgets. Session/action
+  deadlines, capture truncation/nonzero/missing/timeout/setup failures use canonical
+  contracts; attempts/hosts/rate/output remain charged while concurrency/temp release.
+- Existing generic Asset/Endpoint/HTTP Observation/untrusted Evidence carry actual
+  probed/final URL, scheme/host/port/status and optional title/server/type/length,
+  redirect and technology hints. httpx/probe_http/1.9.0, caller asset/execution/time,
+  evidence references and stable normalized snapshot/hash preserve provenance.
+  Absent fields stay absent. Raw headers/body/ancillary DNS/CDN/CPE data are excluded.
+- Relative/absolute Location is validated only as evidence with scope status;
+  redirect_authorized is always false. Even allowed redirects need fresh name/IP/
+  policy/budget checks before future use. No additional Endpoint/contact/action or
+  vulnerability/scanner selection follows redirects or detected technologies.
+- Bounded UTF-8 JSONL parser validates required facts and requested URL/contact lineage.
+  Identical records/input/technology deduplicate and sort; conflicting URL duplicates
+  discard all affected lines with order-independent counts. Partial malformed output
+  retains valid facts with explicit parse_failed errors/unreported URLs. Empty output
+  is partial and invents no live endpoint or negative fact. All-malformed/truncated/
+  oversized output fails. Caller owns lifecycle/state ingestion.
+- Parser limits: 256 lines, 65,536 bytes/line, 128 fields/object, 4,096-character hints,
+  64 technology strings of 256 characters, plus configured serialized-output bounds.
+  Tool probe rate is not a packet-level guarantee; bounded same-contact DNS/TLS/gzip
+  repair behavior stays under runner deadline. Metadata sees a bounded body; reported
+  content length is a tool measurement. No live binary, OS CPU/memory/process-tree or
+  recursive resolver upstream containment/interpreter compatibility claim was added.
+
+Files: new tools/httpx.py, httpx_models.py, httpx_parser.py; 111 offline tests in
+ tests/unit/tools/test_httpx.py and reserved source-shaped probing.jsonl fixture;
+HTTPX contract and ADR 0011; relevant architecture/tool/security/scope/execution/data/
+state/testing docs, README/CHANGELOG, PLAN/PROJECT_STATE/CURRENT_TASK and this entry.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0.
+Python 3.12 and live HTTPX/network were not tested. Index use was limited to install/
+build provisioning; tests require no real HTTPX, scanner, network or Groq key.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | `python --version` and `.venv/bin/python --version`: 3.14.6; `.venv/bin/python -m pip install -e '.[dev]'` and pip check passed |
+| Focused | `python -m pytest tests/unit/tools/test_httpx.py tests/unit/tools/test_registry.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py tests/unit/tools/test_dnsx.py -q`: 490 passed, including 111 new HTTPX cases |
+| Full | `python -m pytest -q`: 1,919 passed |
+| Coverage | `python -m coverage run -m pytest -q`: 1,919 passed; `coverage report`: 98% overall, 2,791 statements / 854 branches; HTTPX adapter 94%, parser 99%, schemas 100% |
+| Network/DNS blocked | `/tmp/recon-m2t04-validation/offline.py`, guards before collection, Groq key absent: 1,919 passed |
+| Lint/format/types | `python -m ruff check .`, `ruff format --check .`: passed, 111 files; `mypy src/recon_agent`: passed, 50 modules |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; editable and fresh-wheel recon-agent inert baseline message, exit 0 |
+| Fresh wheel | New external /tmp wheel-venv install/pip check; `python -I -B wheel_checks.py` outside checkout passed guarded cold imports/origins, empty default registry, explicit DNS/Subfinder/DNSX/HTTPX composition, real policy/budget/dedup and fake execution, literal argv/input, portable evidence/provenance and pre-contact mixed/redirect/extra-mode denial |
+| Security/artifacts | artifact_checks.py passed protected production/runner/native DNS/Subfinder/DNSX/policy/registry/config/domain/CLI/later-source parity, AST/no shell/subprocess/Groq/dynamic imports, unchanged runtime metadata, wheel/sdist source parity and artifact/secret inspection |
+| Reconciliation/Git | reconcile.py passed 92-task status/dependency review (18 DONE, only M2-T05 READY, 73 NOT STARTED), idle state, append-only history, local Markdown links/fences; final task-owned diff/whitespace/staged paths reviewed before one commit |
+
+Defensive availability/reservation/deadline/final-scope-recheck/Windows branches
+account for HTTPX coverage misses; existing shared controls have independent regressions.
+No validation setting/gate/acceptance criterion was weakened. Offline guards allow only
+AF_UNIX event-loop plumbing and do not sandbox harmless local interpreter children.
+Installed-wheel imports prohibit runtime startup/contact/process/availability/temp
+creation while allowing dependency metadata reads. Temporary validation scripts/logs
+are outside the checkout, following existing task practice.
+
+Development tests initially used nonexistent PARSER_ERROR/PARSER_FAILED and budget
+field names; corrected to existing PARSE_FAILED/permitted_actions and adapter-config
+timeout without changing shared contracts. Those transient failures were resolved;
+all final focused/full/coverage/offline/lint/type/build/wheel/security checks passed.
+No unresolved validation failure or blocker remains.
+
+### Acceptance and handoff
+
+| PLAN criterion | Concrete evidence |
+| --- | --- |
+| Fixture metadata fields normalize consistently | test_registry_argv_metadata_redirect_and_provenance, primary host/IP/URL cases, optional absent metadata and technology tests; generic Endpoint/Observation/Evidence plus stable duplicate/hash/conflict permutations |
+| Target/redirect scope before request | Current policy and final candidate checks; rejected-batch no-temp/no-input/no-call regression; independently checked finite HTTP address set/resolver; pinned pre-dial gate; no-follow flags and relative/inside/outside redirect evidence tests |
+| Unknown/unsafe redirect behavior rejects | No follow-mode input fields; planner injection rejection, supported-version-only availability tests, unexpected final URL/chain parser rejection; isolated config/environment; ADR 0011 |
+| Output/time/rate limits apply | Typed batch/hint/parser/capture/normalized bounds, exact worker/rate/retry/body argv, shared host/rate/action tests, runner timeout/nonzero/truncation and session/cancellation/resource cleanup tests |
+| Failures/absent fields invent no facts | All-malformed canonical failures; explicit valid+malformed/empty/unreported partial results; optional metadata stays absent; technology implies no vulnerability or extra runner call |
+
+User acceptance also verified: capability registration and trusted argv/provenance,
+no arbitrary flags/shell, machine-readable deterministic parsing, no later capability,
+offline default tests and all required focused/full/network-blocked/Ruff/format/Mypy/
+coverage/build/fresh-wheel/inert CLI/artifact/secret/diff checks passed. All criteria
+are satisfied. M0/M1 DONE; M2-T01–M2-T04 DONE; M2-T05 READY/unstarted. No active task,
+blocker or added follow-up. Stop after M2-T04.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(http): add HTTPX probing adapter`; resolve with
+`git log -1 --format=%H --grep="^feat(http): add HTTPX probing adapter$"`.
+Final handoff reports actual hash and clean tree. No amend/squash/history rewrite,
+second task commit or push.

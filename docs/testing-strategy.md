@@ -264,3 +264,16 @@ and shared resource/output/session limits. Guards block network/process contact;
 fresh-wheel guarded imports and fake DNSX composition verify installed packaging.
 Compatibility is reviewed DNSX 1.2.2 source/fixtures, not a live-binary test. Existing
 native DNS/Subfinder behavior is protected; no later adapter tests imply implementation.
+
+## HTTPX regressions (M2-T04)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_httpx.py tests/unit/tools/test_registry.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py tests/unit/tools/test_dnsx.py -q`,
+then the full baseline, network/DNS-blocked suite, coverage/build/fresh-wheel/inert CLI
+and artifact/secret/diff checks. Reserved source-shaped JSONL fixtures and guarded
+fake runners require no HTTPX/network. Tests assert exact fixed argv/environment,
+authorized host/IP/URL forms, independent contact/resolver scope, mixed rejection
+before temporary input, no-follow redirects/no derived authority, optional metadata,
+technology/provenance, duplicate/conflict order, malformed/partial/empty output,
+availability/version/nonzero/timeout/cancellation and resource/output/session bounds.
+Guarded fresh-wheel imports/composition exercise installed HTTPX code with fakes.
+Compatibility is reviewed HTTPX 1.9.0 source/fixtures, with no live binary test.

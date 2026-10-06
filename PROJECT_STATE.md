@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 — native DNS, passive Subfinder and bulk DNSX implemented; HTTPX gate ready
+Project phase: M2 — DNS, Subfinder, DNSX and HTTPX implemented; Naabu gate ready
 
 Completed:
 
@@ -21,12 +21,13 @@ Completed:
 - M2-T01 — DNS resolver capability (DONE)
 - M2-T02 — Subfinder adapter (DONE)
 - M2-T03 — DNSX adapter (DONE)
+- M2-T04 — HTTPX adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T04 — HTTPX adapter (READY; not started)
+- M2-T05 — Naabu port discovery adapter (READY; not started)
 
 ## Implementation reality
 
@@ -254,13 +255,44 @@ No later adapter, generic dispatcher, planner/loop/persistence/reporting/real CL
 See docs/dnsx-adapter.md and ADR 0010. The sole protected production change is one
 finite verify_dns enum member; no new dependencies or configuration fields.
 
+M2-T04 adds tools.httpx.HttpxAdapter for the existing probe_http/active_safe
+capability, with explicit registry composition and strict optional candidate batches.
+All primary/member targets independently pass current policy/scope; mixed batches
+reject before temporary input or dispatch. Operator numeric IPv4 resolver and finite
+1–64 numeric IPv4/IPv6 contact addresses independently pass scope and join shared
+host budgets. Reviewed HTTPX 1.9.0 applies this checked allow set at the fastdialer
+concrete-IP gate; changed DNS answers cannot contact outside it. Custom resolver
+excludes ambient/public/system lookup fallback. No DNS authorization inference.
+
+Fixed GET/JSONL/stream argv uses one worker/probe per second, zero configured HTTP
+retries, explicit scheme, bounded bodies and no redirects/HSTS/CDN/discovery probes.
+Fresh HOME/config/temp child environment and null flag config exclude ambient secrets,
+proxies and YAML mode overrides. Availability checks pin 1.9.0 with a bounded isolated
+no-target version probe; unknown versions fail closed. Existing runner/policy/budget/
+registry/domain/config/dependencies/CLI remain unchanged. Deadline/cancellation/capture/
+nonzero/setup failures preserve canonical contracts and release local concurrency/temp.
+
+Existing generic Endpoint/HTTP Observation/untrusted Evidence preserve httpx/probe_http/
+version, subject/execution/time/reference/hash lineage. Optional title/server/type/length,
+relative/absolute redirect and technology hints remain tool facts; absent fields stay
+absent. Redirect scope status never grants permission or creates another endpoint/action.
+No vulnerabilities/scanners inferred. Deterministic URL/technology/input dedup and
+order-independent conflict discard, bounded JSONL and explicit malformed/unreported/
+empty partial status preserve evidence limits. Caller owns lifecycle and ingestion.
+Source/fixtures are reviewed without live HTTPX contact. See docs/httpx-adapter.md and
+ADR 0011 for compatibility, body/rate/direct-child/recursive-infrastructure limits.
+No crawling, Naabu or later capability, generic dispatcher, planner/loop/persistence/
+reporting or real CLI. No blocker or new follow-up task; stop after M2-T04.
+
 Audit events describe autonomous recon operations and confer no authorization. Event
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T04 is READY; remaining 74 tasks are NOT STARTED.
+Only M2-T05 is READY; remaining 73 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0011 selects reviewed HTTPX 1.9.0 with independently scoped numeric contact/resolver constraints, isolated fixed probing and no redirect following; metadata/technology remain untrusted evidence.
 
 - ADR 0010 selects a separate verify_dns capability, atomic scoped batches, numeric resolver, fixed isolated DNSX and explicit merged-section/wildcard/partial evidence limits.
 
@@ -286,26 +318,27 @@ Only M2-T04 is READY; remaining 74 tasks are NOT STARTED.
 
 ## Validation
 
-M2-T03: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
-Editable development install/pip check passed. Focused DNSX/registry/native DNS/
-Subfinder: 379 passed (90 new DNSX cases). Full, coverage and network/DNS-blocked
-suites: each 1,808 passed. Ruff lint/format (105 files), strict Mypy (47 production
+M2-T04: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
+Editable development install/pip check passed. Focused HTTPX/registry/DNS/Subfinder/
+DNSX: 490 passed, including 111 new HTTPX cases. Full, coverage and network/DNS-blocked
+suites: each 1,919 passed. Ruff lint/format (111 files), strict Mypy (50 production
 modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI and guarded
-fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX execution passed.
-Coverage: 98% overall (2,492 statements / 752 branches); DNSX adapter 87%, parser 96%,
-schemas 100%. No validation settings/gates weakened. Defensive composition/deadline/
-setup/Windows branches account for adapter misses; shared behavior is protected.
+fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX+HTTPX execution passed.
+Coverage: 98% overall (2,791 statements / 854 branches); HTTPX adapter 94%, parser 99%,
+schemas 100%. No validation settings/gates weakened. Defensive availability/reservation/
+deadline/final-recheck/Windows branches account for HTTPX misses; shared behavior remains
+protected by its existing regressions.
 
-Protected source parity, sole finite capability extension, AST/source/artifact/secret
-checks, unchanged runtime dependencies and wheel/sdist parity passed. Final Git
-whitespace, append-only history, 92-task readiness and local doc links/fences verified.
-Default tests require no real DNSX, scanner binaries, credentials or network. Contact/
+Protected production source parity, adapter AST/source, unchanged dependency metadata,
+wheel/sdist source parity and artifact/secret checks passed. Final Git whitespace,
+append-only history, 92-task readiness and local doc links/fences checked at closeout.
+Default tests need no real HTTPX/scanner binaries, credentials or network. Contact/
 DNS guards precede collection and allow only AF_UNIX event-loop plumbing; they do
 not sandbox reviewed harmless local interpreter children. Fresh-wheel cold imports
 prohibit startup/contact/process/availability/temp creation and permit read-only
 metadata. Index use is limited to installation/build provisioning. Compatibility is
-source/fixture-reviewed DNSX 1.2.2, not live-binary/network tested. No additional
-interpreter, process-tree/OS CPU/memory or upstream-recursive containment claim.
-See TASK_HISTORY for commands, acceptance mapping, limitations and commit reference.
+pinned source/fixture-reviewed HTTPX 1.9.0, without live-binary/network testing.
+No additional interpreter, packet-rate, process-tree/OS CPU/memory or upstream-recursive
+containment claim. See TASK_HISTORY for actual checks/acceptance/commit reference.
 
 Known blockers: None.

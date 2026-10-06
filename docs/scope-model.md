@@ -128,7 +128,7 @@ session. No implicit OR/override combination or global configuration read exists
 Call the same `validate`/`require_allowed` boundary for each absolute redirect URL,
 discovered hostname or supplied resolved IP, regardless of origin. Authorized
 `https://example.com/` does not authorize `https://evil.test/`. Relative redirect
-resolution belongs to future HTTP tooling; its resolved absolute candidate must
+resolution belongs to HTTPX evidence normalization; its resolved absolute candidate must
 be validated before contact. No redirect is followed here.
 
 See [ADR 0002](decisions/0002-scope-and-derived-addresses.md): domain membership
@@ -136,8 +136,8 @@ cannot expand to DNS answers. Future adapters/orchestration must separately vali
 each concrete address immediately before contact, constrain/pin approved addresses,
 and revalidate new addresses/destinations. A domain-only declaration cannot silently
 authorize arbitrary IP scanning. If a tool cannot expose/constrain its actual
-secondary contacts, its mode must be rejected. There is no resolver, address cache,
-rebinding implementation or execution hook beyond this callable boundary today.
+secondary contacts, its mode must be rejected. The validator itself has no resolver, address cache or execution hook;
+HTTPX constrains concrete resolved contacts as described below.
 
 Focused implementation checks: `.venv/bin/python -m pytest tests/unit -k scope`.
 M1-T02 adds an independent regression corpus at `tests/unit/policy`, including
@@ -174,8 +174,8 @@ numeric IP. Resolver infrastructure needs explicit IP/CIDR membership in the sam
 Scope; private/exclusion rules still apply. The client only contacts that IP, never
 answer addresses or discovered alias/mail/nameserver hosts. DNS values remain
 evidence, requiring independent current validation before future contact. This
-implements the DNS boundary of ADR 0002; HTTP/scanner rebinding containment remains
-future adapter work. See [DNS contract](dns-resolver.md).
+implements the DNS boundary of ADR 0002; HTTPX now constrains HTTP resolved contacts through a reviewed dial gate;
+later scanner containment remains future adapter work. See [DNS contract](dns-resolver.md).
 
 ## Subfinder discovery (M2-T02)
 
@@ -196,3 +196,17 @@ actual canonical names and independently authorized numeric resolver before writ
 the input file. Sorted unique absolute names alone reach DNSX. Returned RR owners,
 aliases and addresses require new independent checks for later contact. Discovery and
 resolution never mutate Scope. See [DNSX contract](dnsx-adapter.md).
+
+## HTTPX concrete contact and redirect enforcement (M2-T04)
+
+HTTPX probing uses the unchanged centralized name/IP/URL membership rules. Every
+original batch entry passes policy; every operator-selected numeric contact IP and
+resolver independently passes scope and host-budget accounting. Literal candidates
+must belong to the finite configured contact set; reviewed tool-side allow enforcement
+constrains DNS answers/changes before actual numeric dial. A name match or DNS record
+cannot add addresses to that set. Exclusions/private gates still apply.
+
+All redirect following is disabled, including same-host redirects. Relative Location
+resolves only for evidence validation; allowed/rejected scope status never authorizes
+contact, adds a target or schedules an action. A later request needs fresh independent
+name/address/resource checks. See [HTTPX contract](httpx-adapter.md).

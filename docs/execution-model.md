@@ -182,3 +182,15 @@ No runner change, shell, stdin extension or direct subprocess implementation. Fi
 DNSX mode limits original-name questions and same-resolver TCP fallback; current
 scope/budget/deadline checks precede launch. Partial parsing occurs only after a
 zero-exit untruncated capture. See [DNSX contract](dnsx-adapter.md).
+
+## HTTPX consumer (M2-T04)
+
+HttpxAdapter uses the unchanged ProcessSpec/ProcessRunner protocol, isolated complete
+environment, temporary validated-only URL list and literal fixed GET/JSONL argv.
+Current policy/scope and atomic shared budgets precede execution; action/session
+remainder bounds runner time. Fixed numeric-IP allow constraints, independently scoped
+resolver and no-follow/no-discovery configuration precede contact. Truncated capture,
+nonzero/missing/timeout and partial parser results use existing contracts. Cancellation
+propagates after child cleanup; temporary data and concurrency always release.
+Tool probe-start rate and body limits do not claim packet-level/OS resource containment.
+See [HTTPX contract](httpx-adapter.md) for reviewed upstream contact/transport limits.

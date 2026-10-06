@@ -299,3 +299,17 @@ Evidence retains subject/time/execution/memory snapshot/hash/untrusted provenanc
 Partial status, canonical errors, malformed counts and unreported candidates remain
 explicit; missing output never creates NXDOMAIN or authorized assets. Caller-owned
 ActionResult/lifecycle must preserve partial outcomes. See [DNSX](dnsx-adapter.md).
+
+## HTTPX projections (M2-T04)
+
+Existing Endpoint, Observation(kind=http), Evidence and primary Asset carry HTTP
+probing data. The internal HttpProbeOutput envelope adds status/error/counts and
+unreported URLs without a new HttpxResult domain entity. Each endpoint references
+its HTTP observation and primary asset; observations reference untrusted evidence
+with httpx/probe_http/version and caller execution/time lineage. Reported URL equals
+the contacted final URL because redirects are disabled. Optional title/server/type/
+length and sorted technology hints stay absent when unavailable. Relative/absolute
+redirect destinations remain evidence with scope status and authorization=false;
+they never become endpoints/assets/permissions automatically. Missing/malformed
+records explicitly produce partial output; bounded bodies limit metadata completeness.
+See [HTTPX contract](httpx-adapter.md) for snapshot/hash, field and conflict semantics.

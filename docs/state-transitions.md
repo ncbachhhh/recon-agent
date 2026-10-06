@@ -162,3 +162,13 @@ canonical completeness errors. Callers own lifecycle/ActionResult construction a
 correlated fact ingestion; partial output must use PARTIAL, not COMPLETED. Existing
 state ownership rules remain unchanged. No new dispatcher/ingestion runtime exists.
 See [DNSX contract](dnsx-adapter.md).
+
+## HTTPX partial evidence (M2-T04)
+
+HttpProbeOutput contains existing generic endpoint/HTTP observation/evidence records
+with the caller's primary asset, execution/time and references. No adapter mutates
+ReconState. Caller must preserve completed versus partial status when recording
+lifecycle/results and ingest only valid retained facts. Empty output creates no live
+endpoint or negative service fact; malformed/unreported URLs remain explicit limits.
+Redirects/technology are observations, never scope or action changes. Existing state
+contracts and transitions are unchanged. See [HTTPX contract](httpx-adapter.md).

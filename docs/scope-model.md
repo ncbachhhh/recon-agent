@@ -210,3 +210,13 @@ All redirect following is disabled, including same-host redirects. Relative Loca
 resolves only for evidence validation; allowed/rejected scope status never authorizes
 contact, adds a target or schedules an action. A later request needs fresh independent
 name/address/resource checks. See [HTTPX contract](httpx-adapter.md).
+
+## Naabu contact binding enforcement (M2-T05)
+
+Every discover_ports primary/batch member is checked before processing. Selected
+operator bindings map canonical names to intended numeric contacts only; real scope
+independently validates each address, including exclusions/private gates. Name-only
+scope and missing bindings deny. Direct IPs need scope without bindings. Rechecks
+precede validated-only numeric input; mixed batches never write input. No Naabu DNS
+or CIDR/ASN expansion occurs. Returned IP/port facts never mutate Scope or authorize
+follow-up. See [Naabu contract](naabu-adapter.md).

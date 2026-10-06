@@ -277,3 +277,17 @@ technology/provenance, duplicate/conflict order, malformed/partial/empty output,
 availability/version/nonzero/timeout/cancellation and resource/output/session bounds.
 Guarded fresh-wheel imports/composition exercise installed HTTPX code with fakes.
 Compatibility is reviewed HTTPX 1.9.0 source/fixtures, with no live binary test.
+
+## Naabu regressions (M2-T05)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_naabu.py tests/unit/tools/test_registry.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py tests/unit/tools/test_dnsx.py tests/unit/tools/test_httpx.py -q`,
+then the full baseline, network/DNS-blocked suite, coverage/build/fresh-wheel/inert CLI
+and artifact/secret/diff checks. Reserved source-shaped Naabu 2.3.5 JSONL and guarded
+fake runners need no real binary/network. Cases cover exact argv/numeric-only input,
+operator finite-range boundaries/overlap/limits, authorized name/IP, mixed/unsupported/
+contact/excluded denials before input, strict planner flag rejection, open generic
+Host/Service/Observation/Evidence/state lineage, deterministic duplicates/hash, malformed/
+partial/empty records, availability/missing/nonzero/timeout/cancellation and existing
+rate/host/action/concurrency/output/session bounds. Installed-wheel cold imports and
+real registry/policy/budget/dedup with fake execution stay under startup/contact guards.
+Compatibility is source/fixture review only; no live Naabu or Nmap runs.

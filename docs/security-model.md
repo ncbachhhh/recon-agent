@@ -1,7 +1,7 @@
 # Security model
 
 Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. M2-T01 adds operational native DNS behind explicit registry/policy/resources;
-M2-T02 implements passive Subfinder; M2-T03 implements independently scoped bulk DNSX verification; M2-T04 implements HTTPX probing with independently scoped contact IP constraints and no redirects; no generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+M2-T02 implements passive Subfinder; M2-T03 implements independently scoped bulk DNSX verification; M2-T04 implements HTTPX probing with independently scoped contact IP constraints and no redirects; M2-T05 implements numeric bounded Naabu CONNECT discovery; no generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -345,3 +345,14 @@ output identifies partial limits. Existing runner direct-child and OS resource l
 and recursive resolver infrastructure boundaries remain explicit. Source/fixtures
 are reviewed without live-binary contact. See [HTTPX contract](httpx-adapter.md) and
 [ADR 0011](decisions/0011-constrained-httpx-probing.md).
+
+## Naabu numeric contact containment (M2-T05)
+
+Naabu receives only independently scoped numeric IPs, never names/CIDRs/ASNs. Names
+require explicit operator bindings and independent address membership, with no inferred
+DNS authorization. Every primary/member/contact passes centralized scope; mixed batches
+reject before input. Trusted finite integer TCP ranges, fixed isolated CONNECT stream
+mode and atomic existing budgets bound discovery. No shell/planner flags, raw SYN,
+stealth/evasion, host discovery, passive API, proxy, service or Nmap mode. Unknown
+versions reject. Output grants no hosts/ports authority; no later contact starts.
+See [contract/source limitations](naabu-adapter.md) and [ADR 0012](decisions/0012-numeric-bounded-naabu.md).

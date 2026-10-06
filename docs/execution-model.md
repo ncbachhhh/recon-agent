@@ -194,3 +194,12 @@ nonzero/missing/timeout and partial parser results use existing contracts. Cance
 propagates after child cleanup; temporary data and concurrency always release.
 Tool probe-start rate and body limits do not claim packet-level/OS resource containment.
 See [HTTPX contract](httpx-adapter.md) for reviewed upstream contact/transport limits.
+
+## Naabu consumer (M2-T05)
+
+NaabuAdapter owns fixed numeric CONNECT stream ProcessSpec argv and isolated complete
+environment/temp input. Existing runner owns timeout/cancellation/direct-child cleanup
+and capture; existing budgets reserve one attempt and constrain action/session time.
+One connection start per second/concurrent connect, 128 explicit TCP ports, 64 contacts
+and 4,096 pairs bound work. No scanner DNS, target expansion or service/Nmap invocation.
+Partial evidence exists only after zero-exit untruncated capture. See [Naabu](naabu-adapter.md).

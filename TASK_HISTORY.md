@@ -1642,3 +1642,129 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(http): add HTTPX probing adapter$"`.
 Final handoff reports actual hash and clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-06 — M2-T05 — Naabu port discovery adapter
+
+Status: DONE. Objective: trusted bounded discover_ports, deliberate approved TCP
+port sets and generic open-port evidence. Startup followed AGENTS/maintenance skill;
+HEAD was expected b59b9600ac6befc8c7059a4f3b03d90213ab389a with clean working/staged
+tree, M0/M1 and M2-T01–M2-T04 DONE, only M2-T05 READY and no active task/blocker.
+M2-T05 alone moved IN PROGRESS before implementation. No unrelated edits existed.
+
+### Changes and decisions
+
+- Added tools.naabu.NaabuAdapter, strict NaabuInput, operator-only NaabuSettings/
+  ContactBinding, caller NaabuContext and PortDiscoveryOutput envelope; existing
+  discover_ports/active_safe identity integrates explicit immutable ToolRegistry.
+  Default registry stays empty. No production global configuration/domain/policy/
+  runner/registry/earlier adapter/dependency/CLI changes; parity verified against HEAD.
+- Current primary/member scope/schema/risk/dedup/resource checks precede dispatch.
+  Optional batches are atomic; every original member validates before input creation.
+  Names require operator numeric contact bindings, independently scoped and budgeted;
+  direct numeric targets need no bindings. Final primary/member/address checks precede
+  writing numeric-only input. No DNS resolution, resolver contact, implicit name-to-IP
+  authority, CIDR/ASN/target expansion or rejected target input. ADR 0012 records this
+  conservative contact choice; operator references never prove DNS.
+- Operator typed inclusive integer TCP ranges default to 80/443; endpoints 1–65,535,
+  1–16 ranges, each expansion bounded and at most 128 distinct ports after overlap
+  deduplication. At most 64 distinct contacts / 4,096 host-port pairs per process.
+  Planner accepts only candidates, never port text/profile/command/extra_args/rate/
+  interface/source IP/proxy/executable/service/Nmap flags. Reason/priority cannot
+  override limits. Trusted immutable settings detach nested input models.
+- Source-reviewed Naabu 2.3.5 availability uses bounded isolated no-target version
+  detection; unknown/missing binaries fail canonically, no install. Adapter owns
+  absolute executable/literal argv; unchanged ProcessRunner/AsyncProcessRunner owns
+  shell-free execution, separate stream bounds/deadline/direct-child cancellation.
+- Fixed JSONL CONNECT stream mode uses one connection start per second, one concurrent
+  connect and input worker; explicit port list/IPv4+IPv6/no stdin/update/auth. No retry
+  rounds, verification/shuffling/host discovery/raw SYN/stealth/evasion/passive API/CDN/
+  PTR/proxy/service/Nmap probes. Fresh complete HOME/config/temp environment and null
+  flag config exclude ambient YAML/credentials/proxies/PDCP. Child temporary/resume data
+  stays under disposable directories; cleanup follows runner cleanup on every outcome.
+  Explicit 1s dial duration corrects source-reviewed goflags seconds-vs-Naabu-help
+  milliseconds ambiguity. No TCP application payload or fingerprint is sent.
+- Reuses one atomic shared budget reservation, including primary/member/contact hosts;
+  deadlines clamp to config/session remainder, post-return expiry rejects facts. Attempts/
+  rate/output/hosts remain charged on failure/cancellation; concurrency/temp release.
+  Capture and serialized normalization bounds are enforced. Canonical missing/nonzero/
+  timeout/setup/parser failures retain established error contracts/exit context.
+- Bounded strict UTF-8 JSONL selects canonical requested IP/integer port/tcp/false TLS;
+  optional host must equal numeric contact. Duplicate keys, wrong types/port values,
+  unrequested ports/hosts and malformed/incomplete lines reject as untrusted evidence.
+  8,192 lines, 4,096 bytes/nonblank line and 16 fields/object bound parsing. Timestamp/
+  unknown bookkeeping is excluded. IP/port duplicates sort/dedup deterministically.
+  Valid plus malformed lines yield explicit partial status/errors; all-malformed,
+  truncated/oversized output fails. Empty zero-exit output adds evidence and zero facts,
+  without inventing closed ports/liveness/exhaustive per-host completion.
+- Existing Asset/numeric Host/Service(tcp)/service Observation/Evidence normalize open
+  port facts with subject/candidate references/source/version/capability and explicit
+  caller time/execution, generic lineage, memory reference/locator/snapshot SHA-256.
+  Generic state ingestion is tested. Protocol/product/version stay absent; no scanner
+  domain entity or new authority. Caller retains snapshot and preserves partial lifecycle.
+- Naabu is fast bounded open-port discovery; Nmap remains deeper fingerprinting in
+  M2-T06. No M2-T06+, deterministic pipeline, Groq/planner/loop, persistence/reporting
+  or real CLI implementation. No blocker or newly discovered future task remains.
+
+Files: tools/naabu.py, naabu_models.py, naabu_parser.py; 117 guarded offline cases in
+ tests/unit/tools/test_naabu.py and source-shaped reserved ports.jsonl fixture;
+Naabu contract/ADR 0012; architecture/tool/security/scope/execution/data/testing docs,
+README/CHANGELOG and PLAN/PROJECT_STATE/CURRENT_TASK/TASK_HISTORY reconciliation.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0.
+Python 3.12 and live Naabu/network compatibility were not tested. Source review fetched
+pinned upstream runner/options/defaults/output/targets/scan/CDN/main/resume and
+IPRanger/DNSX/goflags dependencies only; no scanner binary was installed or run.
+Provisioning index use was limited to editable/build/fresh-wheel installs.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | `python --version`: 3.14.6; `.venv/bin/python -m pip install -e '.[dev]'` and pip check passed |
+| Focused | `python -m pytest tests/unit/tools/test_naabu.py tests/unit/tools/test_registry.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py tests/unit/tools/test_dnsx.py tests/unit/tools/test_httpx.py -q`: 607 passed, including 117 new Naabu cases |
+| Full | `python -m pytest -q`: 2,036 passed |
+| Coverage | `python -m coverage run -m pytest -q`: 2,036 passed; `coverage report`: 98% overall, 3,047 statements / 940 branches; Naabu adapter 95%, parser/schemas 100% |
+| Network/DNS blocked | `/tmp/recon-m2t05-validation/offline.py`, guards before collection, Groq key absent: 2,036 passed |
+| Lint/format/types | Ruff check and format check passed (117 files); strict Mypy passed (53 production modules) |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; editable and fresh-wheel recon-agent inert baseline message, exit 0 |
+| Fresh wheel | New external /tmp wheel-venv install/pip check; `python -I -B wheel_checks.py` outside checkout passed guarded cold imports/origins, empty default registry, explicit DNS/Subfinder/DNSX/HTTPX/Naabu composition, real policy/budget/dedup with fake execution, numeric argv/input, finite ports, generic state/provenance and pre-input mixed/name-only/injection denials |
+| Security/artifacts | artifact_checks.py passed protected production/runner/earlier adapters/policy/registry/config/domain/CLI/later-source parity, AST/no shell/direct subprocess/Groq/dynamic imports, unchanged runtime metadata, wheel/sdist source parity and artifact/secret inspection |
+| Reconciliation/Git | 92 tasks: 19 DONE, M2-T06 alone READY, 72 NOT STARTED; idle state, append-only history, local Markdown links/fences and final task-owned working/staged diff/whitespace reviewed before one commit |
+
+No validation settings/gates/criteria weakened. Naabu coverage misses are defensive
+SystemRoot/default runner/reservation/deadline branches, protected by existing shared
+regressions. Offline guards allow AF_UNIX event-loop plumbing only and do not sandbox
+reviewed harmless local interpreter children. Installed-wheel cold imports prohibit
+startup/contact/process/availability/temp creation, permitting metadata reads. Existing
+kernel TCP/direct-child/OS-resource limitations remain explicit. No packet-rate/OS CPU/
+memory/process-tree/live binary or additional interpreter compatibility guarantee.
+Temporary validation scripts/logs stay outside the checkout, following prior task practice.
+
+Transient development failures involved injection tests constructing already-rejected
+ActionRequest keys, a nonexistent state snapshot property, and a fresh-wheel name-only
+check reusing a spent rate budget. Corrected tests/harness to revalidate copied malformed
+requests, use existing state property and independent fresh controller; no shared
+contracts changed. All final required validations pass; no unresolved failure/blocker.
+
+### Acceptance and handoff
+
+| PLAN criterion | Concrete evidence |
+| --- | --- |
+| No implicit full-range scan | NaabuSettings strict typed ranges/default 80/443/128 cap; invalid/boundary/overlap tests; exact explicit -p argv and no top-ports/default grammar |
+| Only authorized targets and approved ranges dispatch | Current primary/member scope; independently scoped numeric bindings; atomic mixed/input rejection and final scope recheck tests; finite pair bounds; literal numeric-only execution input |
+| Parser yields host/port/transport facts with evidence | Source-shaped JSONL, generic Host/Service/service Observations/untrusted Evidence, stable duplicate/hash tests, explicit provenance and real generic state ingestion |
+| Missing binary/timeout/partial output explicit | Canonical availability/runner/nonzero/truncation/setup failures; partial valid+malformed and empty output tests; no partial payload invented on runner failure |
+| Rate/concurrency settings enforced | Fixed rate=1 stream sized wait group=1 plus shared action/host/rolling rate/concurrency/output/session budgets, denial-before-dispatch, cleanup and deadline tests |
+
+User criteria also verified: trusted operational capability; every contacted target
+scope checked; no shell/arbitrary flags/automatic target expansion; bounded port-only
+discovery; generic contracts/canonical failures/offline tests; focused/full/network-
+blocked/Ruff/format/Mypy/coverage/build/fresh-wheel/inert CLI/artifact/secret/diff checks
+passed. M0/M1 and M2-T01–M2-T05 DONE; M2-T06 READY/unstarted. No active task/blocker.
+Stop after M2-T05.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(ports): add Naabu discovery adapter`; resolve with
+`git log -1 --format=%H --grep="^feat(ports): add Naabu discovery adapter$"`.
+Final handoff reports actual hash and clean tree. No amend/squash/history rewrite,
+second task commit or push.

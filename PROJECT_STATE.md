@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 — DNS, Subfinder, DNSX and HTTPX implemented; Naabu gate ready
+Project phase: M2 — DNS, Subfinder, DNSX, HTTPX and Naabu implemented; Nmap gate ready
 
 Completed:
 
@@ -22,12 +22,13 @@ Completed:
 - M2-T02 — Subfinder adapter (DONE)
 - M2-T03 — DNSX adapter (DONE)
 - M2-T04 — HTTPX adapter (DONE)
+- M2-T05 — Naabu port discovery adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T05 — Naabu port discovery adapter (READY; not started)
+- M2-T06 — Nmap service fingerprint adapter (READY; not started)
 
 ## Implementation reality
 
@@ -281,16 +282,45 @@ order-independent conflict discard, bounded JSONL and explicit malformed/unrepor
 empty partial status preserve evidence limits. Caller owns lifecycle and ingestion.
 Source/fixtures are reviewed without live HTTPX contact. See docs/httpx-adapter.md and
 ADR 0011 for compatibility, body/rate/direct-child/recursive-infrastructure limits.
-No crawling, Naabu or later capability, generic dispatcher, planner/loop/persistence/
-reporting or real CLI. No blocker or new follow-up task; stop after M2-T04.
+M2-T04 added no crawling, Naabu or later capability, generic dispatcher, planner/loop/persistence/
+reporting or real CLI. M2-T04 closed without blocker or new follow-up task.
+
+M2-T05 adds tools.naabu.NaabuAdapter for discover_ports/active_safe through explicit
+registry composition. Naabu 2.3.5 is source/fixture-reviewed, with isolated bounded
+no-target version detection and fail-closed unknown/missing binaries. Strict optional
+candidate batches pass current policy/scope; mixed batches reject before input.
+Hostname targets need operator numeric contact bindings plus independent IP scope;
+only numeric IPv4/IPv6 contacts reach Naabu. No DNS/target expansion or inferred
+address permission. All names/contacts recheck before input and share host budgets.
+
+Operator-only immutable typed inclusive TCP ranges default to 80/443, at most 128
+ports; 64 distinct contacts and 4,096 pairs cap one process. Fixed isolated CONNECT
+stream mode uses one concurrent connection/start per second, explicit 1s dial timeout,
+no retry rounds/verification/host discovery/passive API/CDN/PTR/proxy/service/Nmap.
+Null config and fresh complete HOME/config/temp environment exclude ambient overrides,
+credentials/proxies/cloud. Existing runner/policy/budgets/registry/domain/global config/
+previous adapters/dependencies/CLI are unchanged. Canonical errors retain missing/
+nonzero/timeout/truncation/setup context; action/session/capture/normalized bounds and
+cancellation cleanup use existing contracts. Attempts stay charged; concurrency releases.
+
+Generic Asset/numeric Host/Service(tcp)/service Observations/untrusted Evidence preserve
+primary/member/contact/port/source/version/time/execution and snapshot/hash lineage.
+Operator references do not prove DNS; protocol/product/version remain absent. Sorted
+IP/port facts deduplicate; valid+malformed lines return explicit partial status/errors;
+all-malformed/truncated/oversized output fails. Empty output gives evidence without
+open/closed/liveness/completeness facts. Existing generic state accepts the lineage.
+No Nmap/M2-T06+, pipeline, planner/runtime/loop/persistence/reporting/real CLI work.
+See docs/naabu-adapter.md and ADR 0012. No blocker or new follow-up; stop after M2-T05.
 
 Audit events describe autonomous recon operations and confer no authorization. Event
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T05 is READY; remaining 73 tasks are NOT STARTED.
+Only M2-T06 is READY; remaining 72 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0012 selects independently scoped numeric hostname bindings, operator finite TCP ranges and isolated Naabu CONNECT stream discovery; no DNS expansion or fingerprinting.
 
 - ADR 0011 selects reviewed HTTPX 1.9.0 with independently scoped numeric contact/resolver constraints, isolated fixed probing and no redirect following; metadata/technology remain untrusted evidence.
 
@@ -318,27 +348,28 @@ Only M2-T05 is READY; remaining 73 tasks are NOT STARTED.
 
 ## Validation
 
-M2-T04: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
-Editable development install/pip check passed. Focused HTTPX/registry/DNS/Subfinder/
-DNSX: 490 passed, including 111 new HTTPX cases. Full, coverage and network/DNS-blocked
-suites: each 1,919 passed. Ruff lint/format (111 files), strict Mypy (50 production
+M2-T05: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
+Editable development install/pip check passed. Focused Naabu/registry/previous adapters:
+607 passed, including 117 new Naabu cases. Full, coverage and network/DNS-blocked
+suites: each 2,036 passed. Ruff lint/format (117 files), strict Mypy (53 production
 modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI and guarded
-fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX+HTTPX execution passed.
-Coverage: 98% overall (2,791 statements / 854 branches); HTTPX adapter 94%, parser 99%,
-schemas 100%. No validation settings/gates weakened. Defensive availability/reservation/
-deadline/final-recheck/Windows branches account for HTTPX misses; shared behavior remains
-protected by its existing regressions.
+fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX+HTTPX+Naabu passed.
+Coverage: 98% overall (3,047 statements / 940 branches); Naabu adapter 95%, parser
+and schemas 100%. No validation settings/gates weakened. Defensive SystemRoot/default
+runner/atomic reservation/deadline branches account for Naabu misses; existing shared
+regressions independently protect those boundaries.
 
-Protected production source parity, adapter AST/source, unchanged dependency metadata,
-wheel/sdist source parity and artifact/secret checks passed. Final Git whitespace,
-append-only history, 92-task readiness and local doc links/fences checked at closeout.
-Default tests need no real HTTPX/scanner binaries, credentials or network. Contact/
-DNS guards precede collection and allow only AF_UNIX event-loop plumbing; they do
-not sandbox reviewed harmless local interpreter children. Fresh-wheel cold imports
-prohibit startup/contact/process/availability/temp creation and permit read-only
-metadata. Index use is limited to installation/build provisioning. Compatibility is
-pinned source/fixture-reviewed HTTPX 1.9.0, without live-binary/network testing.
-No additional interpreter, packet-rate, process-tree/OS CPU/memory or upstream-recursive
-containment claim. See TASK_HISTORY for actual checks/acceptance/commit reference.
+Protected production/previous adapter parity, AST/no shell/direct subprocess, unchanged
+dependencies, wheel/sdist source parity and artifact/secret checks passed. Final Git
+whitespace, append-only history, 92-task readiness and local Markdown links/fences
+checked at closeout. Tests need no real Naabu/scanner/network/credentials. Contact/DNS
+guards precede collection and allow only AF_UNIX event-loop plumbing; they do not
+sandbox harmless local interpreter children. Fresh-wheel cold imports prohibit runtime
+startup/contact/process/availability/temp creation while allowing metadata reads.
+Index use is limited to install/build provisioning. Compatibility is pinned source/
+fixture-reviewed Naabu 2.3.5 without live binary/network testing. Existing kernel TCP,
+direct-child and OS resource limits are documented; no additional interpreter/live
+compatibility/packet-rate/process-tree guarantee. See TASK_HISTORY for actual checks,
+acceptance and the focused commit reference.
 
 Known blockers: None.

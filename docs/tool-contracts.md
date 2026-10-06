@@ -335,3 +335,15 @@ preserve limits; generic Endpoint/HTTP Observation/untrusted Evidence retain pro
 Technology/redirect evidence grants no authorization or scanner selection. HTTPX probes;
 Katana crawling and Feroxbuster/FFUF content discovery remain future tasks. See
 [HTTPX contract](httpx-adapter.md) and [ADR 0011](decisions/0011-constrained-httpx-probing.md).
+
+## Port discovery contract (M2-T05)
+
+Explicit NaabuAdapter registration supplies discover_ports/active_safe. Strict optional
+candidates declare all secondary targets; primary/members and operator-bound numeric
+contacts independently pass current scope and share host budgets. Mixed batches reject
+before input. Operator-only typed TCP ranges default to 80/443, at most 128 ports;
+64 contacts/4,096 pairs bound work. Fixed isolated numeric CONNECT stream argv, one
+connection per second/concurrent connect, existing deadline/capture/cancellation and
+atomic budgets precede parsing. Generic Host/Service/Observation/Evidence record open
+facts with partial errors/empty uncertainty, without deeper service metadata or new
+authority. Naabu discovers ports; Nmap fingerprinting is M2-T06. See [contract](naabu-adapter.md).

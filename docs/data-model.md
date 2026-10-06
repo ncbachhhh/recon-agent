@@ -313,3 +313,14 @@ redirect destinations remain evidence with scope status and authorization=false;
 they never become endpoints/assets/permissions automatically. Missing/malformed
 records explicitly produce partial output; bounded bodies limit metadata completeness.
 See [HTTPX contract](httpx-adapter.md) for snapshot/hash, field and conflict semantics.
+
+## Open TCP port projections (M2-T05)
+
+PortDiscoveryOutput is a tools-local envelope using existing Asset, numeric Host,
+Service(transport=tcp), service Observation and untrusted Evidence. Each service links
+its host/observation and primary asset; each observation links execution/time/evidence
+and preserves numeric host/port/state=open, naabu/discover_ports/version and operator
+candidate references. Binding references do not prove DNS. Protocol/product/version
+remain absent. Empty results imply no closed-port/liveness/completeness fact. Snapshot
+hash and partial parse errors preserve limits. Generic state lineage accepts the facts.
+See [Naabu normalization](naabu-adapter.md).

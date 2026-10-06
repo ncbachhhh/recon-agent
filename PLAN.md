@@ -737,7 +737,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T05`
 - **Title:** Naabu port discovery adapter
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M2-T04`
 
@@ -776,7 +776,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T06`
 - **Title:** Nmap service fingerprint adapter
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M2-T05`
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added discover_ports through trusted Naabu 2.3.5: operator finite TCP ranges, independently scoped numeric hostname bindings, fixed isolated CONNECT stream argv, existing policy/budget/runner limits and generic Host/Service/Observation/Evidence. Offline fixtures/fakes cover partial/failure/security limits; no DNS expansion, arbitrary planner flags or Nmap fingerprinting.
+
 - Added probe_http through trusted HTTPX 1.9.0: independently scoped candidate/address/resolver checks, fixed isolated shell-free probing with no redirects or scheme fallback, normalized Endpoint/HTTP observations/untrusted evidence and canonical partial/failure limits. Offline fixtures/fakes require no HTTPX/network; technology and redirects grant no authority.
 
 - Added verify_dns through trusted DNSX 1.2.2 composition: scope-safe bounded candidate batches, independently authorized resolver, fixed shell-free argv, isolated child configuration, generic DNS evidence with actual RR owners/TTL/provenance and explicit ambiguity/partial failures. Deterministic fixtures/fakes require no DNSX/network; discovery/resolution grants no authorization.

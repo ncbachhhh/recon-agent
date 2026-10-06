@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; M2-T05 adds bounded discover_ports through isolated numeric Naabu; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -72,7 +72,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | resolve_dns | Implemented direct native dnspython resolution (M2-T01) |
 | verify_dns | Implemented bulk authorized-candidate DNSX verification (M2-T03) |
 | enumerate_subdomains | Implemented passive Subfinder adapter (M2-T02) |
-| discover_ports | naabu |
+| discover_ports | Implemented bounded Naabu CONNECT discovery (M2-T05) |
 | fingerprint_services | nmap |
 | probe_http | Implemented constrained HTTPX metadata probing (M2-T04) |
 | inspect_tls | tlsx |
@@ -81,7 +81,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | inspect_protocol | Controlled SSH/SMB/FTP/SMTP/database modules |
 | scan_templates | nuclei with named policy profiles |
 
-Except for implemented resolve_dns, verify_dns and enumerate_subdomains, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
+Except for implemented resolve_dns, verify_dns, enumerate_subdomains, probe_http and discover_ports, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
 ## Provider layer — `providers/`
 
@@ -202,3 +202,13 @@ Caller owns lifecycle and ingestion; no orchestration/CLI startup is added. HTTP
 probing, future Katana crawling and future Feroxbuster/FFUF content discovery are
 separate capabilities. See [contract](httpx-adapter.md) and
 [ADR 0011](decisions/0011-constrained-httpx-probing.md).
+
+## Bounded port discovery (M2-T05)
+
+NaabuAdapter implements discover_ports through current registry/policy/dedup/shared
+budgets and the unchanged runner. Operator finite TCP ranges and independently scoped
+numeric hostname bindings constrain all contacts before input; fixed isolated CONNECT
+stream mode prevents DNS/target expansion and fingerprinting. Generic Host/Service/
+service Observation/untrusted Evidence preserve provenance and partial limits. Naabu
+is fast bounded open-port discovery; Nmap remains future deeper service fingerprinting.
+See [contract](naabu-adapter.md) and [ADR 0012](decisions/0012-numeric-bounded-naabu.md).

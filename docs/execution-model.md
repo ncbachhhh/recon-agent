@@ -172,3 +172,13 @@ passes a new dict to create_subprocess_exec(env=...), without altering os.enviro
 Argv/capture/timeout/cancellation behavior and default inheritance are unchanged.
 Subfinder uses this seam to isolate ambient YAML/credentials/proxies in temporary
 configuration directories; see [Subfinder execution](subfinder-adapter.md).
+
+## DNSX consumer (M2-T03)
+
+DnsxAdapter uses the existing ProcessSpec/ProcessRunner with fixed argv and the same
+complete environment seam as Subfinder. Approved sorted absolute hostnames enter a
+temporary list; its isolated HOME/config/temp paths are cleaned after child cleanup.
+No runner change, shell, stdin extension or direct subprocess implementation. Fixed
+DNSX mode limits original-name questions and same-resolver TCP fallback; current
+scope/budget/deadline checks precede launch. Partial parsing occurs only after a
+zero-exit untruncated capture. See [DNSX contract](dnsx-adapter.md).

@@ -10,6 +10,7 @@ from recon_agent.domain._base import Record
 
 class CapabilityId(StrEnum):
     RESOLVE_DNS = "resolve_dns"
+    VERIFY_DNS = "verify_dns"
     ENUMERATE_SUBDOMAINS = "enumerate_subdomains"
     DISCOVER_PORTS = "discover_ports"
     FINGERPRINT_SERVICES = "fingerprint_services"

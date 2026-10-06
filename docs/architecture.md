@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -69,7 +69,8 @@ The planner selects capabilities, never command strings. Adapters map validated 
 
 | Capability | Potential implementation |
 | --- | --- |
-| resolve_dns | Implemented bounded native dnspython adapter (M2-T01); DNSX future (M2-T03) |
+| resolve_dns | Implemented direct native dnspython resolution (M2-T01) |
+| verify_dns | Implemented bulk authorized-candidate DNSX verification (M2-T03) |
 | enumerate_subdomains | Implemented passive Subfinder adapter (M2-T02) |
 | discover_ports | naabu |
 | fingerprint_services | nmap |
@@ -80,7 +81,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | inspect_protocol | Controlled SSH/SMB/FTP/SMTP/database modules |
 | scan_templates | nuclei with named policy profiles |
 
-Except for implemented resolve_dns and enumerate_subdomains, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
+Except for implemented resolve_dns, verify_dns and enumerate_subdomains, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
 ## Provider layer — `providers/`
 
@@ -162,7 +163,7 @@ revalidates current policy/scope/dedup, checks independently authorized numeric 
 infrastructure, atomically reserves existing budgets, then exchanges fixed bounded DNS
 questions through NativeDnsResolver. This native path uses no ExecutionRunner/process.
 Typed results normalize into existing Asset/Observation/Evidence; caller owns lifecycle
-and fact ingestion. No generic dispatcher, DNSX or later adapter exists; enumeration is implemented in M2-T02.
+and fact ingestion. No generic dispatcher or later adapter exists; DNSX is implemented separately in M2-T03; enumeration is implemented in M2-T02.
 See [resolver contract](dns-resolver.md) and [ADR 0008](decisions/0008-bounded-native-dns.md).
 
 ## Passive enumeration (M2-T02)
@@ -175,5 +176,16 @@ precede one bounded process. Generic root-owned metadata observations and untrus
 snapshot evidence record sorted discovery, never DNS verification or follow-up
 permission. Provider transport is an explicit external service boundary; Python does
 not pin its HTTP destination packets. resolve_dns remains implemented; DNSX
-verification is future M2-T03. See [contract](subfinder-adapter.md) and
+verification is implemented as verify_dns (M2-T03). See [contract](subfinder-adapter.md) and
 [ADR 0009](decisions/0009-isolated-passive-subfinder.md).
+
+## Bulk DNS verification (M2-T03)
+
+Discovery feeds candidate data, never authorization. DnsxAdapter implements the new
+verify_dns capability for already supplied authorized batches, alongside direct
+resolve_dns and passive enumerate_subdomains. Existing centralized policy checks
+every primary/secondary candidate; mixed batches fail before input/child execution.
+Numeric resolver scope and shared budgets precede fixed isolated runner execution.
+Generic observations/evidence retain actual RR owners, provenance, ambiguity and
+partial limits. Default registry stays empty; no generic dispatcher or later adapter.
+See [DNSX contract](dnsx-adapter.md) and [ADR 0010](decisions/0010-scoped-bulk-dnsx.md).

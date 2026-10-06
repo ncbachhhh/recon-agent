@@ -2,13 +2,13 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds the operational passive Subfinder adapter; later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX. Later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
 
 A **Capability** is the semantic operation the planner may request. `CapabilityId`
-is a finite string enum: resolve_dns, enumerate_subdomains, discover_ports,
+is a finite string enum: resolve_dns, verify_dns, enumerate_subdomains, discover_ports,
 fingerprint_services, probe_http, inspect_tls, crawl_web, discover_content,
 inspect_protocol and scan_templates. These conceptual identities do not imply
 working integrations. There is no run_command, execute_shell or arbitrary binary
@@ -293,7 +293,7 @@ resolver internals never enter planner input/catalog. DnsOutput returns typed qu
 outcomes and existing Asset/Observation/Evidence with exact untrusted provenance.
 Native UDP exchanges are independently endpoint-authorized and bounded by existing
 policy/budget settings; no process runner or dig is involved. Default registry remains
-empty. Enumeration is implemented via Subfinder (M2-T02); DNSX verification remains future M2-T03. See the complete
+empty. Enumeration is implemented via Subfinder (M2-T02); DNSX verification is implemented separately as verify_dns (M2-T03). See the complete
 [input/contact/normalization/error contract](dns-resolver.md) and
 [ADR 0008](decisions/0008-bounded-native-dns.md).
 
@@ -307,4 +307,18 @@ and untrusted evidence. Missing/nonzero/timeout/truncated/malformed outputs use 
 failures; empty discovery succeeds. No discovered name gains authorization or gets
 contacted. Default registry remains empty. See [complete Subfinder contract](subfinder-adapter.md)
 and [ADR 0009](decisions/0009-isolated-passive-subfinder.md). resolve_dns is already
-implemented; DNS verification remains future M2-T03.
+implemented; DNS verification is implemented separately as verify_dns (M2-T03).
+
+## Bulk verification contract (M2-T03)
+
+verify_dns is an explicit separate active_safe capability selected through trusted
+DnsxAdapter/ToolRegistry composition. Its strict candidates parameter is declared
+as secondary targets; every entry is checked before the whole approved batch can
+reach DNSX. An unauthorized entry rejects the batch before any input-file write.
+Native resolve_dns and passive enumerate_subdomains keep their existing contracts.
+One independently scoped numeric resolver, bounded sorted/deduplicated names, fixed
+argv and isolated configuration use the existing runner/resources. Full RR entries
+preserve owners/types/TTL; merged sections/wildcard ambiguity and incomplete output
+are explicit. Partial Success carries status/errors; callers must preserve partial
+lifecycle. No derived value grants authority. See [DNSX contract](dnsx-adapter.md)
+and [ADR 0010](decisions/0010-scoped-bulk-dnsx.md).

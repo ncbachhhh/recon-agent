@@ -186,4 +186,13 @@ root-membership validation never replaces or mutates the operational scope. Name
 outside the queried root reject as malformed tool output. The only configured
 passive source is an explicitly opted-in third-party service; its infrastructure
 is separate from target authorization. No returned hostname/address is probed or
-DNS-verified. DNS verification remains M2-T03. See [contract](subfinder-adapter.md).
+DNS-verified. DNS verification is independently scoped through verify_dns (M2-T03). See [contract](subfinder-adapter.md).
+
+## DNSX batch contact enforcement (M2-T03)
+
+verify_dns declares candidates as secondary targets. Policy independently validates
+every supplied entry; mixed/all-rejected batches launch nothing. The adapter rechecks
+actual canonical names and independently authorized numeric resolver before writing
+the input file. Sorted unique absolute names alone reach DNSX. Returned RR owners,
+aliases and addresses require new independent checks for later contact. Discovery and
+resolution never mutate Scope. See [DNSX contract](dnsx-adapter.md).

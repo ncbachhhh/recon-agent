@@ -2,9 +2,11 @@
 
 ## Unreleased
 
-- Implemented enumerate_subdomains through a trusted Subfinder adapter with explicit local availability/version detection, fixed credential-free passive source, isolated child configuration, adapter-owned argv, current scope/policy/budget checks, deterministic generic observations/evidence and canonical failures. Offline fixtures/fakes and runner environment regressions require no Subfinder/network. Discovery grants no authority; DNSX verification remains future M2-T03.
+- Added verify_dns through trusted DNSX 1.2.2 composition: scope-safe bounded candidate batches, independently authorized resolver, fixed shell-free argv, isolated child configuration, generic DNS evidence with actual RR owners/TTL/provenance and explicit ambiguity/partial failures. Deterministic fixtures/fakes require no DNSX/network; discovery/resolution grants no authorization.
 
-- Implemented resolve_dns through an explicitly registered native dnspython adapter with strict record-type input, current policy/scope/resources, independently authorized numeric resolver infrastructure, bounded UDP exchanges, typed DNS observations/evidence and structured failures. Offline fixtures cover A/AAAA/CNAME/MX/NS/TXT, negative/alias/malformed responses, cancellation and resource limits. Discovery grants no authorization; DNSX and later capabilities remain unimplemented.
+- Implemented enumerate_subdomains through a trusted Subfinder adapter with explicit local availability/version detection, fixed credential-free passive source, isolated child configuration, adapter-owned argv, current scope/policy/budget checks, deterministic generic observations/evidence and canonical failures. Offline fixtures/fakes and runner environment regressions require no Subfinder/network. Discovery grants no authority; DNSX verification is implemented separately in M2-T03.
+
+- Implemented resolve_dns through an explicitly registered native dnspython adapter with strict record-type input, current policy/scope/resources, independently authorized numeric resolver infrastructure, bounded UDP exchanges, typed DNS observations/evidence and structured failures. Offline fixtures cover A/AAAA/CNAME/MX/NS/TXT, negative/alias/malformed responses, cancellation and resource limits. Discovery grants no authorization; DNSX verification is implemented separately; later capabilities remain unimplemented.
 
 ### Project infrastructure
 

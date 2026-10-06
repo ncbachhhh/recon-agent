@@ -2,7 +2,7 @@
 
 `resolve_dns` is operational through `tools.dns.DnsAdapter`, an explicitly supplied
 trusted ToolAdapter registered as `native_dns`. Subdomain enumeration is implemented by Subfinder (M2-T02); DNSX
-verification remains future M2-T03. Importing modules, constructing adapters/registries,
+verification is implemented separately as verify_dns (M2-T03). Importing modules, constructing adapters/registries,
 and running the CLI cause no DNS activity. Default ToolRegistry remains empty.
 
 ## Input and composition

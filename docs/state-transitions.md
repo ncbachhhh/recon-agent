@@ -154,3 +154,11 @@ Policy checks may exclude only their own unchanged requested/approved entry; all
 competing matches and all started/terminal IDs still deny. Lookup is read-only,
 retry limits derive from existing failure history, and budgets/authorization stay
 independent. See [identity and retry rules](action-deduplication.md).
+
+## DNSX partial evidence (M2-T03)
+
+The capability-local DNSX output explicitly carries completed/partial status and
+canonical completeness errors. Callers own lifecycle/ActionResult construction and
+correlated fact ingestion; partial output must use PARTIAL, not COMPLETED. Existing
+state ownership rules remain unchanged. No new dispatcher/ingestion runtime exists.
+See [DNSX contract](dnsx-adapter.md).

@@ -659,7 +659,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T03`
 - **Title:** DNSX adapter
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M2-T02`
 
@@ -698,7 +698,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T04`
 - **Title:** HTTPX adapter
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M2-T03`
 

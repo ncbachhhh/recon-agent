@@ -1369,3 +1369,138 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(subdomains): add Subfinder adapter$"`.
 Final handoff reports actual hash and clean tree. No amend, squash, second task
 commit, history rewrite or push.
+
+## 2026-10-06 — M2-T03 — DNSX adapter — DONE
+
+### Objective and repository evidence
+
+Implement only bounded bulk verification/normalization of already discovered
+independently authorized candidates. Startup read AGENTS/skill, state/current/PLAN,
+DNS/Subfinder/tool/architecture/security/execution/scope/state/testing docs, relevant
+ADRs/history, Git and source/tests. HEAD was exactly
+3c59eae2e105ab725f49983671f49640ad21053f; clean tree, no active task/blocker;
+M0/M1/M2-T01–M2-T02 DONE and M2-T03 READY. Recorded only M2-T03 IN PROGRESS before
+implementation. No unrelated changes existed or were overwritten.
+
+Repository catalog had no separate bulk verification identity, and native_dns
+already owns resolve_dns. ADR 0010 adds verify_dns as the eleventh finite capability
+rather than renaming/replacing native resolution or passive discovery. No duplicate
+error hierarchy or new top-level scanner domain entities.
+
+### Changes and boundaries
+
+- tools/dnsx.py implements trusted DnsxAdapter, definition/registry composition,
+  operator-only binary/numeric IPv4 resolver selection and bounded isolated local
+  availability/version probe. Only source-reviewed/fixture-validated DNSX 1.2.2;
+  unknown/prerelease/malformed/multiple reports fail. No real DNSX was required/run.
+- Strict DnsxInput requires 1–64 candidates and one A/AAAA/CNAME/MX/NS/TXT mode.
+  parameter_target_fields declares every candidate. Current registry/policy/scope/
+  dedup/resources precede execution; every entry independently checks before
+  canonicalization. Mixed, all-rejected and empty batches never write input or launch.
+  URLs/IPs/CIDRs/single-label ASN-like values reject. Approved names deduplicate/sort,
+  revalidate and enter a temporary absolute-name list only. Resolver independently
+  passes scope and joins primary/candidate host-budget accounting.
+- Adapter-owned literal argv selects JSONL/stream, one worker, one candidate/second,
+  one attempt and one record type at one numeric UDP/53 resolver. DNSX's reviewed TCP
+  truncation fallback contacts only that same resolver/port. No wildcard/trace/alias
+  follow-up, hosts-file, CDN/ASN, brute-force/default-resolver modes. Cloud auth/update
+  checks disabled. Existing ProcessRunner/ProcessSpec executes without shell/direct
+  subprocess/command-string/raw flag API. No install, dig or fallback implementation.
+- Fresh complete HOME/config/temp environment excludes ambient YAML/credentials/
+  proxies/PDCP/config overrides; cleanup follows runner cleanup for success/failure/
+  cancellation. Existing action/session deadlines, capture/truncation, nonzero exits,
+  cancellation and direct-child ownership remain unchanged. Attempt/host/rate/output
+  charges persist; concurrency releases. Partial output records existing FAILED budget
+  outcome; caller separately preserves PARTIAL lifecycle/ActionResult.
+- Bounded parser uses full RR strings, not lossy aggregated arrays/raw_resp/aggregate
+  TTL. Existing internal DnsRecord retains owner/type/value/TTL/MX preference/TXT hex.
+  Generic primary Asset/DNS Observations/Evidence retain per-query names, capability,
+  dnsx/version, subject/time/execution/memory snapshot/hash/untrusted provenance.
+  No new discovered assets or authority. Merged sections explicitly remain unspecified;
+  unchecked wildcard/shared-address suspicion is recorded without extra probes or
+  wildcard-free claims. Conflicting duplicates discard that host deterministically.
+- Malformed query lines discard that query, preserving other valid lines with explicit
+  partial status/count/ErrorInfo. Unreported candidates, including empty output, are
+  partial rather than invented negatives. All-malformed/truncated/oversized output
+  fails. Canonical unavailable/timeout/parser/nonzero/setup failures are preserved;
+  safe nonzero exit_code retained. No automatic retries/scope expansion.
+- Limits: 64 inputs, 256 wire lines, 65,536 bytes/line, 8,192 chars/RR, 256 RRs/line
+  and 256 normalized RRs/action plus configured capture/serialized-output/resource
+  limits. One mode bounds original questions to 64 UDP and at most 64 same-resolver
+  TCP fallback exchanges, independently of tool candidate/action rates.
+- 90 new offline DNSX cases assert trusted argv/list/environment, registry/schema,
+  single/multiple/duplicates/order, pre-input mixed/all-rejected regression, scoped
+  infrastructure, six record types, actual owners/provenance/no derived authority,
+  wildcard/merged-section ambiguity, partial/malformed/empty/conflicting output,
+  version/missing/nonzero/timeout/cancellation, planner injection and resource bounds.
+
+Files: new tools/dnsx.py, dnsx_models.py, dnsx_parser.py; one CapabilityId member and
+registry finite-count regression; tests/unit/tools/test_dnsx.py and sanitized JSONL
+fixture; DNSX contract/ADR 0010; relevant tool/architecture/security/data/execution/
+scope/state/testing/DNS/Subfinder docs, README/changelog and PLAN/state/current/history.
+Native DNS/Subfinder source/tests, runner, registry logic/interface, policy/scope/
+budgets/dedup/state/config/shared errors/CLI/dependencies and later subsystem source
+remain byte-identical to starting HEAD, except the explicitly scoped capability enum
+extension. No HTTPX, Naabu, Nmap, Groq/planner runtime, loop, persistence/reporting,
+real CLI or later task implemented. No new follow-up task or blocker.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0.
+Python 3.12 and live DNSX/network were not tested; compatibility is pinned source/
+fixture review, not a wider version/interpreter guarantee.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | `python --version` and `.venv/bin/python --version`: 3.14.6; `python -m pip install -e '.[dev]'` and pip check passed |
+| Focused | `python -m pytest tests/unit/tools/test_dnsx.py tests/unit/tools/test_registry.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py -q`: 379 passed, including 90 new DNSX cases |
+| Full | `python -m pytest -q`: 1,808 passed |
+| Coverage | `python -m coverage run -m pytest -q`: 1,808 passed; `coverage report`: 98% overall, 2,492 statements / 752 branches; DNSX adapter 87%, parser 96%, schemas 100% |
+| Network/DNS blocked | Offline socket/DNS guard script before collection, Groq key absent: 1,808 passed |
+| Lint/format/types | `python -m ruff check .`, `ruff format --check .`: passed, 105 files; `mypy src/recon_agent`: passed, 47 modules |
+| Build/CLI | `python -m build`: isolated sdist/wheel passed; editable and fresh-wheel recon-agent inert baseline message, exit 0 |
+| Fresh wheel | New external /tmp wheel-venv install/pip check; `python -I -B wheel_checks.py` outside checkout passed guarded cold imports/module origins, empty default registry and explicit combined native DNS/Subfinder/DNSX composition, real policy/budget/dedup plus fake executions, literal argv/input, portable evidence/provenance and pre-contact mixed/discovered/extra-flag denial |
+| Security/artifacts | artifact_checks.py passed protected source/runner/native DNS/Subfinder/policy/registry/config/CLI/later-source parity, sole enum extension, AST/no shell/subprocess/Groq/dynamic imports, unchanged dependency metadata, source wheel/sdist parity and artifacts/secrets |
+| Reconciliation/Git | Final task-owned diff/whitespace and 92-task dependency/status review, append-only history and local docs links/fences verified before one focused commit |
+
+Coverage misses cover defensive composition/reservation/deadline/setup/Windows paths
+and unreachable selected-type/internal-parser branches; existing defensive native
+DNS/scope/dedup misses remain unchanged. No coverage/lint/type/test settings or
+acceptance criteria weakened. Offline guards permit AF_UNIX event-loop self-pipes
+and do not sandbox reviewed harmless local interpreter children. Fresh-wheel cold
+imports prohibit startup/contact/process/logging/database/thread/availability/temp
+creation while allowing read-only dependency metadata. Package index use was only
+installation/build provisioning. Upstream recursive-server/binary-integrity and
+runner direct-child/OS resource limitations are documented.
+
+Development checks caught two test assumptions (shell is schema-rejected rather
+than a reserved domain key; budgets are Pydantic rather than dataclasses) and a
+nonexistent PARTIAL budget enum, corrected without changing shared contracts.
+Review found conflicting duplicate malformed counts depended on line order; counts
+now discard/count all conflicting host lines and a permutation regression passes.
+Fresh-wheel provisioning initially used a checkout-relative interpreter outside the
+checkout; corrected to an absolute interpreter path and reran successfully. Final
+README cleanup exposed a stale sdist README and trailing EOF blank line during artifact/
+whitespace review; removed that blank, rebuilt artifacts and reinstalled/rechecked the
+wheel, then artifact/parity/reconciliation/whitespace checks passed. All final focused/
+full/coverage/offline/build/wheel/security checks passed after production changes;
+no unresolved validation failure or blocker.
+
+### Acceptance and handoff
+
+| PLAN criterion | Concrete evidence |
+| --- | --- |
+| Only validated batch entries dispatch | Declared candidate target fields, current policy plus final scope checks; mixed/all-rejected/empty no-call/no-write regression; scoped numeric resolver |
+| Name/address provenance retained | Six-mode full RR fixtures; query target/actual owner/type/value/TTL/MX/TXT, dnsx/version/capability and generic subject/time/execution/evidence/snapshot-hash tests |
+| Batch/rate/output limits apply | Strict 64 input bound, fixed one-worker/rate/attempt/mode argv, shared budgets and per-host/rate tests, capture/truncation/parser/normalized/session/cancellation bounds |
+| Wildcard/ambiguous answers flagged | No generated wildcard queries; not_checked/shared-address suspicion and explicit merged-section attribution, incidental-owner and deterministic conflict regressions; contract/ADR 0010 |
+| Derived IPs/hostnames require validation | Subfinder discovery-to-verification rejection, resolver-independent scope, incidental aliases/addresses remain data and fail subsequent validation; no follow-up calls/scope mutation |
+
+All acceptance criteria passed. M0/M1 DONE; M2-T01–M2-T03 DONE; only M2-T04 READY,
+remaining 74 tasks NOT STARTED. No active task/blocker. Stop after M2-T03.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(dns): add DNSX verification adapter`; resolve with
+`git log -1 --format=%H --grep="^feat(dns): add DNSX verification adapter$"`.
+Final handoff reports actual hash and clean tree. No amend/squash/history rewrite,
+second task commit or push.

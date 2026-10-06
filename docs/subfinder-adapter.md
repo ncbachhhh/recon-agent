@@ -2,7 +2,7 @@
 
 `enumerate_subdomains` is implemented by the trusted `subfinder` ToolAdapter.
 `resolve_dns` is already implemented by native_dns. DNS verification through DNSX
-remains future M2-T03. Default ToolRegistry stays empty; imports and the inert CLI
+is implemented separately as verify_dns (M2-T03). Default ToolRegistry stays empty; imports and the inert CLI
 perform no probing or reconnaissance.
 
 ## Input, availability and composition

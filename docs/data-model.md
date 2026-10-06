@@ -288,3 +288,14 @@ and provider_sources. Generic Evidence is untrusted and references the returned
 normalized discovery snapshot by memory reference/locator/SHA-256. Empty discovery
 returns evidence with no observations. Sorted/deduplicated hosts grant no scope,
 DNS verification or contact authority. See [normalization/provenance](subfinder-adapter.md).
+
+## Bulk DNSX projections (M2-T03)
+
+DnsxInput/Context/Query/Output are tools-local schemas, not scanner-specific domain
+entities. verify_dns returns the existing primary Asset and generic DNS Observations
+with per-query names, actual RR owners, supported typed values/TTL/MX preference/TXT
+hex, status, resolver, source/version/capability and explicit section/wildcard ambiguity.
+Evidence retains subject/time/execution/memory snapshot/hash/untrusted provenance.
+Partial status, canonical errors, malformed counts and unreported candidates remain
+explicit; missing output never creates NXDOMAIN or authorized assets. Caller-owned
+ActionResult/lifecycle must preserve partial outcomes. See [DNSX](dnsx-adapter.md).

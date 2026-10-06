@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 — native DNS and passive Subfinder implemented; DNSX gate ready
+Project phase: M2 — native DNS, passive Subfinder and bulk DNSX implemented; HTTPX gate ready
 
 Completed:
 
@@ -20,12 +20,13 @@ Completed:
 - M1-T08 — Action deduplication (DONE)
 - M2-T01 — DNS resolver capability (DONE)
 - M2-T02 — Subfinder adapter (DONE)
+- M2-T03 — DNSX adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T03 — DNSX adapter (READY; not started)
+- M2-T04 — HTTPX adapter (READY; not started)
 
 ## Implementation reality
 
@@ -62,7 +63,7 @@ budget runtime, scanner, provider/planner or command CLI. The upstream registry
 foundation is now implemented separately in M1-T04.
 
 M1-T04 adds finite CapabilityId/RiskClass enums and strict frozen CapabilityDescriptor
-in domain/capabilities.py. The 10 conceptual identities do not imply operational tools.
+in domain/capabilities.py. The original 10 conceptual identities (11 with M2-T03 verify_dns) do not imply operational tools.
 ActionRequest retains unapproved lowercase-name wire semantics; it adds nested
 import_path/python_module rejection without exposing implementation selection.
 
@@ -187,7 +188,7 @@ hex. Negative answers are explicit successful evidence; malformed/truncated, res
 and timeout failures use canonical errors. Caller time/execution/subject identity and
 stable memory snapshot references/hashes preserve provenance. TXT remains untrusted.
 Discovered hosts/IPs never change Scope or gain authority. Caller owns lifecycle and
-state ingestion; no generic dispatcher, DNSX, later adapter, planner/loop,
+state ingestion; no generic dispatcher, later adapter, planner/loop,
 persistence/reporting or operational CLI. See docs/dns-resolver.md and ADR 0008.
 
 M2-T02 adds tools.subfinder.SubfinderAdapter for enumerate_subdomains, passive risk,
@@ -221,16 +222,47 @@ Provider HTTP DNS/TLS/redirect behavior and completeness are external service
 behavior, not Python packet containment; the reviewed source performs no target
 probing and grants no target membership. No real binary/provider test or public
 contact occurs. resolve_dns is already implemented; DNS verification through DNSX
-remains future M2-T03. No generic dispatch, later adapter, planner/runtime/loop,
+is implemented separately as verify_dns in M2-T03. No generic dispatch, later adapter, planner/runtime/loop,
 persistence/reporting or operational CLI is added. See docs/subfinder-adapter.md.
+
+M2-T03 adds tools.dnsx.DnsxAdapter for the new separate verify_dns/active_safe
+capability, preserving native resolve_dns and passive enumerate_subdomains. Trusted
+composition reviews/pins DNSX 1.2.2 and uses bounded isolated no-target detection.
+Strict 1–64 dotted hostname candidates plus one A/AAAA/CNAME/MX/NS/TXT mode declare
+every candidate as a policy target. Mixed/empty/all-rejected batches never write
+input or dispatch. Canonical approved names deduplicate/sort; final scope rechecks
+precede the temporary absolute-name list. One operator numeric IPv4 resolver needs
+independent scope membership and host-budget charges.
+
+Existing runner/policy/budget/registry logic is unchanged. Fixed JSONL/stream mode,
+one worker/candidate per second/attempt and record mode disable discovery/wildcard/
+trace/hosts/CDN/ASN contact expansion. Same-resolver TCP fallback is explicit;
+whole-action/session/capture/cancellation bounds remain runner-owned. Complete
+fresh HOME/config/temp environment excludes ambient YAML/credentials/proxy/PDCP,
+with auth/update disabled and cleanup after every process outcome.
+
+Full RR strings retain actual owner/type/value/TTL/MX/TXT data in existing internal
+DnsRecord and generic primary Asset/DNS Observations/untrusted Evidence. DNSX merges
+sections: attribution remains unspecified, wildcard status unchecked or conservatively
+suspected for shared addresses. Malformed query lines preserve other valid lines;
+conflicting duplicates discard that host with deterministic counts. Partial/empty
+output explicitly lists unreported candidates/errors; all-malformed/truncated/oversized
+output fails. Missing/nonzero/timeout failures retain canonical codes/exit context.
+Source/version/subject/time/execution and stable normalized snapshot/hash preserve
+provenance. Caller owns partial lifecycle/ingestion. Results never grant authorization.
+No later adapter, generic dispatcher, planner/loop/persistence/reporting/real CLI.
+See docs/dnsx-adapter.md and ADR 0010. The sole protected production change is one
+finite verify_dns enum member; no new dependencies or configuration fields.
 
 Audit events describe autonomous recon operations and confer no authorization. Event
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T03 is READY; remaining 75 tasks are NOT STARTED.
+Only M2-T04 is READY; remaining 74 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0010 selects a separate verify_dns capability, atomic scoped batches, numeric resolver, fixed isolated DNSX and explicit merged-section/wildcard/partial evidence limits.
 
 - ADR 0009 selects reviewed passive Subfinder, one explicit credential-free source and enforced temporary child configuration through a minimal trusted runner environment seam; discovered data grants no authority.
 
@@ -254,24 +286,26 @@ Only M2-T03 is READY; remaining 75 tasks are NOT STARTED.
 
 ## Validation
 
-M2-T02: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 was not tested.
-Editable development installation and pip check passed. Focused Subfinder/registry/
-runner: 281 passed (99 Subfinder cases and 15 added environment cases). Full, coverage
-and network/DNS-blocked suites: each 1,718 passed. Ruff lint/format (99 files), strict
-Mypy (44 production modules), isolated sdist/wheel build, editable/fresh-wheel inert
-CLI and guarded fresh-wheel cold imports/composition/fake DNS+Subfinder execution
-passed. Coverage: 99% overall (2,196 statements / 654 branches); Subfinder adapter
-96%, Subfinder schemas and process runner/models 100%. No settings/gates weakened.
+M2-T03: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
+Editable development install/pip check passed. Focused DNSX/registry/native DNS/
+Subfinder: 379 passed (90 new DNSX cases). Full, coverage and network/DNS-blocked
+suites: each 1,808 passed. Ruff lint/format (105 files), strict Mypy (47 production
+modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI and guarded
+fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX execution passed.
+Coverage: 98% overall (2,492 statements / 752 branches); DNSX adapter 87%, parser 96%,
+schemas 100%. No validation settings/gates weakened. Defensive composition/deadline/
+setup/Windows branches account for adapter misses; shared behavior is protected.
 
-Protected domain/policy/config/errors/registry/native DNS/later subsystem source
-parity, scoped runner environment diff, AST/source/artifact/secret inspection,
-unchanged runtime dependencies and wheel/sdist parity passed. Git whitespace,
-append-only history, task readiness and local documentation links/fences verified.
-Default tests require no Subfinder, provider credentials or network. Offline guards
-block contact/DNS before collection, allowing only AF_UNIX loop self-pipes; existing
-harmless local interpreter children are not sandboxed by the parent guard. Fresh-wheel
-cold imports prohibit startup/contact/process/availability/temp creation, allowing
-read-only dependency metadata. Installation/build provisioning may use indexes.
-See TASK_HISTORY for actual commands, acceptance mapping, limitations and commit.
+Protected source parity, sole finite capability extension, AST/source/artifact/secret
+checks, unchanged runtime dependencies and wheel/sdist parity passed. Final Git
+whitespace, append-only history, 92-task readiness and local doc links/fences verified.
+Default tests require no real DNSX, scanner binaries, credentials or network. Contact/
+DNS guards precede collection and allow only AF_UNIX event-loop plumbing; they do
+not sandbox reviewed harmless local interpreter children. Fresh-wheel cold imports
+prohibit startup/contact/process/availability/temp creation and permit read-only
+metadata. Index use is limited to installation/build provisioning. Compatibility is
+source/fixture-reviewed DNSX 1.2.2, not live-binary/network tested. No additional
+interpreter, process-tree/OS CPU/memory or upstream-recursive containment claim.
+See TASK_HISTORY for commands, acceptance mapping, limitations and commit reference.
 
 Known blockers: None.

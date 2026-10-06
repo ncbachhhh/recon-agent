@@ -1,0 +1,2 @@
+{"host":"www.example.test.","resolver":["192.0.2.53:53"],"status_code":"NOERROR","timestamp":"2026-10-06T00:00:00Z","a":["192.0.2.10"],"ttl":300,"all":["www.example.test.\t300\tIN\tA\t192.0.2.10"]}
+{"host":"api.example.test.","resolver":["192.0.2.53:53"],"status_code":"NOERROR","timestamp":"2026-10-06T00:00:00Z","a":["192.0.2.10"],"ttl":60,"all":["api.example.test.\t60\tIN\tA\t192.0.2.10"]}

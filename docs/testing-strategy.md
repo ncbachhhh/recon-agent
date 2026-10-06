@@ -249,4 +249,18 @@ local interpreter child to prove ambient secrets/config variables are excluded a
 shell syntax remains literal. No live-binary or provider tests are added. Fresh-wheel
 checks include explicit Subfinder registration and real policy/budget/dedup with fake
 execution; imports remain inert. resolve_dns regressions remain unchanged; DNSX
-verification is future M2-T03.
+verification is implemented separately in M2-T03.
+
+## DNSX regressions (M2-T03)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_dnsx.py tests/unit/tools/test_registry.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py -q`, then the complete
+baseline, network/DNS-blocked suite, coverage/build/fresh-wheel/inert CLI and artifact/
+secret/diff checks. Sanitized source-shaped JSONL/RR fixtures and fake runners require
+no DNSX/network. Cases cover exact argv/environment/input, single/multiple/duplicate
+canonical candidates, whole-batch pre-input rejection, independent resolver scope,
+six record types/TTL/owners/MX/TXT/provenance, wildcard/section ambiguity, malformed/
+partial/empty/conflicting output, availability/version/nonzero/timeout/cancellation
+and shared resource/output/session limits. Guards block network/process contact;
+fresh-wheel guarded imports and fake DNSX composition verify installed packaging.
+Compatibility is reviewed DNSX 1.2.2 source/fixtures, not a live-binary test. Existing
+native DNS/Subfinder behavior is protected; no later adapter tests imply implementation.

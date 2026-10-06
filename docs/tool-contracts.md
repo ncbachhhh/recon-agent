@@ -347,3 +347,17 @@ connection per second/concurrent connect, existing deadline/capture/cancellation
 atomic budgets precede parsing. Generic Host/Service/Observation/Evidence record open
 facts with partial errors/empty uncertainty, without deeper service metadata or new
 authority. Naabu discovers ports; Nmap fingerprinting is M2-T06. See [contract](naabu-adapter.md).
+
+## Service fingerprint contract (M2-T06)
+
+fingerprint_services/active_safe registers explicit NmapAdapter with required strict
+ports (1–128 integers, 1–65,535). Operator approved DiscoveredPortSelection snapshots
+provide original numeric contact/optional hostname, prior ports and evidence references;
+requested ports must be a subset. Empty/missing ports or absent selection deny. Current
+policy, independent primary/contact scope and atomic budgets precede exact numeric argv.
+Only Nmap 7.95 compiled without Lua passes detection; registration cannot bypass the
+no-NSE gate. Native CONNECT/version intensity 2/XML profile owns every option and path.
+No DNS/host discovery/OS/aggressive/NSE/broad scan. Safe XML, deterministic generic
+services/observations/untrusted evidence, canonical errors and explicit unreported/empty
+partial results use existing boundaries. Naabu discovers ports; Nmap fingerprints them.
+See [complete contract](nmap-adapter.md) for exact profile, version and resource limits.

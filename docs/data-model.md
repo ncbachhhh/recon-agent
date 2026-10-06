@@ -324,3 +324,17 @@ candidate references. Binding references do not prove DNS. Protocol/product/vers
 remain absent. Empty results imply no closed-port/liveness/completeness fact. Snapshot
 hash and partial parse errors preserve limits. Generic state lineage accepts the facts.
 See [Naabu normalization](naabu-adapter.md).
+
+## Service fingerprint projections (M2-T06)
+
+Nmap reuses Asset/numeric Host/Service/service Observation/Evidence; no domain changes.
+Only explicitly open TCP records become Services, with Nmap name in protocol and
+optional product/version. Observations preserve host/port/transport/state, name/product/
+version/extra_info/service_fingerprint/tunnel/method/confidence/CPEs and nmap/fingerprint_services/7.95,
+logical subject and prior-discovery references. Closed/filtered/other states remain
+observations. Missing metadata stays absent; names, CPEs and versions imply no finding.
+Each observation cites its own untrusted Nmap evidence; discovery IDs are metadata,
+not automatic permissions or dangling state evidence links. Snapshot SHA-256, explicit
+caller IDs/time, memory locator and generic referential validation preserve lineage.
+Missing individual records/empty output yield explicit partial unreported_ports; malformed
+XML fails atomically. See [contract](nmap-adapter.md) for supported projections.

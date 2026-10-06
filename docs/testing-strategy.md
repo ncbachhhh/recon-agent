@@ -291,3 +291,18 @@ partial/empty records, availability/missing/nonzero/timeout/cancellation and exi
 rate/host/action/concurrency/output/session bounds. Installed-wheel cold imports and
 real registry/policy/budget/dedup with fake execution stay under startup/contact guards.
 Compatibility is source/fixture review only; no live Naabu or Nmap runs.
+
+## Nmap regressions (M2-T06)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_nmap.py tests/unit/tools/test_registry.py tests/unit/tools/test_naabu.py tests/unit/tools/test_dns.py tests/unit/tools/test_subfinder.py tests/unit/tools/test_dnsx.py tests/unit/tools/test_httpx.py -q`,
+then full/network-DNS-blocked/coverage/Ruff/format/Mypy/build/fresh-wheel/CLI/artifact/
+secret/diff checks. Source-shaped reserved XML fixtures and guarded fake ProcessRunner
+need no real Nmap/network. Cases cover registry/no-Lua detection gates, exact numeric
+argv/bounded discovered-port subset, scope/contact/no-setup denial, strict injection
+rejection, service metadata/states/unknown/duplicates/generic provenance/state ingestion,
+hostile entities/DTD/XML/text, malformed atomic failures, explicit unreported/empty partial
+records, missing/nonzero/timeout/output/session/resource/cancellation failures.
+Fresh-wheel guarded cold imports and fake detected Nmap/policy/budget/dedup composition
+verify packaging. Supported Nmap 7.95 without Lua is source/fixture review only; no live
+Nmap test or installation. Scan flags do not imply packet-rate guarantees for native
+version probes; exact limits are documented in [contract](nmap-adapter.md).

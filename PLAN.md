@@ -776,7 +776,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T06`
 - **Title:** Nmap service fingerprint adapter
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M2-T05`
 
@@ -815,7 +815,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M2-T07`
 - **Title:** Initial deterministic discovery pipeline
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M2-T06`
 

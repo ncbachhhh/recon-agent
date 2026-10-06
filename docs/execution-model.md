@@ -203,3 +203,13 @@ and capture; existing budgets reserve one attempt and constrain action/session t
 One connection start per second/concurrent connect, 128 explicit TCP ports, 64 contacts
 and 4,096 pairs bound work. No scanner DNS, target expansion or service/Nmap invocation.
 Partial evidence exists only after zero-exit untruncated capture. See [Naabu](naabu-adapter.md).
+
+## Nmap consumer (M2-T06)
+
+NmapAdapter uses unchanged ProcessRunner/ProcessSpec, detected 7.95 no-Lua build,
+fixed CONNECT/native version/XML stdout and one scoped numeric target/bounded port list.
+Adapter owns all options/data paths and fresh complete temporary environment. Native
+service concurrency is one; scan packet rate/delay do not promise a global native-probe
+request rate. Shared reservation/session/capture/normalization limits and direct-child
+cancellation cleanup remain unchanged. No shell, NSE or new process runner. See
+[contract](nmap-adapter.md) for exact supported behavior/compatibility assumptions.

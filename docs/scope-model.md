@@ -220,3 +220,12 @@ scope and missing bindings deny. Direct IPs need scope without bindings. Recheck
 precede validated-only numeric input; mixed batches never write input. No Naabu DNS
 or CIDR/ASN expansion occurs. Returned IP/port facts never mutate Scope or authorize
 follow-up. See [Naabu contract](naabu-adapter.md).
+
+## Nmap selected-service contact enforcement (M2-T06)
+
+Nmap fingerprints one trusted prior-discovery subject/contact selection per action.
+Both name (when supplied) and numeric address independently pass current ScopeValidator;
+prior open ports/evidence IDs never grant membership. Ports are required finite integers
+within the operator approved discovery set. Names/IPs recheck before dispatch; only the
+canonical numeric contact and selected ports reach the no-DNS/no-discovery profile.
+No discovered metadata or Nmap output adds targets. See [contract](nmap-adapter.md).

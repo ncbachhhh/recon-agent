@@ -2,7 +2,7 @@
 
 M2-T05 implements `tools.naabu.NaabuAdapter`, adapter `naabu`, capability
 `discover_ports`, risk `active_safe`. Naabu provides fast bounded open-port discovery;
-Nmap remains future deeper service fingerprinting (M2-T06). No service/banner/version
+Nmap implements deeper bounded service fingerprinting separately in M2-T06. No service/banner/version
 probe, UDP scan, vulnerability inference or automatic follow-up runs here.
 
 Trusted composition calls `detect(ExecutionConfig, settings=NaabuSettings(...))`, then

@@ -1768,3 +1768,135 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(ports): add Naabu discovery adapter$"`.
 Final handoff reports actual hash and clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-06 — M2-T06 — Nmap service fingerprint adapter
+
+Status: DONE. Objective: trusted bounded fingerprint_services on approved prior-discovered
+TCP ports, with generic service metadata and provenance. Startup followed AGENTS and
+recon-project-maintainer skill. HEAD was expected 953c56833fcbd1bb771bc64cc64d6ca11d37b6fe,
+working/staged tree clean, M0/M1 and M2-T01–M2-T05 DONE, only M2-T06 READY, no active
+task/blocker. M2-T06 alone moved IN PROGRESS before implementation. No unrelated work.
+
+### Changes and decisions
+
+- Added tools/nmap.py, nmap_models.py and nmap_parser.py for existing
+  fingerprint_services/active_safe capability through explicit immutable registry
+  composition. Existing domain/policy/runner/registry/config/previous adapters/dependencies/
+  CLI and all future runtime source remain unchanged; protected parity checks passed.
+- Official Nmap 7.95 source shows -sV automatically enables NSE version scripts.
+  ADR 0013 therefore requires a binary compiled --without-liblua; fixed omitted script
+  flags alone are insufficient. Bounded isolated no-target --version detection requires
+  exact version and unambiguous compiled feature lines proving liblua absent. Unknown/
+  standard Lua-enabled/missing binaries fail closed; undetected constructed adapters
+  cannot execute even with AVAILABLE registration. No Nmap installed, compiled or run.
+- Trusted immutable NmapSettings supplies absolute installation data path and up to
+  64 unique DiscoveredPortSelection snapshots, each one numeric address/optional canonical
+  hostname, 1–128 prior TCP ports and 1–128 nonempty evidence references. These are
+  approved operator prior facts, separate from planner claims and scope. M2-T07 will own
+  state-to-adapter coordination; no pipeline implemented. Local binary/databases/composition
+  are trusted and must stay intact across availability/execution.
+- Strict extra-forbid NmapInput requires 1–128 integer ports in 1–65,535; empty/missing/
+  invalid/unapproved ports deny before reservation/setup/contact. Ports canonicalize in
+  the registered schema, so duplicates/order cannot evade existing action deduplication.
+  Exactly one selected subject/contact per action and a nonempty approved subset; no
+  implicit 80/443/top/full-range defaults, batch expansion, ranges or planner flags.
+- Current registry binding, policy/risk/schema/dedup and primary scope precede dispatch.
+  Selected numeric contact independently passes ScopeValidator/exclusions/private gates,
+  joins shared host budgets and rechecks with subject before runner execution. No name
+  resolution, discovered permission, CIDR/ASN/UDP expansion or unauthorized target input.
+- Fixed --unprivileged -sT -sV --version-intensity 2 -Pn -n --disable-arp-ping profile,
+  max-parallelism=1, scan-delay=1s/max-rate=1/max-retries=0, XML stdout, explicit sorted
+  integer -p and absolute datadir/versiondb/servicedb paths; -6 only for IPv6. -Pn skips
+  discovery probes outside selected services. No NSE code in accepted builds, script
+  options, OS/aggressive scan, shell, spoofing/decoys/interfaces/exploitation or broad scan.
+  Native TLS stays on the same selected socket. Port-specific probes may run irrespective
+  of intensity; native exclusions (printer ports) stay honored. Source-reviewed native
+  version concurrency is one; scan rate flags do not constrain every version reconnect/
+  write/kernel packet. Exact assumptions/limits documented, without live claims.
+- Fresh complete HOME/config/temp environment excludes ambient NMAPDIR/NMAP_PRIVILEGED,
+  credentials/proxies; explicit trusted databases prevent ambient user selection. Unchanged
+  runner owns shell-free argv, DEVNULL stdin, bounded separate streams, timeout/cancellation/
+  direct-child cleanup. Atomic shared budgets charge attempts/host/rate/output, release
+  concurrency, clamp execution/session deadlines and discard post-expiry facts. Capture,
+  serialized normalization and fixed XML byte bounds enforced; temp cleanup on all outcomes.
+- Safe local strict UTF-8 XML accepts only exact harmless Nmap DOCTYPE; external DTDs,
+  internal subsets/entities/alternate encodings/CDATA reject before ElementTree. No resource
+  lookup/execution. 1 MiB / 8,192 elements / depth 12 / 32 attributes / 4,096-char text/
+  attribute / 16 CPE bounds. Only source envelope/version/success marker, selected numeric
+  address/requested TCP ports/known state/valid confidence and unambiguous records accepted.
+  NSE/OS/traceroute output rejects. Identical duplicates sort/dedup; conflicts/malformed/
+  truncated XML fail atomically. Missing optional service data stays absent. Valid missing/
+  empty/compressed records yield explicit partial/unreported_ports and canonical errors,
+  never inferred states. Missing/nonzero/timeout/setup/capture preserve shared canonical
+  failures and exit context; cancelled/failed runner has no invented partial payload.
+- Generic Asset/numeric Host/Service/service Observation/untrusted Evidence preserve
+  subject/contact/port/state/service name/product/version/extra_info/service_fingerprint/
+  tunnel/method/confidence/CPEs, nmap/fingerprint_services/7.95, prior-discovery references
+  and explicit caller time/execution/memory locator/stable snapshot SHA-256. Only open
+  ports become Services; other states remain Observations. Unknown banners/instructions
+  remain verbatim data; no vulnerabilities inferred. Generic state lineage/JSON round trip
+  validated; caller owns lifecycle/ingestion/evidence retention and partial status.
+- Added 135 guarded offline Nmap cases and source-shaped reserved services.xml; Nmap
+  contract/ADR 0013, architecture/tool/security/data/execution/scope/testing docs and
+  README/CHANGELOG updated. Naabu discovery vs Nmap fingerprinting explicitly documented.
+  No M2-T07+, protocol-specific recon, Nuclei, planner/loop/persistence/reporting/real CLI.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0.
+Python 3.12 and live Nmap/network compatibility not tested. Official 7.95 source archive
+was retrieved for review of configure/NOLUA/version/argv/database/native contact/concurrency/
+XML behavior; no binary installation, compilation, real availability probe or scan.
+Index access limited to editable/build/fresh-wheel provisioning. Temporary validation
+scripts/logs remain outside checkout in /tmp/recon-m2t06-validation (offline guard reused
+from /tmp/recon-m2t05-validation/offline.py).
+
+| Check | Actual result |
+| --- | --- |
+| Setup | python and .venv Python 3.14.6; pip install -e '.[dev]' and pip check passed |
+| Focused | Nmap/registry/Naabu/DNS/Subfinder/DNSX/HTTPX: 742 passed, including 135 new Nmap cases |
+| Full | python -m pytest -q: 2,171 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 2,171 passed |
+| Coverage | coverage run -m pytest -q: 2,171 passed; report 98% overall, 3,332 statements / 1,046 branches; Nmap adapter 96%, parser 98%, schemas 100% |
+| Lint/format/types | Ruff check/format passed (123 files); strict Mypy passed (56 production modules) |
+| Build/CLI | python -m build isolated sdist/wheel passed; editable and fresh-wheel recon-agent inert message, exit 0 |
+| Fresh wheel | New external venv wheel install/pip check; isolated -I -B guarded cold imports/origins, default registry, prior adapters and detected no-NSE Nmap composition with real registry/policy/budget/dedup + fake runner passed; numeric argv/bounded ports/generic state/metadata/provenance/no-contact denial verified |
+| Artifacts/security | Protected source parity, adapter AST/no shell/direct subprocess/Groq/dynamic import, unchanged dependencies, wheel/sdist source parity and tracked/untracked artifact/secret checks passed |
+| Final reconciliation | 92 tasks: 20 DONE, M2-T07 alone READY, 71 NOT STARTED; no active task; history append-only, local Markdown links/fences, task-owned working/staged diff and whitespace checked before commit |
+
+No gates/criteria weakened. Nmap adapter uncovered branches are defensive SystemRoot,
+registry-binding/atomic reservation/deadline paths; parser fixed byte cap is also
+uncovered when the equal default capture bound rejects first. Existing shared runner/
+policy/budget regressions independently protect those seams. Network guard allows
+AF_UNIX event-loop plumbing only; reviewed harmless local interpreter children are not
+sandboxed. Cold imports prohibit contact/process/availability/temp/runtime startup while
+allowing installed metadata reads. No OS CPU/memory/process-tree/global native packet-
+rate/live binary/additional interpreter compatibility claim.
+
+Development failures exposed canonical constructor wrapping for invalid trusted addresses
+and a pre-dedup CPE bound; corrected production handling. Test harness corrections used
+existing record_facts and tuple host_actions contracts, supported budget fields and
+separate detection/cancellation phases. Final source then passed all required checks;
+no unresolved failure, blocker or new follow-up task remains.
+
+### Acceptance and handoff
+
+| PLAN criterion | Concrete evidence |
+| --- | --- |
+| Only validated hosts and approved discovered ports dispatch | Trusted finite prior selections, strict required subset, primary/numeric scope and final recheck tests; exact numeric-only target and requested-port argv regression |
+| Safe profile excludes arbitrary scripts/options | Detected 7.95 no-Lua gate including undetected AVAILABLE denial, adapter-owned literal profile/paths; extra flags/scripts/OS/command injection rejection and AST checks |
+| Machine-readable fixtures normalize services/provenance | Reserved XML fixtures, metadata/unknown/banner/state/duplicates tests, generic Service/Observation/Evidence IDs/source/time/hash/discovery refs and state/wheel round trips |
+| Malformed/partial output remains explicit | Entity/DTD/hostile/malformed/conflicting XML atomic canonical failures; valid empty/unreported/compressed-port partial status/errors without invented facts |
+| Timeout/output limits work | Canonical fake timeout/nonzero/missing/capture/normalized/session failures, deadline clamp, existing charged budgets, cancellation/concurrency/temp cleanup and full runner regressions |
+
+User acceptance verified: fingerprint_services operational via trusted adapter/runner,
+central scope and finite ports, safe XML, no vulnerability inference, shell/NSE/OS/
+aggressive/unrestricted scan, canonical failures, offline tests and every required
+validation gate passed. M0/M1 and M2-T01–M2-T06 DONE; M2-T07 READY/unstarted; no active
+task/blocker. Stop after M2-T06.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(services): add Nmap fingerprint adapter`; resolve via
+`git log -1 --format=%H --grep="^feat(services): add Nmap fingerprint adapter$"`.
+Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
+second task commit or push.

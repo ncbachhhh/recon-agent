@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 — DNS, Subfinder, DNSX, HTTPX and Naabu implemented; Nmap gate ready
+Project phase: M2 — DNS, Subfinder, DNSX, HTTPX, Naabu and Nmap implemented; pipeline gate ready
 
 Completed:
 
@@ -23,12 +23,13 @@ Completed:
 - M2-T03 — DNSX adapter (DONE)
 - M2-T04 — HTTPX adapter (DONE)
 - M2-T05 — Naabu port discovery adapter (DONE)
+- M2-T06 — Nmap service fingerprint adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M2-T06 — Nmap service fingerprint adapter (READY; not started)
+- M2-T07 — Initial deterministic discovery pipeline (READY; not started)
 
 ## Implementation reality
 
@@ -312,13 +313,46 @@ open/closed/liveness/completeness facts. Existing generic state accepts the line
 No Nmap/M2-T06+, pipeline, planner/runtime/loop/persistence/reporting/real CLI work.
 See docs/naabu-adapter.md and ADR 0012. No blocker or new follow-up; stop after M2-T05.
 
+M2-T06 adds tools.nmap.NmapAdapter for fingerprint_services/active_safe through
+explicit registry composition. Source-reviewed Nmap 7.95 must be compiled without Lua:
+ordinary -sV invokes version NSE scripts. Isolated bounded no-target detection verifies
+version/features; undetected instances cannot execute even if registered AVAILABLE.
+No install/build/fallback. Operator trusted installation/database paths and immutable
+prior-discovery selections provide one numeric contact/optional hostname, 1–128 TCP
+ports and evidence references. Required strict integer requested ports must be a subset;
+no default ports. Registered-schema sorting/dedup prevents cosmetic port-set replay.
+
+Current registry/policy/risk/schema/dedup, independently scoped primary/contact,
+atomic shared charged budgets and final scope rechecks precede numeric-only argv.
+Fixed unprivileged CONNECT/native version intensity 2/no DNS/no host discovery/ARP/XML
+profile uses bounded scan rate/concurrency/no retries, explicit database paths and
+fresh complete environment. Native version concurrency is one; initial scan rate
+flags do not govern every version-probe reconnect/write. Existing runner/session/
+capture/normalization/cancellation/temp cleanup and canonical failures remain intact.
+
+Safe bounded UTF-8 XML permits only harmless Nmap DOCTYPE, rejects entity/external
+DTD/internal subset/alternate encoding and unsupported scan-mode output. Selected
+IP/TCP ports/state/metadata normalize to generic Asset/Host/Service/Observation/Evidence;
+only open ports become Services, other states remain observations. Identical duplicates
+sort/dedup; conflicts/malformed/truncated XML fail atomically. Valid missing/empty
+records preserve explicit partial/unreported_ports. Optional name/product/version/
+extra_info/service_fingerprint/tunnel/method/confidence/CPE metadata remains untrusted,
+with no vulnerability inference. Source/capability/version/prior refs/time/execution/
+memory locator/snapshot hash preserve provenance and generic state lineage. Caller
+owns lifecycle/ingestion/retention. Naabu discovers ports; Nmap fingerprints selected
+services. No pipeline/M2-T07+, planner/loop/persistence/reporting/real CLI work.
+See docs/nmap-adapter.md and ADR 0013. Protected existing production/contracts/deps
+remain unchanged. No blocker or added follow-up; stop after M2-T06.
+
 Audit events describe autonomous recon operations and confer no authorization. Event
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M2-T06 is READY; remaining 72 tasks are NOT STARTED.
+Only M2-T07 is READY; remaining 71 tasks are NOT STARTED.
 
 ## Major architecture decisions
+
+- ADR 0013 selects detected Nmap 7.95 without Lua, trusted prior-discovery port selections, independently scoped numeric contact and bounded native service/XML evidence; no NSE or pipeline.
 
 - ADR 0012 selects independently scoped numeric hostname bindings, operator finite TCP ranges and isolated Naabu CONNECT stream discovery; no DNS expansion or fingerprinting.
 
@@ -337,7 +371,7 @@ Only M2-T06 is READY; remaining 72 tasks are NOT STARTED.
 - Capability intent never becomes LLM-generated shell/argv. Immutable trusted registry supplies facts; local action policy checks eligibility and trusted adapters own executable construction.
 - ADR 0005 selects atomic local reservations, permanent attempt/output charges, rolling monotonic rates and synchronous concurrency ownership without runtime dispatch.
 - ADR 0003 selects explicit immutable composition, one selected adapter per capability and semantic-only planner catalog; declared availability defaults fail closed.
-- Pure centralized scope and action eligibility are implemented; native DNS policy/resource/contact enforcement exists; generic dispatch and other adapter containment remain future work. Discovery/planner recommendations grant no authority.
+- Pure centralized scope/action eligibility and capability-specific DNS/Subfinder/DNSX/HTTPX/Naabu/Nmap enforcement are implemented; generic dispatch and future adapter containment remain future work. Discovery/planner recommendations grant no authority.
 - ADR 0002 requires independently declared address membership, constrained/pinned approved contacts and revalidation on address/destination changes; native DNS contacts only independently approved numeric resolver infrastructure, with no implicit name-to-IP authorization.
 - Remote evidence and model recommendations remain non-authoritative data with provenance. Audit records do not authorize replay.
 - Pure domain/error models never emit logs. Future application/orchestration services emit concise decision summaries, policy outcomes and execution records, without private reasoning or transcript state.
@@ -348,28 +382,27 @@ Only M2-T06 is READY; remaining 72 tasks are NOT STARTED.
 
 ## Validation
 
-M2-T05: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
-Editable development install/pip check passed. Focused Naabu/registry/previous adapters:
-607 passed, including 117 new Naabu cases. Full, coverage and network/DNS-blocked
-suites: each 2,036 passed. Ruff lint/format (117 files), strict Mypy (53 production
+M2-T06: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
+Editable development install/pip check passed. Focused Nmap/registry/previous adapters:
+742 passed, including 135 new Nmap cases. Full, coverage and network/DNS-blocked
+suites: each 2,171 passed. Ruff lint/format (123 files), strict Mypy (56 production
 modules), isolated sdist/wheel build, editable/fresh-wheel inert CLI and guarded
-fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX+HTTPX+Naabu passed.
-Coverage: 98% overall (3,047 statements / 940 branches); Naabu adapter 95%, parser
-and schemas 100%. No validation settings/gates weakened. Defensive SystemRoot/default
-runner/atomic reservation/deadline branches account for Naabu misses; existing shared
-regressions independently protect those boundaries.
+fresh-wheel cold imports/composition/fake DNS+Subfinder+DNSX+HTTPX+Naabu+Nmap passed.
+Coverage: 98% overall (3,332 statements / 1,046 branches); Nmap adapter 96%, parser
+98%, schemas 100%. No validation settings/gates weakened. Defensive SystemRoot,
+registry-binding/atomic reservation/deadline and parser fixed-byte-cap branches remain
+uncovered locally; shared runner/policy/budget regressions protect those seams.
 
-Protected production/previous adapter parity, AST/no shell/direct subprocess, unchanged
+Protected production/previous-adapter parity, AST/no shell/direct subprocess, unchanged
 dependencies, wheel/sdist source parity and artifact/secret checks passed. Final Git
 whitespace, append-only history, 92-task readiness and local Markdown links/fences
-checked at closeout. Tests need no real Naabu/scanner/network/credentials. Contact/DNS
+checked at closeout. Tests need no real Nmap/scanner/network/credentials. Contact/DNS
 guards precede collection and allow only AF_UNIX event-loop plumbing; they do not
 sandbox harmless local interpreter children. Fresh-wheel cold imports prohibit runtime
 startup/contact/process/availability/temp creation while allowing metadata reads.
-Index use is limited to install/build provisioning. Compatibility is pinned source/
-fixture-reviewed Naabu 2.3.5 without live binary/network testing. Existing kernel TCP,
-direct-child and OS resource limits are documented; no additional interpreter/live
-compatibility/packet-rate/process-tree guarantee. See TASK_HISTORY for actual checks,
-acceptance and the focused commit reference.
+Index/source retrieval was limited to provisioning and official source review; no
+scanner installed or run. Supported no-Lua Nmap 7.95 is source/fixture reviewed without
+live compatibility, additional interpreter, global packet-rate, OS CPU/memory or
+process-tree guarantees. See TASK_HISTORY for checks, acceptance and commit reference.
 
 Known blockers: None.

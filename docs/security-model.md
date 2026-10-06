@@ -1,7 +1,7 @@
 # Security model
 
 Status: mandatory architectural constraints and mostly planned controls; M0-T03 implements strict configuration validation and separate redacted credentials. M0-T04 adds pure domain data contracts with provenance and non-authoritative planner/action representations. M0-T05 adds typed diagnostic errors/results; M0-T06 supplies explicit local logging/audit with bounded redaction; M1-T01 implements pure deterministic scope membership; M1-T03 adds an internal local process primitive; M1-T04 adds registry facts, M1-T05 composes pure action eligibility and M1-T06 adds local resource reservations and M1-T07 adds controlled in-memory state; M1-T08 adds pure action identity/dedup and atomic request admission. M2-T01 adds operational native DNS behind explicit registry/policy/resources;
-M2-T02 implements passive Subfinder; M2-T03 implements independently scoped bulk DNSX verification; M2-T04 implements HTTPX probing with independently scoped contact IP constraints and no redirects; M2-T05 implements numeric bounded Naabu CONNECT discovery; no generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
+M2-T02 implements passive Subfinder; M2-T03 implements independently scoped bulk DNSX verification; M2-T04 implements HTTPX probing with independently scoped contact IP constraints and no redirects; M2-T05 implements numeric bounded Naabu CONNECT discovery; M2-T06 implements NSE-free bounded Nmap service fingerprinting; no generic reconnaissance dispatcher exists. The platform is for systems the operator is explicitly authorized to assess. Authorization is an input requirement, not something inferred from public reachability or discovered data.
 
 ## Purpose and exclusions
 
@@ -356,3 +356,17 @@ mode and atomic existing budgets bound discovery. No shell/planner flags, raw SY
 stealth/evasion, host discovery, passive API, proxy, service or Nmap mode. Unknown
 versions reject. Output grants no hosts/ports authority; no later contact starts.
 See [contract/source limitations](naabu-adapter.md) and [ADR 0012](decisions/0012-numeric-bounded-naabu.md).
+
+## NSE-free numeric fingerprinting (M2-T06)
+
+Standard Nmap -sV automatically invokes version NSE scripts. NmapAdapter accepts only
+detected 7.95 builds compiled without Lua; constructed/AVAILABLE-but-undetected adapters
+cannot execute. Native CONNECT/version probes use one independently scoped numeric
+contact and at most 128 requested ports within trusted prior-discovery selections.
+No name resolution, host discovery, NSE, OS/aggressive scan, arbitrary options or broad
+port defaults. Strict required input and current policy/final scope/resource checks
+precede argv. Explicit operator database paths and complete temporary child environment
+exclude ambient target/config/proxy expansion. Safe bounded UTF-8 XML rejects entity/
+DTD expansion, extra targets/ports and unsupported modes. Version/banner/CPE strings
+remain untrusted evidence; no vulnerability inference or permission. See
+[contract](nmap-adapter.md) and [ADR](decisions/0013-nse-free-bounded-nmap.md).

@@ -222,3 +222,10 @@ Katana callers record STARTED through the existing on_started seam and atomicall
 ingest output Asset/Endpoints/Observations/Evidence with completed/partial ActionResult.
 No state/dedup/lifecycle contract change or M2 workflow extension. Discovered outside
 endpoints can remain evidence without becoming authorized actions. See [contract](katana-adapter.md).
+
+## Standalone specialized fuzz ingestion (M3-T05)
+
+FFUF caller owns on_started and atomic completed/partial ActionResult ingestion with
+Asset/HEAD Endpoint/Observations/Evidence. Only the numeric contact is a subject;
+candidate hostnames remain metadata. Existing semantic dedup denies repeats without
+changing state/identity contracts or M2 workflow. See [contract](ffuf-adapter.md).

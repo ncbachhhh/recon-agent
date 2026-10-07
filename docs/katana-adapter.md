@@ -9,7 +9,7 @@ the returned normalized memory snapshot. M2 orchestration remains unchanged.
 
 HTTPX = probe/fingerprint HTTP; common-file inspector = fixed metadata paths;
 Katana = crawl linked content; Feroxbuster = bounded recursive path discovery
-(M3-T04); FFUF = future specialized fuzzing.
+(M3-T04); FFUF = specialized typed vhost_names HEAD discovery (M3-T05).
 
 ## Supported contacts and read-only profile
 

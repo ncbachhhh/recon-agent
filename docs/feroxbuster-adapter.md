@@ -9,7 +9,7 @@ Caller supplies FeroxbusterContext IDs/UTC time, owns lifecycle and atomic state
 recording, and retains the returned normalized memory snapshot.
 
 Katana = crawl linked content. Feroxbuster = bounded recursive path discovery.
-FFUF = future specialized fuzzing (M3-T05); no FFUF integration is implemented.
+FFUF = specialized typed vhost_names HEAD discovery (M3-T05); see [contract](ffuf-adapter.md).
 
 ## Input and trusted wordlist
 

@@ -12,7 +12,7 @@ TLSX = bounded TLS/certificate metadata inspection.
 Certificate discoveries = observations only; discovery != authorization.
 Common-file inspection = fixed safe metadata retrieval.
 Katana = crawl linked content (M3-T03). Feroxbuster = bounded recursive path discovery
-(M3-T04). FFUF = future specialized fuzzing.
+(M3-T04). FFUF = specialized typed vhost_names HEAD discovery (M3-T05).
 
 ## Typed targets and authorization
 

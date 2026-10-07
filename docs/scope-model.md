@@ -250,3 +250,12 @@ authorities/addresses revalidate before files and per process; original scoped
 hostnames supply SNI. Certificate CN/SANs remain observations only, with no derived
 asset/automatic contact or scope change. Future actions need independent validation.
 Existing host-level scope semantics are unchanged. See [contract](tlsx-adapter.md).
+
+## FFUF contact and vhost evidence (M3-T05)
+
+Numeric HTTP(S) URL/IP and operator suffix independently pass current scope before
+reservation and every invocation after pacing. Candidate Host values are read-only
+HEAD test data at the authorized numeric peer, not new contact targets. Names are
+never resolved/contacted separately; even an allowed redirect membership remains
+non-authoritative evidence. No Scope mutation/new hostname Endpoint/follow-up occurs.
+See [contract](ffuf-adapter.md); centralized membership semantics are unchanged.

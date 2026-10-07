@@ -444,3 +444,16 @@ and rejection of global/binary-adjacent config prevent ambient behavior changes.
 Endpoints/status/path names/Location remain untrusted evidence without authority or
 vulnerability inference. Existing policy/runner/direct-child limits apply; see the
 [contract](feroxbuster-adapter.md) and [ADR 0018](decisions/0018-bounded-feroxbuster.md).
+
+## Specialized FFUF boundary (M3-T05)
+
+FFUF only offers explicit vhost_names: numeric scoped HTTP(S) contact, fixed HEAD
+and internal Host substitution from a small application catalog/scoped operator
+suffix. Every actual URL/IP and suffix rechecks before each invocation. Candidate
+Host values are test input, never permission to resolve/contact new hosts. No
+redirect following, credentials/auth attacks, arbitrary flags/wordlists/files/FUZZ
+positions, templates, body/POST/parameter/path fuzzing or scope expansion. Fixed
+argv/private config environment and cwd, two-attempt-per-candidate retry accounting,
+sequential pacing, aggregate capture and shared deadline/budget contracts apply.
+Location/candidates remain untrusted evidence; no vulnerability/vhost confirmation
+follows from status. See [precise bounds and limits](ffuf-adapter.md).

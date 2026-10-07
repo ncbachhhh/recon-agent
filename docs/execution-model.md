@@ -266,3 +266,12 @@ bounded absolute path without NUL. Runner forwards it literally as subprocess cw
 no global chdir or planner control. None preserves inherited-cwd behavior. Katana
 uses its private temporary cwd to isolate upstream relative cleanup. Existing
 timeout/capture/cancellation/failure contracts remain unchanged.
+
+## Specialized FFUF invocation (M3-T05)
+
+FFUF reuses unchanged ProcessSpec/ProcessRunner. Private executable/argv/env/cwd
+select one HEAD Host candidate per child, with no redirects/calibration/recursion.
+At most four sequential invocations share one atomic reservation, aggregate two-
+stream output and action/session deadline. Each candidate reserves two upstream
+Execute attempts; completed groups pace by 2/R or stricter shared interval. Existing
+timeout/cancellation/temp/permit cleanup applies. See [contract](ffuf-adapter.md).

@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M3 — M3-T01–M3-T04 DONE; M3-T05 READY; M0/M1/M2 DONE
+Project phase: M3 — M3-T01–M3-T05 DONE; M3-T06 READY; M0/M1/M2 DONE
 
 Completed:
 
@@ -29,12 +29,13 @@ Completed:
 - M3-T02 — TLSX adapter (DONE)
 - M3-T03 — Katana crawler adapter (DONE)
 - M3-T04 — Feroxbuster content-discovery adapter (DONE)
+- M3-T05 — FFUF adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M3-T05 — FFUF adapter (READY; not started).
+- M3-T06 — Web asset deduplication and URL canonicalization (READY; not started).
 
 ## Implementation reality
 
@@ -374,7 +375,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M3-T05 is READY; remaining 66 tasks are NOT STARTED.
+Only M3-T06 is READY; remaining 65 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -451,12 +452,33 @@ Generic endpoints/HTTP observations/untrusted evidence retain source directory,
 status/length/Location/body completeness, caller subject/UTC/execution/hash provenance.
 Duplicate/order/conflict and canonical partial/empty/malformed/missing/timeout/nonzero
 contracts reuse existing policy/dedup/state/shared aggregate budgets/runner. No existing
-production module, dependencies, config, registry, CLI or M2 pipeline changed; no FFUF,
-M3-T06 URL canonicalization, planner/loop/persistence/reporting implemented.
-See docs/feroxbuster-adapter.md and ADR 0018. M3-T04 DONE; M3-T05 READY;
-no active task/blocker. Stop after M3-T04.
+production module, dependencies, config, registry, CLI or M2 pipeline changed in
+M3-T04. No M3-T06 URL canonicalization, planner/loop/persistence/reporting implemented.
+See docs/feroxbuster-adapter.md and ADR 0018. M3-T04 DONE; specialized FFUF follows below.
+
+M3-T05 adds tools.ffuf.FfufAdapter for existing discover_content/active_safe as an
+explicit specialized alternative to default Feroxbuster. Detected Linux FFUF 2.1.0
+release, mandatory strict profile=vhost_names, fixed HEAD at scoped numeric HTTP(S)
+URL/IP and application four-label catalog plus independently scoped operator suffix.
+Private one-candidate wordlists/env/cwd, no DNS/new vhost/redirect contact or arbitrary
+planner flags/files/templates/FUZZ placement. No credential/body/parameter/path fuzzing.
+One selected adapter per capability prevents implicit Ferox overlap; real existing
+history dedup denies repeats, without M3-T06 identity work or registry changes.
+
+Upstream one-time request-error retry is counted: at most eight Execute attempts,
+one worker/four sequential children; completed groups pace by 2/R or stricter shared
+interval. Same-peer transport/OS limits and bounded retry burst are explicit. Shared
+reservation, aggregate output and action/session deadline/cleanup are reused.
+Generic Asset/HEAD Endpoint/HTTP Observations/untrusted Evidence retain candidate,
+status/header length/type/Location/profile/source/version/UTC/execution/hash lineage.
+HEAD body counts are omitted; responses confirm neither vhosts nor vulnerabilities.
+Partial/unreported/conflict/errors and state ingestion are tested offline. All prior
+production modules, dependencies/CLI/M2 workflow unchanged. See docs/ffuf-adapter.md
+and ADR 0019. M3-T06 and later remain unimplemented.
 
 ## Major architecture decisions
+
+- ADR 0019 selects explicit FFUF vhost_names HEAD testing on scoped numeric endpoints, fixed catalog/operator suffix, retry-aware attempt pacing and one selected discover_content adapter without default Ferox duplication.
 
 - ADR 0018 selects numeric no-recursion Feroxbuster 2.13.1, built-in small wordlist, adapter-owned finite freshly scoped directory queue, startup-aware request bounds and rejection of ambient scanner config.
 
@@ -497,6 +519,22 @@ no active task/blocker. Stop after M3-T04.
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M3-T05: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (163 files),
+strict Mypy (74 source modules), isolated wheel/sdist build and editable/fresh-wheel
+inert CLI passed. Focused FFUF/registry: 213 passed (115 FFUF cases). Full, coverage
+and pre-collection network/DNS-blocked suites each: 2,778 passed. Coverage 96% overall
+(5,446 statements / 1,854 branches); FFUF adapter 91%, parser 97%, models 100%.
+Fresh external wheel venv/pip check, guarded cold imports/origins/empty registry/inert
+composition and 115 installed-wheel network-blocked FFUF cases passed. Existing
+production byte parity, AST execution boundary, artifact/secret/source/dependency
+wheel/sdist parity, append-only history, task readiness/Markdown/final diff/whitespace
+passed. Logs/scripts: /tmp/recon-m3t05-validation. Guards precede collection and allow
+AF_UNIX plumbing; harmless interpreter children are not network sandboxed. No FFUF
+installation/live scanner/target or Python 3.12 run. Compatibility is source/fixtures;
+HEAD/numeric-only, TLS verification and retry/transport/OS limitations are explicit.
+No blocker or future task started.
+
 
 M3-T04: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (156 files),
 strict Mypy (71 modules), isolated wheel/sdist build and editable/fresh-wheel inert CLI

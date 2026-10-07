@@ -378,3 +378,16 @@ ambient config rejection and state/dedup ingestion. Operator filesystem is simul
 for fake compatibility; installed scanner configs cannot affect deterministic tests.
 Fresh-wheel guarded cold imports and installed-wheel network-blocked fake tests apply.
 See [supported version/burst/containment limits](feroxbuster-adapter.md).
+
+## FFUF regressions (M3-T05)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_ffuf.py
+tests/unit/tools/test_registry.py -q`, then full/network-DNS-blocked/coverage/Ruff/
+format/Mypy/build/fresh-wheel/inert-CLI/artifact/secret/final-diff checks. Reserved
+2.1.0 source-shaped base64-input JSONL and guarded fake runners require no FFUF/network.
+Cases cover explicit profile/registry/Ferox overlap, fixed HEAD/numeric/Host argv and
+private wordlist/config, scope before contact, no redirect/vhost authority, operator
+request/rate/concurrency bounds including retry allowance, aggregate output/deadlines/
+cancellation, provenance/duplicates/malformed/partial/empty/failures and real state/dedup.
+Fresh-wheel guarded cold imports and installed-wheel network-blocked fake tests apply.
+Compatibility is reviewed source/fixtures only; see [contract](ffuf-adapter.md).

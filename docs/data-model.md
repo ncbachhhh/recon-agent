@@ -408,3 +408,14 @@ partial limitations describe finite collection. No new domain entity/Finding/act
 redirect Endpoint is inferred. Source/version/capability/caller UTC/subject/execution/
 memory snapshot SHA-256 retain lineage; discoveries grant no authorization.
 See [Feroxbuster normalization](feroxbuster-adapter.md).
+
+## Specialized FFUF facts (M3-T05)
+
+No domain schema change. FuzzDiscoveryOutput contains generic web_resource Asset,
+HEAD Endpoint at the numeric contact, HTTP Observations and untrusted Evidence.
+Facts retain candidate_value, profile, URL/path, status, tool-reported HEAD content
+length/type and Location/redirect membership, with false authorization fields.
+HEAD words/lines are omitted as meaningless body counts. Candidate hostnames never
+create contacted hostname subjects. Evidence keeps caller time/execution/subject,
+capability/tool/version, memory snapshot/catalog hashes; partial/unreported/error
+status survives atomic state ingestion. See [FFUF contract](ffuf-adapter.md).

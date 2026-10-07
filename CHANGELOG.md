@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- M3-T05: explicit specialized FFUF 2.1.0 vhost_names HEAD discovery as a trusted
+  discover_content alternative. Scoped numeric contacts/operator suffix, fixed small
+  wordlist, bounded retry-aware requests/rate/concurrency/deadlines/output, generic
+  endpoint/observations/untrusted evidence and canonical failures. Offline tests/docs;
+  no raw flags/files/templates, credential attacks, automatic Ferox duplication or
+  later runtime capability.
+
 - M3-T04: discover_content through detected Linux Feroxbuster 2.13.1, a reviewed
   four-path wordlist and finite adapter-owned numeric directory recursion; scoped
   contacts, explicit request/startup/rate/depth/thread/time/output bounds and generic

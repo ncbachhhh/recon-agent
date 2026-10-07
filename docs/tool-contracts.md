@@ -2,7 +2,7 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster. Later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster; M3-T05 adds specialized FFUF vhost_names HEAD as an explicitly selected discover_content alternative. Later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -333,7 +333,7 @@ no redirects and isolated configuration constrain contact before execution. Only
 adapter-owned argv reaches the existing runner. Canonical failures/partial output
 preserve limits; generic Endpoint/HTTP Observation/untrusted Evidence retain provenance.
 Technology/redirect evidence grants no authorization or scanner selection. HTTPX probes;
-Katana provides bounded numeric crawling (M3-T03); Feroxbuster supplies bounded recursive path discovery (M3-T04); FFUF remains future specialized fuzzing. See
+Katana provides bounded numeric crawling (M3-T03); Feroxbuster supplies bounded recursive path discovery (M3-T04); FFUF supplies specialized typed vhost_names HEAD discovery (M3-T05). See
 [HTTPX contract](httpx-adapter.md) and [ADR 0011](decisions/0011-constrained-httpx-probing.md).
 
 ## Port discovery contract (M2-T05)
@@ -399,7 +399,7 @@ runner, DNS/proxy/auth, crawling or fuzzing. Remote bodies/directives/discovered
 are bounded untrusted Observation/Evidence data and grant no authority. Caller owns
 lifecycle and atomic completed/partial state ingestion. The default registry and M2
 pipeline remain unchanged. Common-file inspection = fixed safe metadata retrieval;
-Katana = bounded numeric crawling (M3-T03); Feroxbuster = bounded recursive path discovery (M3-T04); FFUF = future specialized fuzzing.
+Katana = bounded numeric crawling (M3-T03); Feroxbuster = bounded recursive path discovery (M3-T04); FFUF = specialized typed vhost_names HEAD discovery (M3-T05).
 See [full contract](common-file-inspector.md) and [ADR 0015](decisions/0015-fixed-native-common-files.md).
 
 ## inspect_tls implementation (M3-T02)
@@ -431,5 +431,18 @@ The adapter owns recursive directory admission; tool recursion/link extraction/r
 are disabled. Every generated URL/IP rechecks before runner execution; global/binary
 config presence fails closed. Generic endpoint/HTTP/untrusted evidence, deterministic
 partial/errors and existing state/dedup/shared budgets apply. Katana crawls linked
-content; Feroxbuster discovers paths; FFUF is future specialized fuzzing. See the
+content; Feroxbuster discovers paths; FFUF supplies specialized typed vhost_names HEAD discovery (M3-T05). See the
 [Feroxbuster contract](feroxbuster-adapter.md) and [ADR 0018](decisions/0018-bounded-feroxbuster.md).
+
+## Specialized discover_content selection (M3-T05)
+
+Trusted FFUF 2.1.0 is an alternative adapter for existing discover_content; the
+immutable registry still selects exactly one adapter per capability. Feroxbuster is
+default bounded recursive content discovery; FFUF only accepts explicit
+`{"profile": "vhost_names"}` for specialized HEAD/Host testing on a scoped numeric
+HTTP(S) endpoint. Application catalog/operator suffix supply wordlist values; planner
+cannot select files, flags, headers, FUZZ positions or other modes. No auth/body/
+parameter/path fuzzing or duplicate default Ferox scheduling. Real semantic dedup
+prevents repeated profile work; broader cross-adapter URL dedup remains M3-T06.
+Generic endpoint/observation/evidence and canonical errors reuse existing runner/
+policy/resource/state boundaries. See [full contract](ffuf-adapter.md).

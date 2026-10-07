@@ -11,7 +11,7 @@ snapshot and owns action lifecycle and atomic state ingestion.
 Common-file inspection = fixed safe metadata retrieval.
 Katana = bounded numeric crawling (M3-T03).
 Feroxbuster = bounded recursive path discovery (M3-T04).
-FFUF = future specialized fuzzing.
+FFUF = specialized typed vhost_names HEAD discovery (M3-T05).
 
 ## Inputs, scope and contacts
 

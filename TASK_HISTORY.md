@@ -2420,3 +2420,102 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(web): add Feroxbuster content discovery$"`.
 Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
 task commit or push. Stop after M3-T04.
+
+
+## 2026-10-07 — M3-T05 — FFUF adapter
+
+Status: DONE. Objective: specialized explicitly safe FFUF discovery complementary
+to default recursive Feroxbuster. Startup confirmed HEAD
+1cab0c13d0ae8f5cb8fd3fecb95f42b6f77c969f, clean working/staged tree,
+M0/M1/M2 and M3-T01–M3-T04 DONE, M3-T05 READY, no active task/blocker.
+M3-T05 alone transitioned IN PROGRESS and now DONE; M3-T06 only becomes READY.
+
+### Changes and decisions
+
+- New tools/ffuf.py, ffuf_models.py and ffuf_parser.py implement existing
+  discover_content/active_safe with mandatory profile=vhost_names. PLAN/docs define
+  no separate FFUF capability or mandatory mode list; ADR 0019 selects one narrowly
+  safe specialized purpose. No new capability enum/registry architecture.
+- Detected Linux FFUF 2.1.0 release. Numeric HTTP(S) endpoint and independent IP,
+  original representation and operator suffix scope-check before reservation and
+  each invocation after pacing. Candidate Host values are data at the numeric peer;
+  no DNS/separate vhost contact, hostname URL/SNI fuzzing or new authorization.
+- HEAD-only internal Host: FUZZ with fixed four-label application catalog
+  www/api/static/dev plus scoped canonical operator suffix. Private one-candidate
+  wordlists and catalog hash/admitted prefix provenance. Planner cannot supply raw
+  flags/files/headers/templates/wordlists/FUZZ positions or request/body/method options.
+- No content_paths overlap, parameter_names, authentication/credentials/spraying,
+  POST/body fuzzing, recursive jobs/calibration/scrapers/proxy/replay/redirect contact.
+  Registry permits only one selected discover_content adapter; Ferox remains default
+  recursive discovery, FFUF explicit specialized composition. Existing semantic
+  state/history dedup denies repeats; no automatic fallback or M3-T06 implementation.
+- Source-reviewed FFUF retries failed Execute once outside its rate ticker. One
+  candidate per child counts two attempts; max_requests 2–8 admits a bounded prefix.
+  One worker and at most four sequential children, positive rate 1–4, inter-group
+  completion pacing 2/R or stricter shared interval. Retry burst/same-peer Go transport
+  repair/packet/OS limits are documented. One existing atomic budget permit and
+  aggregate two-stream capture/normalized-output/action/session deadline apply.
+- Private complete environment/cwd isolate ambient ffufrc/legacy HOME/history/scraper/
+  proxy/credential state. Absolute executable/literal argv use existing runner only;
+  no shell, installation or dependency change. Cleanup/cancellation canonical contracts.
+- Generic web_resource Asset/contact HEAD Endpoint/HTTP Observations/untrusted Evidence
+  retain path/candidate/status/HEAD header length/type/Location/profile/tool/capability/
+  version/time/execution/subject/hash. No contacted hostname subjects or vhost/vulnerability
+  inference. HEAD word/line body counts omitted as unreliable. Redirect membership
+  remains data with explicit false authority. Partial/unreported/malformed/conflicting/
+  empty/structured failures retain evidence/state semantics.
+- 115 guarded offline FFUF cases, source-shaped base64-input JSONL and fixture README.
+  FFUF contract/ADR and role/subsystem/security/config/data/testing/lifecycle docs,
+  README/CHANGELOG. All prior production Python files, dependencies, policy/runner/
+  registry/domain/CLI/M2 workflow remain byte-for-byte unchanged.
+
+### Actual validation
+
+Python 3.14.6; no Python 3.12 or live FFUF/target run. Upstream primary source review
+and package provisioning used network, never reconnaissance target contact. No scanner
+installed or executed. Logs/scripts outside checkout: /tmp/recon-m3t05-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python version, editable pip install -e '.[dev]' and pip check passed |
+| Focused | FFUF/registry: 213 passed; 115 new FFUF cases |
+| Full | pytest: 2,778 passed |
+| Network/DNS blocked | Pre-collection socket/DNS guards, Groq key absent: 2,778 passed |
+| Coverage | coverage run pytest: 2,778 passed; overall 96%, 5,446 statements / 1,854 branches; FFUF adapter 91%, parser 97%, models 100% |
+| Lint/format/types | Ruff check and format (163 files); strict Mypy (74 source modules) passed |
+| Build/CLI | Isolated sdist/wheel and editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check, guarded cold imports/origins/empty registry/inert composition; 115 installed-wheel network-blocked cases passed |
+| Artifacts/security | Existing production source byte parity, AST execution boundary, artifact/secrets, wheel/sdist source and unchanged three-runtime-dependency metadata parity passed |
+| Closeout | Individual acceptance/final diff/whitespace, append-only history, changed Markdown and 92-task dependency/readiness passed; 26 DONE, M3-T06 alone READY, 65 NOT STARTED |
+
+Initial development checks exposed strict Literal[1] accepting bool, a wrong test Scope
+field name and a normalized-size fixture threshold assumption. Concurrency now uses
+strict int bounded to exactly one; fixtures/imports/threshold were corrected. All
+final required checks passed; no acceptance gate weakened or unresolved blocker.
+Remaining coverage branches are defensive composition/detection/representation,
+optional environment and repeated/aggregate/deadline guards. Network guards allow
+AF_UNIX event-loop plumbing; reviewed harmless local interpreter children are not
+OS network sandboxed. Supported compatibility is source/fixture review only.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Trusted operational FFUF capability | Explicit detected registry binding, adapter-owned exact argv/env/cwd and fixture normalization |
+| Explicit safe modes/purpose/limits | Required vhost_names schema, HEAD/Host catalog contract/ADR; all other profiles/templates/flags/files denied before fake runner |
+| Complement Ferox without default duplication | One-selected-adapter registry conflict test, no empty/default/path FFUF profile or fallback; unchanged Ferox/pipeline and real repeated-action dedup test |
+| Contact and scope containment | Original numeric URL + independent IP/suffix checks before setup/call; excluded/outside/unsupported/start-hook/post-pacing denials leave execution untouched |
+| Bounded requests/rate/concurrency/time/output | Two-attempt candidate allowance, prefix caps, fixed one worker/sequential children, pacing/shared budgets, aggregate capture/normalization, timeout/cancellation cleanup cases |
+| Planner cannot choose wordlists/FUZZ/credential behavior | Strict profile/extra-field denial, fixed catalog/suffix/private files, trusted settings bounds, no auth/credential/body/parameter/path mode tests |
+| Generic evidence and discovery non-authority | Contact-only HEAD Endpoint, candidate/Location/status/length/source/caller/hash lineage, no vulnerability inference; unauthorized descendant/redirect and real state ingestion cases |
+| Canonical parser/process outcomes offline | Duplicate/conflict/malformed/partial/empty/unavailable/nonzero/timeout/resource fixtures; full guarded and installed-wheel cases |
+
+M0/M1/M2 and M3-T01–M3-T05 DONE; M3-T06 READY/unstarted; no active task/blocker.
+No added future task required to close this supported mode. Numeric-only HEAD and
+fixed catalog limits are explicit; no M3-T06/later code or planner/runtime begun.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(web): add FFUF specialized fuzzing adapter`; resolve with
+`git log -1 --format=%H --grep="^feat(web): add FFUF specialized fuzzing adapter$"`.
+Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
+task commit or push. Stop after M3-T05.

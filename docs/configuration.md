@@ -292,3 +292,15 @@ requests 4–56, rate 1–4, workers 1–2. Planner FeroxbusterInput is strict e
 Detected Linux 2.13.1, numeric directory URL and isolated env/cwd are required; global
 or resolved-binary-adjacent ferox-config.toml presence rejects. No dependency/config
 loader/CLI changes. See [complete composition/rate/contact contract](feroxbuster-adapter.md).
+
+## FFUF operator composition (M3-T05)
+
+Explicit frozen FfufSettings requires canonical dotted ASCII vhost_suffix,
+independently scoped before use. Only application wordlist profile vhosts-small-v1
+exists (www/api/static/dev plus suffix); no file/path reader. max_requests defaults
+to 8 (2–8 including retry allowance), request_rate to 1 (1–4), concurrency exactly 1.
+Planner supplies only explicit profile=vhost_names. No loader/environment/CLI setting
+is added; trusted code selects FFUF instead of default Ferox for discover_content
+in a fixed registry/session. Detection/invocation isolate ambient ffufrc/history/
+scraper/proxy/secret environment. See [contract](ffuf-adapter.md) for HEAD-only
+numeric contacts, bounded retry burst and unsupported modes.

@@ -113,3 +113,12 @@ shell, dynamic import, persistence, audit producer or CLI behavior is added.
 
 See [state ownership](state-transitions.md), [policy contract](tool-contracts.md),
 [budget accounting](execution-budgets.md) and [ADR 0007](decisions/0007-action-identity-and-retries.md).
+
+## FFUF specialized profile identity (M3-T05)
+
+Existing discover_content identities include mandatory profile=vhost_names when
+FFUF is selected. Ferox empty input and FFUF profile schemas cannot both register in
+one registry; no default content-path duplication/fallback exists. Same-profile
+repeats deny through real history eligibility. Trusted contracts/settings/registry
+stay fixed per session; M3-T06 cross-adapter URL equivalence is not implemented.
+See [FFUF contract](ffuf-adapter.md).

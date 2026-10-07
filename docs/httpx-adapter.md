@@ -9,8 +9,7 @@ Caller supplies asset/execution IDs and UTC collection time through HttpxContext
 caller owns lifecycle recording and state ingestion. No generic dispatcher exists.
 
 HTTPX collects HTTP endpoint metadata. Katana provides bounded numeric crawling (M3-T03);
-Feroxbuster provides bounded recursive path discovery (M3-T04); FFUF is future
-specialized fuzzing. No directory enumeration, links,
+Feroxbuster provides bounded recursive path discovery (M3-T04); FFUF supplies specialized typed vhost_names HEAD discovery (M3-T05). No directory enumeration, links,
 robots, authentication, vulnerability inference or follow-up scanner runs here.
 
 ## Inputs and contact containment

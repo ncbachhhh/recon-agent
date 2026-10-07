@@ -2,14 +2,14 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX. Later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files. Later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
 
 A **Capability** is the semantic operation the planner may request. `CapabilityId`
 is a finite string enum: resolve_dns, verify_dns, enumerate_subdomains, discover_ports,
-fingerprint_services, probe_http, inspect_tls, crawl_web, discover_content,
+fingerprint_services, probe_http, inspect_common_files, inspect_tls, crawl_web, discover_content,
 inspect_protocol and scan_templates. These conceptual identities do not imply
 working integrations. There is no run_command, execute_shell or arbitrary binary
 capability. Extending the catalog requires reviewed application code.
@@ -386,3 +386,18 @@ Safe correlated AuditEvents and normalized output envelopes remain in memory, wi
 no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
 and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
 atomic rollback and unchanged infrastructure/compatibility limitations.
+
+## inspect_common_files implementation (M3-T01)
+
+Native CommonFilesAdapter is explicitly registered for inspect_common_files/active_safe
+with a strict empty input schema. Only the fixed robots.txt/sitemap.xml/security.txt
+catalog is executable; bounded native HTTP via h11 contacts independently scoped
+operator numeric bindings with original Host/TLS identity. Two fresh scope-checked
+redirect hops may follow only the same catalog path; outside/arbitrary paths stay
+evidence. Current registry/policy/dedup/shared budgets precede contact. No process
+runner, DNS/proxy/auth, crawling or fuzzing. Remote bodies/directives/discovered URLs
+are bounded untrusted Observation/Evidence data and grant no authority. Caller owns
+lifecycle and atomic completed/partial state ingestion. The default registry and M2
+pipeline remain unchanged. Common-file inspection = fixed safe metadata retrieval;
+Katana = future crawling; Ferox/FFUF = future content discovery.
+See [full contract](common-file-inspector.md) and [ADR 0015](decisions/0015-fixed-native-common-files.md).

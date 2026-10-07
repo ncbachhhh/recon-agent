@@ -364,3 +364,17 @@ Safe correlated AuditEvents and normalized output envelopes remain in memory, wi
 no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
 and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
 atomic rollback and unchanged infrastructure/compatibility limitations.
+
+## Common-file normalized evidence (M3-T01)
+
+No new domain result/state entity is added. Internal CommonFilesOutput/CommonFileFact
+models project fixed-file HTTP outcomes, bounded base64/text prefixes, selected
+directives/security fields, discovered URL strings, redirects and canonical errors
+into existing web_resource Asset/HTTP Observation/untrusted Evidence. Caller supplies
+UTC/execution/asset identity; source native_common_files/capability inspect_common_files,
+locator/memory reference and fact SHA-256 preserve provenance. 404/403 stay observed
+HTTP facts. Timeout/connection errors have no invented status. Rejected redirect
+policy details are evidence; collection errors use parse_failed for valid partial
+ActionResult ingestion. Discovered URLs create no new executable subject/permission.
+Whole-action failures have no partial payload under the existing Result contract.
+See [normalization contract](common-file-inspector.md).

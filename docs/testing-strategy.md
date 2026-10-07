@@ -321,3 +321,17 @@ resolver/redirect/alias scope, semantic duplicate skips, budgets/rates, start-ho
 abort, atomic terminal rollback and cancellation. Fresh-wheel cold imports stay
 inert and installed-wheel pipeline composition runs with the same guarded fakes.
 M2 pipeline = deterministic integration proof; M6/M7 = future AI planning/autonomous loop.
+
+## Common-file and native HTTP regressions (M3-T01)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_common_files.py
+tests/unit/tools/test_native_http.py tests/unit/tools/test_registry.py -q`, then all
+full/network-DNS-blocked/coverage/Ruff/format/Mypy/build/wheel/CLI/artifact/secret/diff
+checks. Sanitized robots/sitemap/security fixtures use reserved names. Fake transports
+and asyncio streams exercise three fixed requests, status/errors, metadata/provenance,
+Host/TLS pinned numeric contacts, independent redirect scope/no outside contact,
+body/header/wire/structure/time/rate/output bounds, hostile XML, instruction text,
+no discovery contact, real state/dedup and cancellation. Guards forbid network/DNS/
+process contact; no live server/scanner/provider. Guarded installed-wheel cold imports
+and actual adapter/native fake-stream composition are required. h11 0.16 is the only
+new runtime dependency; imports and CLI stay inert. See [contract](common-file-inspector.md).

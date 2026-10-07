@@ -238,3 +238,13 @@ Safe correlated AuditEvents and normalized output envelopes remain in memory, wi
 no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
 and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
 atomic rollback and unchanged infrastructure/compatibility limitations.
+
+## Native common-file HTTP (M3-T01)
+
+CommonFilesAdapter uses no ProcessSpec/process runner. Its injected native transport
+uses asyncio pinned numeric sockets and h11 framing for three fixed GET paths, with
+independent current URL/address scope, bounded redirects/body/headers/wire, per-request
+and whole-action/session timeouts, pacing and synchronous socket close/abort. Shared
+reservation/optional start notification precedes contact; cancellation propagates
+after permit cleanup. No DNS/proxy/cookie/auth/retry or curl/wget fallback. Existing
+runner/M2 pipeline remain unchanged. See [contract](common-file-inspector.md).

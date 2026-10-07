@@ -229,3 +229,14 @@ prior open ports/evidence IDs never grant membership. Ports are required finite 
 within the operator approved discovery set. Names/IPs recheck before dispatch; only the
 canonical numeric contact and selected ports reach the no-DNS/no-discovery profile.
 No discovered metadata or Nmap output adds targets. See [contract](nmap-adapter.md).
+
+## Common-file contact and redirect enforcement (M3-T01)
+
+Existing centralized ScopeValidator rules are unchanged. Every initial HTTP(S) URL,
+redirect destination and operator numeric contact independently passes the validator.
+The adapter pins numeric dial while preserving original Host/TLS identity, so names
+and addresses remain separate permissions. Configured possible redirect bindings
+are all scoped/host-budgeted before execution; actual URLs/IPs recheck after pacing.
+Redirect following is limited to two hops of the same fixed catalog path with no
+query or HTTPS downgrade. Arbitrary in-scope paths also reject. Robots/sitemap/
+security discoveries remain data only. See [contract](common-file-inspector.md).

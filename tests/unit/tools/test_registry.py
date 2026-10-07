@@ -321,7 +321,8 @@ def test_planner_catalog_explicit_projection_does_not_leak_internal_details() ->
 
 
 def test_capability_and_risk_enum_wire_contracts_are_finite() -> None:
-    assert len(CapabilityId) == 11
+    assert len(CapabilityId) == 12
+    assert CapabilityId.INSPECT_COMMON_FILES.value == "inspect_common_files"
     assert set(RiskClass) == {RiskClass.PASSIVE, RiskClass.ACTIVE_SAFE}
     for capability in CapabilityId:
         descriptor = CapabilityDescriptor(

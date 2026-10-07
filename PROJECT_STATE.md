@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M2 DONE — deterministic discovery integration complete; M3 entry gate ready
+Project phase: M3 — M3-T01 DONE; M3-T02 READY; M0/M1/M2 DONE
 
 Completed:
 
@@ -25,16 +25,17 @@ Completed:
 - M2-T05 — Naabu port discovery adapter (DONE)
 - M2-T06 — Nmap service fingerprint adapter (DONE)
 - M2-T07 — Initial deterministic discovery pipeline (DONE)
+- M3-T01 — Common-file inspector (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M3-T01 — Common-file inspector (READY; not started)
+- M3-T02 — TLSX adapter (READY; not started)
 
 ## Implementation reality
 
-The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic and dnspython are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
+The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic, dnspython and h11 are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
 
 `core/config/` implements strict seven-section settings, defaults < explicit TOML < namespaced environment < programmatic precedence, and separate excluded/redacted credentials. Configuration source/effective validation failures use ConfigurationError with fixed diagnostics and native cause chaining. Direct model construction raises Pydantic ValidationError. Loading preferences grants no authorization or runtime startup.
 
@@ -364,15 +365,38 @@ prior state intact. State/data contracts otherwise retain their existing semanti
 See docs/deterministic-discovery.md and ADR 0014 for limits and failure mappings.
 M2 pipeline = deterministic integration proof; M6/M7 = future AI planning/autonomous
 loop. No provider/PlannerDecision generation, Groq, M3 capability, retry scheduling,
-persistence/reporting/real CLI or live scanner added. M0/M1/M2 DONE; M3-T01 READY.
+persistence/reporting/real CLI or live scanner added. M0/M1/M2 DONE.
 
 Audit events describe autonomous recon operations and confer no authorization. Autonomous event
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M3-T01 is READY; remaining 70 tasks are NOT STARTED.
+Only M3-T02 is READY; remaining 69 tasks are NOT STARTED.
+
+M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
+active_safe, strict empty planner parameters and the fixed robots/sitemap/security
+catalog. Operator canonical name/numeric contact bindings independently pass scope
+and shared host budgets. Native asyncio/SSL sockets pin contacts with original
+Host/SNI/certificate verification; h11 0.16 supplies bounded sans-I/O framing. No
+DNS/proxy/cookie/auth/retry/shell client. At most two same-path/no-query/no-downgrade
+redirect hops independently revalidate URL/IP scope before contact. Body/header/wire,
+request/action/session deadlines, paced GETs and normalized output bounds hold;
+close/abort/cancellation retain charges and release concurrency.
+
+Bounded UTF-8 robots directives, sitemap/index URLs and security fields/text project
+into generic Asset/HTTP Observation/untrusted Evidence with caller time/IDs, source/
+capability, memory locator and fact SHA-256. XML DTD/entity/alternate-encoding input
+rejects before parsing; no external resolution or sitemap recursion. Discoveries/
+remote instruction text never grant scope/contact. Ordinary HTTP statuses are facts;
+request errors/unsupported/truncated/malformed/rejected redirects retain explicit
+partial collection limits. Existing state/dedup ingestion works without contract
+changes. Protected policy/runner/registry/config/CLI/M2 adapters/pipeline and all later
+subsystems remain unchanged; only the finite capability enum gains one identity.
+See docs/common-file-inspector.md and ADR 0015. M3-T02 READY; no active task/blocker.
 
 ## Major architecture decisions
+
+- ADR 0015 selects a fixed common-file catalog, scoped numeric native HTTP/SSL with h11 framing, narrow independently checked redirects and untrusted bounded text/XML metadata.
 
 - ADR 0014 selects bounded deterministic M2 integration, adapter-owned reservations/start callbacks, atomic terminal subjects and immutable evidence-derived Nmap snapshots; no AI loop.
 
@@ -405,6 +429,23 @@ Only M3-T01 is READY; remaining 70 tasks are NOT STARTED.
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M3-T01: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0 / h11 0.16.0; Python 3.12
+and live targets not tested. Editable dev install/pip check passed. Focused common-file/
+native/registry suite: 197 passed (99 new common-file/native cases). Full, coverage and
+pre-collection network/DNS-blocked suites each: 2,318 passed. Ruff lint/format (136
+files), strict Mypy (62 modules), isolated wheel/sdist build and editable/fresh-wheel
+inert CLI passed. Fresh external wheel venv/pip check, guarded cold imports/package
+origins/inert composition and 99 installed-wheel network-blocked fake-transport/native-
+stream/state/dedup cases passed. Coverage 97% overall (4,047 statements / 1,324 branches),
+common adapter 93%, parser 97%, models 100%, native transport 90%; remaining branches
+are malformed composition/defensive framing/aggregate structure bounds. No gates weakened.
+Protected source parity/AST execution boundaries, artifacts/secrets, wheel/sdist source/
+dependency parity, append-only history and final task/diff/whitespace checks passed.
+Validation logs/scripts are outside the checkout under /tmp/recon-m3t01-validation.
+Network guards precede collection and permit AF_UNIX loop plumbing only; harmless
+local interpreter children are not network sandboxed. No blocker/new follow-up task.
+
 
 M2-T07: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0; Python 3.12 not tested.
 Editable dev install/pip check passed. Pipeline: 48 passed; focused pipeline/state/

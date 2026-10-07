@@ -197,3 +197,13 @@ Safe correlated AuditEvents and normalized output envelopes remain in memory, wi
 no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
 and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
 atomic rollback and unchanged infrastructure/compatibility limitations.
+
+## Standalone common-file ingestion (M3-T01)
+
+CommonFilesAdapter exposes the same trusted post-reservation on_started seam; caller
+records STARTED there and atomically ingests output subjects/observations/evidence
+with completed/partial ActionResult. Scope abort after STARTED follows existing caller
+cancellation mapping; rejection details cannot masquerade as partial policy failures.
+No state contract or M2 workflow extension is needed. Offline regressions verify
+completed and rejected-redirect partial ingestion and real dedup rejection.
+See [contract](common-file-inspector.md).

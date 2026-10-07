@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M3-T01: fixed inspect_common_files capability for robots.txt, sitemap.xml and
+  .well-known/security.txt; native bounded HTTP via h11 with independently scoped
+  numeric contacts/redirects, safe XML/directive metadata and untrusted provenance.
+  Offline transports/streams cover errors, limits and state/dedup. No crawling,
+  fuzzing, TLSX, planner/loop or operational CLI.
+
 - M2-T07: finite deterministic DNS/subdomain/verification/HTTP/port/service workflow,
   real policy/budget/dedup integration, atomic ReconState results and in-memory audit/
   evidence reports. Adapter start notifications and immutable Nmap discovery snapshots

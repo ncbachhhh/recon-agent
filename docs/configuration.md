@@ -177,10 +177,11 @@ report generation or autonomous activity occurs, even with enabled preferences.
 
 ## Implementation boundary and validation
 
-Pydantic is the sole direct runtime dependency, used for strict models, nested
+Pydantic supplies the configuration boundary, used for strict models, nested
 validation, serialization and the secret wrapper. `tomllib`, `json` and the explicit
 merge loader avoid a settings framework or YAML dependency. No provider, scanner
-or persistence dependency is installed by this task.
+or persistence dependency is installed by the configuration task. Current runtime
+dependencies additionally include dnspython for native DNS and h11 for HTTP framing.
 
 Run focused offline checks with:
 
@@ -250,3 +251,13 @@ Policy authorization != budget availability. AI planner cannot raise resource
 limits. Only trusted new-session assembly chooses a snapshot; later config edits
 cannot change its limits or reset consumption. No scanner rate flags or global
 consumer/startup is implemented.
+
+## Common-file trusted composition (M3-T01)
+
+CommonFilesAdapter snapshots existing ExecutionConfig timeout/output limits and uses
+the same shared ExecutionBudget ledger. No global configuration fields, loader,
+secrets or tool enablement semantics change. Operator-only immutable ContactBindings
+pin canonical names to numeric addresses; both independently need declared scope.
+Redirect/body/path/HTTP method bounds are fixed trusted code, never planner parameters.
+h11 >=0.16,<0.17 is the sole added runtime dependency and provides no I/O/configuration
+startup. See [contract and limits](common-file-inspector.md).

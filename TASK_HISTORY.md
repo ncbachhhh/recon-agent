@@ -2011,3 +2011,113 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(discovery): integrate deterministic recon pipeline$"`.
 Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-07 — M3-T01 — Common-file inspector
+
+Status: DONE.
+
+Objective: collect fixed safe common web metadata without executing remote instructions.
+
+### Startup and scope
+
+Verified M2-T07 DONE, M3-T01 READY, no active task/blocker, expected HEAD
+`e6e077c71dbf01ef60330ce3cc0f3885f8be14a3`, clean working/staged tree and recent log.
+Reviewed governance/skill, roadmap, architecture/security/scope/tools/execution/state/
+HTTPX/pipeline/budgets/testing contracts, relevant ADRs/history and source/tests.
+Recorded only M3-T01 IN PROGRESS before implementation. No unrelated user changes.
+Reconciled configuration documentation's stale sole-Pydantic claim with existing
+native DNS and the new minimal h11 framing dependency. No configuration schema change.
+
+### Changes and decisions
+
+- Added inspect_common_files finite capability and explicitly registered
+  native_common_files/active_safe adapter with strict empty planner input. Trusted
+  catalog alone selects /robots.txt, /sitemap.xml, /.well-known/security.txt GETs.
+  No arbitrary planner paths/URL/header/proxy/method/body/extra_args input.
+- Immutable operator canonical host/numeric contact bindings independently pass
+  ScopeValidator and shared host accounting, including possible unused redirect
+  contacts. Actual URL/IP scope rechecks occur after pacing immediately before
+  every request. No DNS/address inference or scope expansion.
+- Native asyncio/SSL sockets pin numeric contact while preserving Host/TLS SNI and
+  certificate verification. h11 >=0.16,<0.17 supplies typed sans-I/O framing as the
+  sole added runtime dependency. ADR 0015 documents alternatives and limits.
+  No subprocess, curl/wget, proxy, cookies/authentication, retries or scheme fallback.
+- At most two independently scope/binding-checked redirect hops/file; same catalog
+  path only, no query/fragment/userinfo/HTTPS downgrade. Rejected destinations, loops
+  and limits retain bounded untrusted lineage without contact. Truncated redirects
+  stop. Scoped names never imply numeric address permission.
+- Body cap 16,384 bytes/file reduced by configured/shared allowance; header/parser
+  cap 16,384 (including complete trailers); 4,096-byte reads; wire cap body + 65,536; four interim responses/no
+  upgrade. Sequential GET completion pacing >=1 second or stricter capability rate.
+  Ten-second request and remaining action/session deadlines; complete serialized
+  output bound. Exact overflow/incomplete prefixes remain marked evidence. Finally
+  synchronously closes/aborts streams; cancellation propagates and permits release.
+  Attempts/host/rate/output charges are never refunded.
+- Ordered bounded User-agent/Allow/Disallow/Sitemap metadata; sorted deduplicated
+  sitemap/index URL strings without crawling/recursion; selected security field/value
+  metadata and bounded text without contacting mail/external URLs. DTD/entity and
+  alternate XML encodings reject before ElementTree; node/depth/entry/value bounds.
+  Remote instruction-like text stays untrusted data. No discovery grants permission.
+- Typed common facts project into existing web_resource Asset/HTTP Observation/
+  untrusted Evidence with source/capability, caller identity/UTC time, evidence IDs,
+  memory locator and normalized-fact SHA-256. 404/403/other ordinary statuses are
+  facts. Timeout/connection/malformed/unsupported/truncated/rejected redirects preserve
+  explicit partial collection errors; whole-action timeout/scope abort has no payload.
+  Rejection policy details remain evidence with parse_failed collection errors so
+  existing ActionResult partial/state ingestion rules remain intact.
+- Added four production files, two test modules and three sanitized fixture files;
+  extended only CapabilityId and the finite-enum regression count. Updated common
+  contract/ADR, architecture/security/scope/data/config/execution/state/tools/testing,
+  README/CHANGELOG and task governance. Existing policy/core/config schema/registry/
+  runner/M2 adapters/pipeline/CLI and all future subsystem code remain unchanged.
+
+### Executed validation
+
+Repository .venv unless noted; Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0,
+h11 0.16.0. Python 3.12/live-network compatibility not tested. Installation/build
+provisioning accessed the package index only, never a reconnaissance target.
+Logs/scripts: /tmp/recon-m3t01-validation (outside checkout).
+
+| Check | Actual result |
+| --- | --- |
+| Setup | python --version; pip install -e '.[dev]' and pip check passed |
+| Focused | Common/native/registry 197 passed; 99 new common/native cases |
+| Full | python -m pytest -q: 2,318 passed |
+| Network/DNS blocked | Guarded before collection, Groq key absent: 2,318 passed |
+| Coverage | coverage run -m pytest -q: 2,318 passed; report 97% overall, 4,047 statements / 1,324 branches; adapter 93%, parser 97%, models 100%, transport 90% |
+| Lint/format/types | Ruff check/format passed (136 files); strict Mypy passed (62 modules) |
+| Build/CLI | Isolated wheel/sdist build, editable and fresh-wheel inert recon-agent, exit 0 |
+| Fresh wheel | New external wheel venv/pytest install/pip check; -I -B guarded cold imports/origins, empty registry/inert construction; 99 network-blocked installed-wheel adapter/native-stream/state/dedup tests passed |
+| Artifacts/security | Protected source parity, AST/no shell/direct process/provider/dynamic imports, artifact/secret checks, wheel/sdist source and three-dependency metadata parity passed |
+| Closeout | 92 tasks: 22 DONE, M3-T02 alone READY, 69 NOT STARTED; no active task; append-only history, Markdown links/fences, acceptance and final working/staged diff/whitespace reviewed |
+
+Development corrections: aligned test lifecycle names with existing state API,
+updated the capability-count regression for the new identity, used existing permit
+outcomes, preserved redirect policy details as evidence rather than invalid partial
+policy errors, and corrected a wire-bound fixture to exercise aggregate overhead.
+Final review added explicit complete-trailer size enforcement and its regression;
+full/coverage/network-blocked suites, build and installed-wheel checks were rerun.
+Final checks passed; no outstanding failure/blocker or weakened gate. Remaining
+coverage gaps concern defensive malformed-composition/framing/structure branches.
+Network guards allow AF_UNIX event-loop plumbing only; harmless local interpreter
+children are not sandboxed. No real scanner, server or public-target test.
+
+### Acceptance and handoff
+
+| Criterion | Concrete evidence |
+| --- | --- |
+| Only explicit common paths on scoped services | Empty input injection denials; constant catalog; URL/name/address preflight and per-contact checks; pinned numeric native stream assertions |
+| Body/time/redirect budgets hold | Fake native Content-Length/chunked/EOF, prefix/header/wire limits; per-request/whole-action/session/pacing/output/host/action/cancellation cases; finite two-hop redirects |
+| Injection text stays evidence | Robots/security instruction-like fixtures, exact base64/text and trust/source/capability/hash/time lineage tests; no execution/provider path |
+| Outside links remain non-actionable | Outside/unbound/numeric/arbitrary-path/downgrade redirects cause zero destination contact; robots and sitemap/index URLs never fetched |
+| Parsing errors/partial bodies recorded | Unsupported/malformed/XXE-like/alternate encoding/structure bounds, native incomplete/oversized prefixes, timeout/connection and normal HTTP outcomes; atomic completed/partial state ingestion |
+
+M0/M1/M2 and M3-T01 DONE; M3-T02 READY/unstarted; no active task/blocker.
+No TLSX/M3-T02+, Katana/crawling, Ferox/FFUF/fuzzing, planner/Groq/loop,
+persistence/reporting/real CLI or M2 pipeline extension. Stop after M3-T01.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(web): add common-file inspection`; resolve via
+`git log -1 --format=%H --grep="^feat(web): add common-file inspection$"`.
+Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
+second task commit or push.

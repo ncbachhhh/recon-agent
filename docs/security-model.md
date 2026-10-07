@@ -395,3 +395,17 @@ Safe correlated AuditEvents and normalized output envelopes remain in memory, wi
 no implicit log or runtime startup. See [pipeline contract](deterministic-discovery.md)
 and [ADR 0014](decisions/0014-deterministic-discovery.md) for branching, failure mapping,
 atomic rollback and unchanged infrastructure/compatibility limitations.
+
+## Fixed common-file execution (M3-T01)
+
+The standalone inspect_common_files capability rechecks current registry/policy/dedup
+and reserves shared budgets. Scoped URL names and operator-pinned numeric IPs need
+independent membership before every GET; no DNS or rebinding contact occurs. Fixed
+paths and empty planner parameters prevent arbitrary downloads. Redirects require
+independent destination/address validation plus same-path/no-query/no-downgrade rules
+and finite hops. No outside destination is contacted. Body/header/wire/deadline/rate/
+output limits and synchronous socket abort/cancellation cleanup are enforced.
+UTF-8 sitemap parsing rejects all DTD/entity declarations before ElementTree; it
+performs no external resource resolution or recursion. Robots paths/sitemap URLs/
+security contact metadata and instruction-like text remain untrusted facts, grant
+no scope and trigger no automatic contact/email/upload/command. See [contract](common-file-inspector.md).

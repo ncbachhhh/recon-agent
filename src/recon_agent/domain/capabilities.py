@@ -15,6 +15,7 @@ class CapabilityId(StrEnum):
     DISCOVER_PORTS = "discover_ports"
     FINGERPRINT_SERVICES = "fingerprint_services"
     PROBE_HTTP = "probe_http"
+    INSPECT_COMMON_FILES = "inspect_common_files"
     INSPECT_TLS = "inspect_tls"
     CRAWL_WEB = "crawl_web"
     DISCOVER_CONTENT = "discover_content"

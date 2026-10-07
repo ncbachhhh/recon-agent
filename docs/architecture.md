@@ -1,6 +1,6 @@
 # Planned architecture
 
-Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; M2-T05 adds bounded discover_ports through isolated numeric Naabu; M2-T06 adds native bounded fingerprint_services through NSE-free Nmap; M2-T07 adds bounded deterministic orchestration over those six capabilities; M3-T01 adds standalone fixed common-file retrieval through scoped native HTTP; M3-T02 adds bounded standalone TLSX inspection; M3-T03 adds bounded numeric Katana crawling; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
+Status: product architecture is design intent. M0-T02 adds setuptools packaging and an inert console placeholder; M0-T03 implements typed configuration in `core/config/`. M0-T04 adds pure typed domain data contracts; M0-T05 adds shared errors/results and their configuration/domain integrations; M0-T06 adds explicit local logging/audit infrastructure; M1-T01 implements local scope membership in policy/; M1-T03 implements the internal asynchronous process primitive in execution/. M1-T04 implements finite capability metadata and explicit immutable ToolRegistry with a minimum trusted ToolAdapter interface. M1-T05 implements pure deterministic ActionPolicyValidator; M1-T06 adds local atomic resource reservations; M1-T07 adds owned recon state transitions; M1-T08 adds deterministic semantic action identity, history eligibility and atomic request admission. M2-T01 adds the first operational capability, bounded native resolve_dns; M2-T02 adds passive enumerate_subdomains through isolated Subfinder; M2-T03 adds bulk verify_dns through isolated DNSX; M2-T04 adds constrained probe_http through isolated HTTPX; M2-T05 adds bounded discover_ports through isolated numeric Naabu; M2-T06 adds native bounded fingerprint_services through NSE-free Nmap; M2-T07 adds bounded deterministic orchestration over those six capabilities; M3-T01 adds standalone fixed common-file retrieval through scoped native HTTP; M3-T02 adds bounded standalone TLSX inspection; M3-T03 adds bounded numeric Katana crawling; M3-T04 adds bounded numeric Feroxbuster path discovery; remaining operational source boundaries remain future work. The product is CLI-first, async-capable, Python 3.12+, with Pydantic used for configuration and domain boundaries. Library and protocol details not settled here should be decided through ADRs when implementation evidence exists.
 
 ## Domain layer — `domain/`
 
@@ -78,11 +78,11 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | inspect_common_files | Implemented fixed native robots/sitemap/security retrieval (M3-T01) |
 | inspect_tls | Implemented bounded TLSX certificate inspection (M3-T02) |
 | crawl_web | Implemented bounded numeric Katana crawling (M3-T03) |
-| discover_content | feroxbuster or defined ffuf modes |
+| discover_content | Implemented bounded recursive numeric Feroxbuster path discovery (M3-T04) |
 | inspect_protocol | Controlled SSH/SMB/FTP/SMTP/database modules |
 | scan_templates | nuclei with named policy profiles |
 
-Except for implemented resolve_dns, verify_dns, enumerate_subdomains, probe_http, discover_ports, fingerprint_services, inspect_common_files, inspect_tls and crawl_web, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
+Except for implemented resolve_dns, verify_dns, enumerate_subdomains, probe_http, discover_ports, fingerprint_services, inspect_common_files, inspect_tls, crawl_web and discover_content, these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
 ## Provider layer — `providers/`
 
@@ -215,7 +215,7 @@ precede one bounded process. The upstream concrete-IP allow gate constrains reso
 changes; redirects and discovery probes are disabled. Generic endpoints/HTTP facts/
 untrusted evidence normalize deterministically, with explicit partial/error limits.
 Caller owns lifecycle and ingestion; no orchestration/CLI startup is added. HTTPX
-probing, future Katana crawling and future Feroxbuster/FFUF content discovery are
+probing, Katana linked-content crawling and Feroxbuster path discovery are
 separate capabilities. See [contract](httpx-adapter.md) and
 [ADR 0011](decisions/0011-constrained-httpx-probing.md).
 
@@ -248,8 +248,9 @@ current registry/policy/dedup/shared resource boundary, then injected native HTT
 with independently scoped numeric contact bindings and redirect checks. h11 supplies
 sans-I/O framing; asyncio/SSL own bounded sockets and cancellation. Remote text/XML
 normalize to generic untrusted facts with provenance and no follow-up authority.
-Common-file inspection = fixed safe metadata retrieval; Katana = future crawling;
-Ferox/FFUF = future content discovery. No TLSX/later M3/planner/loop/CLI work.
+Common-file inspection = fixed safe metadata retrieval; Katana = crawl linked content;
+Feroxbuster = bounded recursive path discovery; FFUF = future specialized fuzzing.
+This inspector adds no planner/loop/CLI work.
 See [contract](common-file-inspector.md) and [ADR 0015](decisions/0015-fixed-native-common-files.md).
 
 ## Standalone TLS inspection (M3-T02)
@@ -259,6 +260,16 @@ ToolAdapter → policy/scope/budgets → ExecutionRunner → generic TLS evidenc
 Linux TLSX 1.4.0 receives fixed numeric inputs and original authorized SNI, never
 certificate-derived targets. No M2 workflow/global dispatch/domain/core/CLI change
 or Python dependency is needed. TLSX = TLS/certificate inspection; certificate
-discoveries = observations only; discovery != authorization. Katana and Ferox/FFUF
-remain future crawling/content discovery. See [contract](tlsx-adapter.md) and
+discoveries = observations only; discovery != authorization. Katana crawls linked
+content; Feroxbuster discovers paths; FFUF remains future specialized fuzzing. See [contract](tlsx-adapter.md) and
 [ADR 0016](decisions/0016-numeric-tlsx-inspection.md).
+
+## Feroxbuster boundary (M3-T04)
+
+Standalone discover_content reuses existing registry/action policy/dedup/shared budgets/
+ProcessRunner and generic state ingestion. Feroxbuster scans one numeric directory
+with a four-path approved catalog; the adapter schedules freshly scoped finite 2xx
+directories. No redirect/link expansion, hostname mode or arbitrary planner file/flags.
+Katana = crawl linked content; Feroxbuster = bounded recursive path discovery; FFUF =
+future specialized fuzzing. Existing production modules and M2 pipeline are unchanged.
+See [contract](feroxbuster-adapter.md) and [ADR 0018](decisions/0018-bounded-feroxbuster.md).

@@ -430,3 +430,17 @@ under finite graph/time/rate/output bounds. Hostname modes reject before contact
 Forms/JS endpoints/redirects/outside hosts remain untrusted data without authority.
 Private ProcessSpec cwd also isolates relative Katana file cleanup; no global chdir.
 See [contract](katana-adapter.md) for compatibility and transport/resource limits.
+
+## Feroxbuster content contact boundary (M3-T04)
+
+Numeric HTTP(S) directory subjects and every generated word URL/IP are centrally scoped
+before each call. Hostname modes fail closed. Fixed no-recursion/no-extraction/no-follow
+profile prevents remote links/redirects/robots/JavaScript/word collection from introducing
+contacts. Four reviewed relative paths only; no planner file/flags/proxy/headers.
+Adapter finite recursion counts three startup/base GETs per directory and applies total
+request/depth/directory/token-bucket/thread/deadline/aggregate-output limits. Bootstrap
+rate burst is bounded and explicitly documented, not uniform spacing. Private env/cwd
+and rejection of global/binary-adjacent config prevent ambient behavior changes.
+Endpoints/status/path names/Location remain untrusted evidence without authority or
+vulnerability inference. Existing policy/runner/direct-child limits apply; see the
+[contract](feroxbuster-adapter.md) and [ADR 0018](decisions/0018-bounded-feroxbuster.md).

@@ -8,7 +8,8 @@ KatanaContext identities/UTC time, owns lifecycle/atomic state ingestion and ret
 the returned normalized memory snapshot. M2 orchestration remains unchanged.
 
 HTTPX = probe/fingerprint HTTP; common-file inspector = fixed metadata paths;
-Katana = bounded crawler; Ferox/FFUF = future content discovery/fuzzing.
+Katana = crawl linked content; Feroxbuster = bounded recursive path discovery
+(M3-T04); FFUF = future specialized fuzzing.
 
 ## Supported contacts and read-only profile
 

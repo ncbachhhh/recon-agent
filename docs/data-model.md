@@ -398,3 +398,13 @@ Observation and untrusted Evidence. URL/method/source page/path/query/tag/type/f
 metadata preserve Katana/version/execution/time/subject/snapshot provenance.
 Contacted and discovered endpoints are explicit separate facts; neither grants
 authority. No new domain schema or Finding. See [contract](katana-adapter.md).
+
+## Content discovery projection (M3-T04)
+
+ContentDiscoveryOutput uses existing Asset/Endpoint/HTTP Observation/untrusted Evidence
+with URL/path/GET/status/tool length/Location/body prefix completeness/source endpoint.
+Catalog ID/hash, request upper bound, scanned directories, unreported planned URLs and
+partial limitations describe finite collection. No new domain entity/Finding/action or
+redirect Endpoint is inferred. Source/version/capability/caller UTC/subject/execution/
+memory snapshot SHA-256 retain lineage; discoveries grant no authorization.
+See [Feroxbuster normalization](feroxbuster-adapter.md).

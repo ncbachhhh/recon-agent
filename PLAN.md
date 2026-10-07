@@ -973,7 +973,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M3-T04`
 - **Title:** Feroxbuster content-discovery adapter
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M3-T03`
 
@@ -1012,7 +1012,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M3-T05`
 - **Title:** FFUF adapter
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M3-T04`
 

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M3-T04: discover_content through detected Linux Feroxbuster 2.13.1, a reviewed
+  four-path wordlist and finite adapter-owned numeric directory recursion; scoped
+  contacts, explicit request/startup/rate/depth/thread/time/output bounds and generic
+  endpoint/untrusted evidence. Hostname/ambient-config modes fail closed; planner
+  inputs remain empty. Offline tests/docs; no FFUF or later runtime capability.
+
 - M3-T03: crawl_web through detected Linux Katana 1.8.0, depth-zero extraction and
   a bounded independently scoped numeric same-origin GET graph. Generic untrusted
   URL/method/form/JS evidence; no redirect/form/JS endpoint contact or hostname mode.

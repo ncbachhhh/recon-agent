@@ -364,3 +364,17 @@ errors/resources/cancellation and state ingestion. Optional runner cwd has liter
 fake and harmless local-child regressions. Fresh-wheel cold imports stay inert;
 installed tests are network-blocked fakes, with no scanner. Compatibility is source
 review only; see [contract](katana-adapter.md).
+
+## Feroxbuster regressions (M3-T04)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_feroxbuster.py
+tests/unit/tools/test_registry.py -q`, then full/network-DNS-blocked/coverage/Ruff/
+format/Mypy/build/fresh-wheel/inert-CLI/artifact/secret/final-diff checks. Reserved
+2.13.1 source-shaped JSONL and fake runner require no Feroxbuster/network. Tests cover
+registry/fixed argv, scope-before-call, no redirects/extraction/unlimited recursion,
+operator-only catalog/profile/wordlist provenance, overhead/request/depth/directory/
+rate/thread/output/deadline bounds, duplicates/partial/empty/errors/cancellation,
+ambient config rejection and state/dedup ingestion. Operator filesystem is simulated
+for fake compatibility; installed scanner configs cannot affect deterministic tests.
+Fresh-wheel guarded cold imports and installed-wheel network-blocked fake tests apply.
+See [supported version/burst/containment limits](feroxbuster-adapter.md).

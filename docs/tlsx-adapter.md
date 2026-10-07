@@ -11,7 +11,8 @@ atomic state ingestion. The six-stage deterministic M2 workflow is unchanged.
 TLSX = bounded TLS/certificate metadata inspection.
 Certificate discoveries = observations only; discovery != authorization.
 Common-file inspection = fixed safe metadata retrieval.
-Katana = future crawling. Ferox/FFUF = future content discovery.
+Katana = crawl linked content (M3-T03). Feroxbuster = bounded recursive path discovery
+(M3-T04). FFUF = future specialized fuzzing.
 
 ## Typed targets and authorization
 

@@ -2326,3 +2326,97 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(web): add Katana crawler adapter$"`.
 Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
 task commit or push.
+
+
+## 2026-10-07 — M3-T04 — Feroxbuster content-discovery adapter
+
+Status: DONE. Objective: trusted bounded recursive content path discovery with small
+approved wordlist, strict request/depth/rate/thread/time/output and contact containment.
+Startup confirmed HEAD d103418d5705e8035cf9e39f920c29a8e65f4a5c, clean working/staged
+tree, M0/M1/M2 and M3-T01–M3-T03 DONE, M3-T04 READY, no active task/blocker.
+M3-T04 alone transitioned IN PROGRESS and now DONE; M3-T05 only becomes READY.
+
+### Changes and decisions
+
+- New tools/feroxbuster.py, feroxbuster_models.py and feroxbuster_parser.py implement
+  existing discover_content/active_safe without changing base registry/capability enums.
+- Detected Linux Feroxbuster 2.13.1, source commit
+  aa8e1335801e91d98ce0d4fd148c2159a667a83b. Numeric HTTP(S) directories only; original
+  representations, every generated URL and independent numeric address revalidate.
+- Strict empty planner input. Trusted frozen settings and built-in four-path small-v1
+  profile/hash; private adapter-created wordlist or admitted prefix only. No arbitrary
+  paths/flags/headers/proxy/files/methods/shell; no automatic installation.
+- Tool no-recursion/no-extraction/no-redirect/no-wildcard/no-state fixed GET profile.
+  Adapter finite sorted 2xx directory queue, max depth 3/directories 8/logical starts 56;
+  three startup/base GETs count per call. Token rate 1–4, threads 1–2, startup burst
+  and inter-process completion pacing documented. Reqwest 0.12.22 same-URL HTTP/2
+  protocol repair (up to two retries) shares original timeout; logical counts are not
+  strict packet/transport-attempt rates. No status-based retry or origin widening.
+- Private environment/cwd and rejection of global/resolved-binary scanner config
+  prevent ambient true options which cannot be disabled by safe defaults.
+- Generic Asset/Endpoint/HTTP Observation/untrusted Evidence preserve URL/status/length/
+  Location/method/source directory/body completeness, subject/UTC/execution/hash lineage.
+  Redirect membership is evidence only. No path/status implies vulnerability or scope.
+- Deterministic duplicate/order/conflict, partial/malformed/empty/unreported and canonical
+  unavailable/nonzero/timeout/setup/resource contracts. Shared atomic policy/dedup/budgets,
+  aggregate two-stream output and existing runner deadline/cancellation; state ingestion
+  demonstrated without adding orchestration or changing existing contracts.
+- 121 offline guarded cases and reserved source-shaped fixture/README. Feroxbuster
+  contract + ADR 0018; configuration/data/security/tool/testing/architecture/README,
+  relevant HTTPX/common-file/Katana/TLSX role comparisons, CHANGELOG and lifecycle docs.
+  All existing production Python files, dependencies, CLI and M2 pipeline byte unchanged.
+
+### Actual validation
+
+Python 3.14.6, repository .venv; no Python 3.12 or live scanner/target run. Package
+provisioning and upstream primary source review used network; no reconnaissance target
+contact or Feroxbuster install/run. Host ambient scanner config is present: fakes
+simulate an isolated operator filesystem and separately prove config rejection;
+production rejects that unsupported ambient mode. Logs/scripts outside checkout:
+/tmp/recon-m3t04-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python version, editable pip install -e '.[dev]' and pip check passed |
+| Focused | Feroxbuster/registry: 219 passed; 121 new Feroxbuster cases |
+| Full | pytest: 2,663 passed |
+| Network/DNS blocked | Pre-collection guards, Groq key absent: 2,663 passed |
+| Coverage | coverage run pytest: 2,663 passed; overall 96%, 5,135 statements / 1,740 branches; adapter 93%, parser 94%, models 100% |
+| Lint/format/types | Ruff check and format (156 files); strict Mypy (71 source modules) passed |
+| Build/CLI | Isolated sdist/wheel and editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check, guarded cold imports/origins/empty registry/inert composition; 121 installed-wheel network-blocked cases passed |
+| Artifacts/security | All existing production source byte parity, AST execution boundary, artifact/secrets, wheel/sdist source/three-dependency metadata parity passed |
+| Closeout | Individual acceptance/diff/whitespace, append-only history, Markdown and 92-task readiness passed; 25 DONE, M3-T05 alone READY, 66 NOT STARTED |
+
+Initial focused development exposed host-global config presence and an original empty
+fragment lost by scope canonicalization. Fake filesystem isolation and explicit global
+config-rejection tests corrected fixture assumptions; original target representation is
+now checked before conversion. A test helper duplicate URL argument was corrected.
+Final focused/full gates passed; no criterion weakened or unresolved validation failure.
+Remaining new coverage branches are defensive/optional composition/representation and
+repeat/aggregate/deadline guards. Parent network guards allow AF_UNIX event-loop plumbing;
+reviewed harmless interpreter subprocess tests are not OS network sandboxed.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Operational trusted discover_content | Explicit detected registry instance, fixed executable/argv and generic output; exact profile/registry fixture test |
+| Scoped service/contact containment | Numeric URL/IP and each generated URL checks before write/call; excluded/outside/unsupported/start-hook/post-pacing denials with untouched fake runner |
+| Only approved wordlist/modes | Empty strict planner schema, operator bounded literal small-v1, private wordlist contents/hash and flag/path/profile injection tests |
+| Request/depth/rate/concurrency/time bounds | Three-start overhead/prefix budgets, depth 0–3 finite queue, directory/request caps, fixed positive tool depth, rate/threads/pacing, shared budgets/deadline/cancellation tests |
+| Defaults avoid massive scans | Four literal approved words, four directories / 28 logical GET upper bound; no wildcard/extraction/collection/native recursion |
+| Outside redirects prevented | Fixed no-follow/no-extraction source profile; same/external Location retained without scheduling and redirect_authorized=false |
+| Normalized evidence and limitations | 200/204/301/403/404 fixtures, source/GET/length/Location and caller IDs/time/hash, deterministic duplicates/conflicts/partial/empty/body limits; real state ingestion/dedup |
+| Canonical offline failures | Missing/unverified/config/nonzero/timeout/malformed/setup/output/budget/cancellation guards; full guarded and installed-wheel tests |
+| Task boundary | Existing production source protected byte-for-byte; no FFUF/M3-T05/M3-T06/later planner/loop/persistence/reporting/real CLI |
+
+M0/M1/M2 and M3-T01–M3-T04 DONE; M3-T05 READY/unstarted; no active task/blocker.
+No added future task needed for supported numeric profile. Hostname/ambient-config
+modes remain unavailable, with rate/transport/local-installation limits explicit.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(web): add Feroxbuster content discovery`; resolve with
+`git log -1 --format=%H --grep="^feat(web): add Feroxbuster content discovery$"`.
+Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
+task commit or push. Stop after M3-T04.

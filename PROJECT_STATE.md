@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M3 — M3-T01–M3-T03 DONE; M3-T04 READY; M0/M1/M2 DONE
+Project phase: M3 — M3-T01–M3-T04 DONE; M3-T05 READY; M0/M1/M2 DONE
 
 Completed:
 
@@ -28,12 +28,13 @@ Completed:
 - M3-T01 — Common-file inspector (DONE)
 - M3-T02 — TLSX adapter (DONE)
 - M3-T03 — Katana crawler adapter (DONE)
+- M3-T04 — Feroxbuster content-discovery adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M3-T04 — Feroxbuster content-discovery adapter (READY; not started).
+- M3-T05 — FFUF adapter (READY; not started).
 
 ## Implementation reality
 
@@ -373,7 +374,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M3-T04 is READY; remaining 67 tasks are NOT STARTED.
+Only M3-T05 is READY; remaining 66 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -434,9 +435,30 @@ Only existing production change is optional trusted absolute ProcessSpec child c
 literal runner forwarding, required for Katana's relative katana_field cleanup isolation.
 Core/policy/domain/registry/config/dependencies/CLI/previous adapters/M2 pipeline unchanged.
 No future capability/planner/loop/persistence/reporting. See docs/katana-adapter.md and
-ADR 0017. M3-T04 READY; no active task/blocker. Stop after M3-T03.
+ADR 0017. M3-T03 DONE; M3-T04 completion is recorded below.
+
+M3-T04 adds standalone tools.feroxbuster.FeroxbusterAdapter for existing
+discover_content/active_safe through detected Linux Feroxbuster 2.13.1. Numeric
+HTTP(S) directory URLs and each approved generated URL/IP independently pass scope.
+Planner input is strict empty; operator small-v1 contains four reviewed relative paths
+with SHA-256 provenance. Tool recursion/extraction/redirects/wildcard/collection/update
+traffic is disabled. Adapter owns sorted finite 2xx directory recursion, depth 0–3,
+directories 1–8, logical GET starts 4–56 including three startup/base GETs per process,
+rate 1–4 and threads 1–2; token/startup/protocol repair bursts are explicit limits.
+Private environment/cwd and absent global/resolved-binary config are required.
+
+Generic endpoints/HTTP observations/untrusted evidence retain source directory,
+status/length/Location/body completeness, caller subject/UTC/execution/hash provenance.
+Duplicate/order/conflict and canonical partial/empty/malformed/missing/timeout/nonzero
+contracts reuse existing policy/dedup/state/shared aggregate budgets/runner. No existing
+production module, dependencies, config, registry, CLI or M2 pipeline changed; no FFUF,
+M3-T06 URL canonicalization, planner/loop/persistence/reporting implemented.
+See docs/feroxbuster-adapter.md and ADR 0018. M3-T04 DONE; M3-T05 READY;
+no active task/blocker. Stop after M3-T04.
 
 ## Major architecture decisions
+
+- ADR 0018 selects numeric no-recursion Feroxbuster 2.13.1, built-in small wordlist, adapter-owned finite freshly scoped directory queue, startup-aware request bounds and rejection of ambient scanner config.
 
 - ADR 0017 selects numeric depth-zero Katana extraction, adapter-owned finite freshly scoped GET graph and isolated trusted child cwd; hostname/recursive/redirect/form/JS endpoint modes fail closed.
 
@@ -475,6 +497,24 @@ ADR 0017. M3-T04 READY; no active task/blocker. Stop after M3-T03.
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M3-T04: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (156 files),
+strict Mypy (71 modules), isolated wheel/sdist build and editable/fresh-wheel inert CLI
+passed. Focused Feroxbuster/registry: 219 passed (121 Feroxbuster cases). Full,
+coverage and pre-collection network/DNS-blocked suites each: 2,663 passed. Coverage
+96% overall (5,135 statements / 1,740 branches); Feroxbuster adapter 93%, parser 94%,
+models 100%. Remaining new branches cover defensive composition/representation,
+optional environment and repeated/aggregate/deadline guards, not weaker acceptance.
+Fresh external wheel venv/pip check, guarded cold imports/origins/empty registry/inert
+Feroxbuster and 121 installed-wheel network-blocked fake/state/dedup cases passed.
+Existing production byte parity, AST execution boundary, artifact/secret/source/dependency
+wheel/sdist parity, append-only history, task readiness/Markdown/final diff/whitespace
+checks passed. Logs/scripts: /tmp/recon-m3t04-validation. Guards precede collection and
+allow AF_UNIX plumbing; harmless interpreter children are not network sandboxed.
+No live scanner/target or Python 3.12 run; source/fixture compatibility only. Numeric-only,
+ambient-config rejection, bounded token/startup burst and same-URL protocol repair
+limitations are explicit in contract/ADR. No blocker or future task started.
+
 
 M3-T03: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (149 files),
 strict Mypy (68 modules), isolated wheel/sdist build and editable/fresh-wheel inert CLI

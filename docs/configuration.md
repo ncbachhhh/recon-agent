@@ -281,3 +281,14 @@ are strict frozen operator values; planner KatanaInput is empty. Numeric HTTP(S)
 URL-only containment rejects hostname modes. Shared ExecutionConfig and budgets
 supply deadlines/output/concurrency/rates; adapter owns isolated argv/env/cwd.
 See [contract](katana-adapter.md).
+
+## Feroxbuster trusted composition (M3-T04)
+
+FeroxbusterSettings is explicit frozen operator library composition, never planner
+parameters/global settings/CLI flags. small-v1 is a built-in four-path catalog with
+SHA-256 provenance; no arbitrary file reader. Defaults: depth 1, directories 4, requests
+28 (including startup/base), rate 1, workers 1. Bounds: depth 0–3, directories 1–8,
+requests 4–56, rate 1–4, workers 1–2. Planner FeroxbusterInput is strict empty.
+Detected Linux 2.13.1, numeric directory URL and isolated env/cwd are required; global
+or resolved-binary-adjacent ferox-config.toml presence rejects. No dependency/config
+loader/CLI changes. See [complete composition/rate/contact contract](feroxbuster-adapter.md).

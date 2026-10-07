@@ -8,7 +8,7 @@ dedup eligibility and atomic shared resource reservation precede execution.
 Caller supplies asset/execution IDs and UTC collection time through HttpxContext;
 caller owns lifecycle recording and state ingestion. No generic dispatcher exists.
 
-HTTPX collects HTTP endpoint metadata. Katana remains future crawling;
+HTTPX collects HTTP endpoint metadata. Katana provides bounded numeric crawling (M3-T03);
 Feroxbuster/FFUF remain future content discovery. No directory enumeration, links,
 robots, authentication, vulnerability inference or follow-up scanner runs here.
 

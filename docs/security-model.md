@@ -420,3 +420,13 @@ extra enumeration disabled. CN/SAN/subject/issuer/error strings remain bounded
 untrusted facts, never instructions, authorization, bindings, assets or Findings.
 No discovered certificate name/IP or CRL/OCSP URL is contacted. Supported Linux
 1.4.0 and same-peer dial fallback/resource limits: [contract](tlsx-adapter.md).
+
+## Bounded crawl execution (M3-T03)
+
+Katana runs depth zero with positive duration and redirects disabled: discoveries
+never enter its contact queue, including always-on htmx state-changing methods.
+Adapter admits only freshly scoped numeric same-origin GET hyperlinks/script resources
+under finite graph/time/rate/output bounds. Hostname modes reject before contact.
+Forms/JS endpoints/redirects/outside hosts remain untrusted data without authority.
+Private ProcessSpec cwd also isolates relative Katana file cleanup; no global chdir.
+See [contract](katana-adapter.md) for compatibility and transport/resource limits.

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- M3-T03: crawl_web through detected Linux Katana 1.8.0, depth-zero extraction and
+  a bounded independently scoped numeric same-origin GET graph. Generic untrusted
+  URL/method/form/JS evidence; no redirect/form/JS endpoint contact or hostname mode.
+  Adapter-owned child cwd isolates relative cleanup; no shell/planner flags or later task.
+
 - M3-T02: inspect_tls through detected Linux TLSX 1.4.0, fixed native profile,
   independently scoped numeric contacts/original SNI and shared bounded runner
   execution. Normalize certificate/protocol metadata and partial handshake failures

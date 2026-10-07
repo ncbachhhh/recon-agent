@@ -258,3 +258,11 @@ action/session deadline and reservation. Adapter checks cumulative capture and
 normalized output limits, removes private numeric/SNI files and propagates Python
 cancellation. No shell/installer/new runner behavior. Linux/version/dialer fallback/
 external-process resource limits are documented in [contract](tlsx-adapter.md).
+
+## Trusted child working directory (M3-T03)
+
+ProcessSpec.working_directory is optional, excluded from repr and requires a
+bounded absolute path without NUL. Runner forwards it literally as subprocess cwd;
+no global chdir or planner control. None preserves inherited-cwd behavior. Katana
+uses its private temporary cwd to isolate upstream relative cleanup. Existing
+timeout/capture/cancellation/failure contracts remain unchanged.

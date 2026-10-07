@@ -9,7 +9,7 @@ boundary. Caller supplies CommonFilesContext identity/time, retains the normaliz
 snapshot and owns action lifecycle and atomic state ingestion.
 
 Common-file inspection = fixed safe metadata retrieval.
-Katana = future crawling.
+Katana = bounded numeric crawling (M3-T03).
 Ferox/FFUF = future content discovery.
 
 ## Inputs, scope and contacts

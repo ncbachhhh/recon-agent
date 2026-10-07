@@ -2,7 +2,7 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX. Later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana. Later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -333,7 +333,7 @@ no redirects and isolated configuration constrain contact before execution. Only
 adapter-owned argv reaches the existing runner. Canonical failures/partial output
 preserve limits; generic Endpoint/HTTP Observation/untrusted Evidence retain provenance.
 Technology/redirect evidence grants no authorization or scanner selection. HTTPX probes;
-Katana crawling and Feroxbuster/FFUF content discovery remain future tasks. See
+Katana provides bounded numeric crawling (M3-T03); Feroxbuster/FFUF content discovery remains future work. See
 [HTTPX contract](httpx-adapter.md) and [ADR 0011](decisions/0011-constrained-httpx-probing.md).
 
 ## Port discovery contract (M2-T05)
@@ -399,7 +399,7 @@ runner, DNS/proxy/auth, crawling or fuzzing. Remote bodies/directives/discovered
 are bounded untrusted Observation/Evidence data and grant no authority. Caller owns
 lifecycle and atomic completed/partial state ingestion. The default registry and M2
 pipeline remain unchanged. Common-file inspection = fixed safe metadata retrieval;
-Katana = future crawling; Ferox/FFUF = future content discovery.
+Katana = bounded numeric crawling (M3-T03); Ferox/FFUF = future content discovery.
 See [full contract](common-file-inspector.md) and [ADR 0015](decisions/0015-fixed-native-common-files.md).
 
 ## inspect_tls implementation (M3-T02)
@@ -413,3 +413,12 @@ contact boundary. Generic TLS Observations/Evidence retain untrusted certificate
 metadata and partial/handshake limitations, without derived assets/Findings. Imports/
 registry/CLI and M2 workflow remain inert/unchanged. See [contract](tlsx-adapter.md)
 and [ADR 0016](decisions/0016-numeric-tlsx-inspection.md).
+
+## crawl_web implementation (M3-T03)
+
+KatanaAdapter uses detected Linux Katana 1.8.0 for single-page extraction, with a
+bounded adapter-owned numeric same-origin GET graph. Empty strict planner input;
+operator depth/page/discovery settings; fresh URL/address scope and shared budgets.
+Redirects/forms/htmx/JS endpoints remain data. Hostname modes fail closed. Generic
+Endpoint/Observation/Evidence retain provenance; caller owns state/lifecycle.
+See [Katana contract](katana-adapter.md) and [ADR 0017](decisions/0017-single-page-katana.md).

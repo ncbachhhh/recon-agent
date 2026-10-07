@@ -272,3 +272,12 @@ operator allowlist/HTTPS authority. Explicit Linux TLSX 1.4.0 detection/AVAILABL
 registration is required; there is no import/CLI auto-detection/install. Existing
 ExecutionConfig timeout/capture and shared ExecutionBudget limits apply; child
 config/home/PATH are isolated. No runtime dependency is added. See [contract](tlsx-adapter.md).
+
+## Katana trusted composition (M3-T03)
+
+No global config/dependency/CLI changes. Explicit KatanaSettings defaults: depth 2
+(0–3), pages 8 (1–16 including root), discoveries 256 (1–256 source facts). These
+are strict frozen operator values; planner KatanaInput is empty. Numeric HTTP(S)
+URL-only containment rejects hostname modes. Shared ExecutionConfig and budgets
+supply deadlines/output/concurrency/rates; adapter owns isolated argv/env/cwd.
+See [contract](katana-adapter.md).

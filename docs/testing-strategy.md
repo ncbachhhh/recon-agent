@@ -351,3 +351,16 @@ and existing atomic state lifecycle/dedup. Installed-wheel cold imports prohibit
 runtime startup; installed-wheel tests use fakes with real registry/policy/budgets/
 state. Compatibility is reviewed Linux source/fixtures only, not live TLSX behavior.
 See [contract](tlsx-adapter.md) for dialer and field limitations.
+
+## Katana regressions (M3-T03)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_katana.py
+tests/unit/tools/test_registry.py tests/unit/execution -q`, then the complete
+full/network-DNS-blocked/coverage/Ruff/format/Mypy/build/fresh-wheel/inert CLI/
+artifact/secret/diff checks. Reserved JSONL and fake runners cover finite mixed
+crawl graphs, exact depth-zero argv, numeric scope, no cross-origin/method/redirect/
+JS endpoint contact, provenance, strict inputs, dedup/order, malformed/partial/empty,
+errors/resources/cancellation and state ingestion. Optional runner cwd has literal
+fake and harmless local-child regressions. Fresh-wheel cold imports stay inert;
+installed tests are network-blocked fakes, with no scanner. Compatibility is source
+review only; see [contract](katana-adapter.md).

@@ -390,3 +390,11 @@ stay plain discoveries; no derived asset or Finding is created. Validity, malfor
 unreported fields and handshake failures have explicit partial limits/canonical
 ErrorInfo. Existing ActionResult and ReconState ingestion/dedup remain unchanged.
 See [contract](tlsx-adapter.md) for supported fields and source limitations.
+
+## Crawl projections (M3-T03)
+
+CrawlOutput is an internal envelope of generic web_resource Asset, Endpoint, HTTP
+Observation and untrusted Evidence. URL/method/source page/path/query/tag/type/form
+metadata preserve Katana/version/execution/time/subject/snapshot provenance.
+Contacted and discovered endpoints are explicit separate facts; neither grants
+authority. No new domain schema or Finding. See [contract](katana-adapter.md).

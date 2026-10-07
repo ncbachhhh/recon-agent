@@ -1,6 +1,7 @@
 """Low-level process data, deliberately separate from planner/domain contracts."""
 
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Annotated
 
 from pydantic import (
@@ -42,6 +43,21 @@ class ProcessSpec(_ProcessData):
     # Trusted complete child environment; None preserves inherited-environment
     # behavior. Tuple pairs keep this internal snapshot immutable.
     environment: tuple[tuple[str, str], ...] | None = Field(default=None, repr=False)
+
+    # Trusted adapter-owned child cwd; never planner input or a global chdir.
+    working_directory: str | None = Field(default=None, repr=False)
+
+    @field_validator("working_directory")
+    @classmethod
+    def absolute_working_directory(cls, value: str | None) -> str | None:
+        if value is not None and (
+            not value
+            or "\x00" in value
+            or len(value) > 8192
+            or not Path(value).is_absolute()
+        ):
+            raise ValueError("working directory must be a bounded absolute path")
+        return value
 
     @field_validator("environment")
     @classmethod

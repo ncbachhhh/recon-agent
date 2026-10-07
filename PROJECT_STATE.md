@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M3 — M3-T01–M3-T02 DONE; M3-T03 READY; M0/M1/M2 DONE
+Project phase: M3 — M3-T01–M3-T03 DONE; M3-T04 READY; M0/M1/M2 DONE
 
 Completed:
 
@@ -27,12 +27,13 @@ Completed:
 - M2-T07 — Initial deterministic discovery pipeline (DONE)
 - M3-T01 — Common-file inspector (DONE)
 - M3-T02 — TLSX adapter (DONE)
+- M3-T03 — Katana crawler adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M3-T03 — Katana crawler adapter (READY; not started)
+- M3-T04 — Feroxbuster content-discovery adapter (READY; not started).
 
 ## Implementation reality
 
@@ -372,7 +373,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M3-T03 is READY; remaining 68 tasks are NOT STARTED.
+Only M3-T04 is READY; remaining 67 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -413,9 +414,31 @@ derived asset/Finding or authorization; existing state lifecycle/dedup unchanged
 No runtime dependency/core/policy/domain/runner/registry/common-file/M2/pipeline/CLI
 change. Source review includes same-peer fastdialer failure fallback (up to two dial
 attempts/logical probe), not a packet/heap/process-tree guarantee. See docs/tlsx-adapter.md
-and ADR 0016. M3-T03 READY; no active task/blocker; stop after M3-T02.
+and ADR 0016. M3-T02 DONE; standalone crawling follows below.
+
+M3-T03 adds standalone tools.katana.KatanaAdapter for existing crawl_web/active_safe.
+Detected Linux Katana 1.8.0 performs one numeric HTTP(S) GET with depth zero and
+positive duration; child discoveries are emitted before queue admission. Fixed no-
+redirect/form-fill/headless profile prevents hidden htmx state-changing contacts.
+Hostname modes fail closed: reviewed CLI has no independent resolved-address allow
+boundary. Adapter owns a finite sorted same-origin hyperlink/script-resource GET graph,
+fresh URL/address scope checks, shared budgets/deadline/pacing/output limits and cleanup.
+Operator depth 0–3/pages 1–16/discoveries 1–256; planner parameters are strict empty.
+
+Generic Endpoint/HTTP Observation/untrusted Evidence retain URL/method/source page,
+path/query/source type/forms/JS metadata with caller subject/UTC/execution/hash lineage.
+Remote forms/JS endpoints/redirects/outside hosts remain data without authorization or
+follow-up actions. Deterministic duplicate/order and canonical malformed/partial/empty/
+missing/timeout/nonzero/resource errors; existing state/dedup integration unchanged.
+Only existing production change is optional trusted absolute ProcessSpec child cwd and
+literal runner forwarding, required for Katana's relative katana_field cleanup isolation.
+Core/policy/domain/registry/config/dependencies/CLI/previous adapters/M2 pipeline unchanged.
+No future capability/planner/loop/persistence/reporting. See docs/katana-adapter.md and
+ADR 0017. M3-T04 READY; no active task/blocker. Stop after M3-T03.
 
 ## Major architecture decisions
+
+- ADR 0017 selects numeric depth-zero Katana extraction, adapter-owned finite freshly scoped GET graph and isolated trusted child cwd; hostname/recursive/redirect/form/JS endpoint modes fail closed.
 
 - ADR 0016 selects detected Linux TLSX 1.4.0, independently scoped numeric contact/original SNI, isolated configuration/PATH and bounded generic untrusted TLS evidence.
 
@@ -452,6 +475,23 @@ and ADR 0016. M3-T03 READY; no active task/blocker; stop after M3-T02.
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M3-T03: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (149 files),
+strict Mypy (68 modules), isolated wheel/sdist build and editable/fresh-wheel inert CLI
+passed. Focused Katana/registry/execution: 281 passed (91 Katana + 8 new cwd cases).
+Full, coverage and pre-collection network/DNS-blocked suites each: 2,542 passed.
+Coverage 97% overall (4,792 statements / 1,616 branches), Katana adapter 89%, parser
+95%, models 100%; defensive setup/composition/detection/bound branches remain.
+Fresh external wheel venv/pip check, guarded cold imports/origins/empty registry/inert
+Katana construction and 99 installed-wheel network-blocked Katana/cwd cases passed.
+Artifact/secret/source/dependency wheel/sdist parity, protected source parity except
+reviewed runner cwd seam, AST boundary, append-only history, readiness/Markdown/final
+diff/whitespace checks passed. Logs/scripts: /tmp/recon-m3t03-validation. Guards precede
+collection and allow AF_UNIX plumbing; harmless interpreter children are not sandboxed.
+Python 3.12 and live Katana/network behavior not tested; no scanner installed/run.
+No gates weakened, no blocker or later work started. Numeric-only containment and
+transport/download/OS limits are explicit in contract/ADR. M3-T04 READY.
+
 
 M3-T02: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0 / h11 0.16.0;
 Python 3.12 and live TLSX/targets not tested. Editable dev install/pip check passed.

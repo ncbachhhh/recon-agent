@@ -215,3 +215,10 @@ on_started notification, and atomic terminal ActionResult with output.asset and
 TLS Observations/Evidence. Partial errors use canonical parser/tool codes; certificate
 discoveries create no extra subjects. Completed action history supports existing
 semantic dedup; no state schema/lifecycle behavior changed. See [contract](tlsx-adapter.md).
+
+## Standalone crawl ingestion (M3-T03)
+
+Katana callers record STARTED through the existing on_started seam and atomically
+ingest output Asset/Endpoints/Observations/Evidence with completed/partial ActionResult.
+No state/dedup/lifecycle contract change or M2 workflow extension. Discovered outside
+endpoints can remain evidence without becoming authorized actions. See [contract](katana-adapter.md).

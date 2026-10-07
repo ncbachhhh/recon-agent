@@ -4,7 +4,7 @@ import asyncio
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from time import monotonic
-from typing import Protocol
+from typing import Protocol, TypedDict
 
 from recon_agent.core.config.models import ExecutionConfig
 from recon_agent.core.errors import (
@@ -46,7 +46,14 @@ class ProcessHandle(Protocol):
     def kill(self) -> None: ...
 
 
+class _SpawnDirectory(TypedDict, total=False):
+    cwd: str
+
+
 async def _spawn(spec: ProcessSpec) -> ProcessHandle:
+    directory: _SpawnDirectory = {}
+    if spec.working_directory is not None:
+        directory["cwd"] = spec.working_directory
     return await asyncio.create_subprocess_exec(
         spec.executable,
         *spec.args,
@@ -55,6 +62,7 @@ async def _spawn(spec: ProcessSpec) -> ProcessHandle:
         stderr=asyncio.subprocess.PIPE,
         limit=_PIPE_BUFFER_BYTES,
         env=dict(spec.environment) if spec.environment is not None else None,
+        **directory,
     )
 
 

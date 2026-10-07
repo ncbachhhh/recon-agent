@@ -2223,3 +2223,106 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(tls): add TLSX inspection adapter$"`.
 Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-07 — M3-T03 — Katana crawler adapter
+
+Status: DONE. Objective: scope-constrained bounded crawl_web through trusted Katana,
+with generic untrusted URL/endpoint/form/JS evidence. Stop after M3-T03.
+
+### Repository evidence, scope and decisions
+
+Startup followed AGENTS/maintenance skill order: state/current task/PLAN, subsystem
+architecture/security/tools/execution/scope/budget/dedup/state docs, relevant ADRs/history,
+Git and source/tests. Expected HEAD matched 56f166ace42edf378f42b988f62eebc5581cecf4;
+working/staged diffs clean; M0/M1/M2/M3-T01–M3-T02 DONE, M3-T03 READY, idle/no blocker.
+Recorded IN PROGRESS before implementation. No stale-state discrepancy or unrelated work.
+
+Reviewed Katana 1.8.0 commit 35267ac5c8ff1db9694a319d0eb466ed97b0969f and fastdialer
+0.5.23 commit 7f2e2647063cd76f9aa8f652f744b5a9ed41d90c. Ordinary Katana recursion
+can issue htmx POST/PUT/PATCH without automatic form filling; CLI URL scope cannot
+constrain hostname DNS answers to independently authorized addresses. ADR 0017 chooses
+numeric HTTP(S) seeds and depth-zero single-page extraction with positive duration:
+Enqueue emits all child discoveries before queue admission, including self-links/htmx.
+No hidden recursive/redirect/form contact. Supported operational profile is deliberately
+numeric-only; hostname modes fail closed before spending/contact. No acceptance relaxed.
+
+Task-owned source: katana.py/katana_models.py/katana_parser.py; strict empty planner
+schema and frozen operator depth/page/discovery bounds; detected available registry
+binding, current action policy/dedup/scope and shared reservation. Adapter owns finite
+sorted same-origin hyperlink/script-resource GET graph, every next URL/address recheck
+post-pacing, common action/session timeout and cumulative/normalized output caps. Form/
+htmx/JS-extracted endpoint/redirect/outside host discoveries remain non-authoritative data.
+No arbitrary flags/headers/proxy/files/JS execution/shell or scope expansion.
+
+Source review also found unconditional relative katana_field cleanup. Necessary task-local
+existing production changes are optional bounded absolute ProcessSpec.working_directory
+and literal runner cwd forwarding; no global chdir, omitted cwd preserves old behavior.
+New runner regressions verify validation, literal forwarding and actual harmless child
+cwd/parent isolation. All other pre-existing production Python files are byte-identical;
+core/policy/domain/registry/config/dependencies/CLI/previous adapters/M2 workflow protected.
+
+Existing generic Asset/Endpoint/HTTP Observation/untrusted Evidence preserve method,
+URL/path/query/source page/type/forms/resources, caller UTC/subject/execution/references,
+source/capability/version and deterministic memory snapshot SHA-256. Exact duplicates
+collapse; different source lineage remains; sorted normalization and conflict rejection
+are deterministic. Partial malformed/empty/depth/page limits retain explicit parser
+errors; missing binary/timeout/nonzero/setup/cancellation/resources use existing contracts.
+Caller owns lifecycle/state/snapshot; real state ingestion/dedup tests pass without changes.
+
+Added reserved source-shaped JSONL fixture, 91 guarded Katana tests and 8 runner cwd
+cases, contract/ADR 0017, relevant docs/README/CHANGELOG and task governance. No later
+capability, generic web dedup, planner/runtime/loop, persistence/reporting or real CLI.
+Tool logical GET/page rates do not bound packets/fallback attempts; upstream drains excess
+body bytes, so parsing prefix is not a total-download/Go-heap/OS-process-tree guarantee.
+HTTPS metadata is not certificate authenticity evidence. These limits are documented.
+
+### Executed validation
+
+Python 3.14.6 in repository .venv. No Python 3.12 or live Katana/network compatibility
+claim. Package provisioning and primary upstream source review accessed the Internet;
+no scanner installed/run and no reconnaissance target contacted. Validation artifacts
+and scripts are outside checkout at /tmp/recon-m3t03-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | python --version; editable pip install -e '.[dev]'; pip check passed |
+| Focused | Katana/registry/execution 281 passed; 91 Katana + 8 new cwd cases |
+| Full | pytest: 2,542 passed |
+| Network/DNS blocked | Guards before collection, Groq key absent: 2,542 passed |
+| Coverage | coverage run -m pytest: 2,542 passed; report 97% overall (4,792 statements / 1,616 branches), adapter 89%, parser 95%, models 100% |
+| Lint/format/types | Ruff check/format passed (149 files); strict Mypy passed (68 modules) |
+| Build/CLI | Isolated sdist/wheel and editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | New external wheel venv/pip check; guarded cold imports/origins/empty registry/inert Katana; 99 installed-wheel network-blocked fake/state/dedup/cwd cases passed |
+| Artifacts/security | All old production byte parity except reviewed two-file cwd seam; AST execution boundary, artifact/secrets, wheel/sdist source/three-dependency metadata parity passed |
+| Closeout | Acceptance/diffs/whitespace, append-only history/Markdown and 92-task readiness checks passed; 24 DONE, M3-T04 alone READY, 67 NOT STARTED |
+
+Development checks initially exposed test-helper assumptions about existing registry,
+budget/state field names and immutable scope patching, corrected against source without
+production contract changes. Mypy required typed optional cwd kwargs. A copied fresh-wheel
+test command initially used relative checkout paths from /tmp; corrected absolute copies
+and executed all 99 cases successfully. Final required checks pass; no outstanding failure,
+weakened gate or blocker. Remaining coverage branches are defensive malformed composition,
+setup/detection/deadline and representation paths. Network guards allow AF_UNIX plumbing;
+reviewed harmless local interpreter children are not network sandboxed.
+
+### Acceptance mapping and handoff
+
+| Criterion | Concrete evidence |
+| --- | --- |
+| Trusted operational crawl_web | Detected 1.8.0 registry binding and exact fixed argv/env/cwd graph fixture tests; empty planner schema/injection denials |
+| Initial/contact scope before execution | Primary numeric URL + independent IP checks, rejected/no-call cases, post-pacing/final scope changes and cross-origin no-contact graph |
+| Containment rejects unsafe modes | Numeric-only preflight rejects hostname/bare forms; depth-zero source boundary prevents htmx/self/JS/outside links; redirects disabled |
+| Bounded depth/count/rate/time/output | Strict operator bounds, depth/page/fact/capture/normalization limits, pacing/shared budgets/session/action timeout and cancellation cleanup tests |
+| Deterministic provenance and normalization | Duplicate/order fixture equality, method/source/form/JS data, generic endpoint/evidence hash/time/execution refs and real state/dedup ingestion |
+| No state-changing forms or JS actions | Forms submitted=false; POST/htmx/JS endpoints/outside/redirect instructions retained as data, absent from execution/contact set |
+| Canonical offline errors | Fake missing/timeout/nonzero/malformed/partial/empty/output/resource tests; full guarded and installed-wheel validation |
+
+M0/M1/M2 and M3-T01–M3-T03 DONE; M3-T04 READY/unstarted; no active task/blocker.
+No Ferox/FFUF or later implementation begun. No additional follow-up task needed to
+close this supported profile; hostname containment remains an explicitly unavailable mode.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(web): add Katana crawler adapter`; resolve with
+`git log -1 --format=%H --grep="^feat(web): add Katana crawler adapter$"`.
+Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
+task commit or push.

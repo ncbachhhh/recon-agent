@@ -1,0 +1,6 @@
+{"request":{"method":"GET","endpoint":"http://192.0.2.10/"},"response":{"status_code":200,"headers":{"content-type":"text/html"},"forms":[{"method":"POST","action":"http://192.0.2.10/submit","enctype":"application/x-www-form-urlencoded","parameters":["email","name"]}]}}
+{"request":{"method":"GET","endpoint":"http://192.0.2.10/about?x=1","source":"http://192.0.2.10/","tag":"a","attribute":"href"},"error":"max depth reached"}
+{"request":{"method":"GET","endpoint":"http://outside.test/steal","source":"http://192.0.2.10/","tag":"a","attribute":"href"},"error":"max depth reached"}
+{"request":{"method":"GET","endpoint":"http://192.0.2.10/app.js","source":"http://192.0.2.10/","tag":"script","attribute":"src"},"error":"max depth reached"}
+{"request":{"method":"POST","endpoint":"http://192.0.2.10/change","source":"http://192.0.2.10/","tag":"htmx","attribute":"hx-post"},"error":"max depth reached"}
+{"request":{"method":"GET","endpoint":"http://192.0.2.10/api/private","source":"http://192.0.2.10/","tag":"script","attribute":"text"},"error":"max depth reached"}

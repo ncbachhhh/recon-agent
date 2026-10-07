@@ -409,3 +409,14 @@ UTF-8 sitemap parsing rejects all DTD/entity declarations before ElementTree; it
 performs no external resource resolution or recursion. Robots paths/sitemap URLs/
 security contact metadata and instruction-like text remain untrusted facts, grant
 no scope and trigger no automatic contact/email/upload/command. See [contract](common-file-inspector.md).
+
+## TLS certificate inspection (M3-T02)
+
+TLSX contacts only independently scoped original endpoints and pinned numeric peers.
+Atomic batches reject before input creation; current registry/policy/dedup/shared
+budgets and final per-process checks apply. Adapter owns all flags/files/SNI and
+isolates environment/config/PATH, uses native ctls with revocation/cloud/update/
+extra enumeration disabled. CN/SAN/subject/issuer/error strings remain bounded
+untrusted facts, never instructions, authorization, bindings, assets or Findings.
+No discovered certificate name/IP or CRL/OCSP URL is contacted. Supported Linux
+1.4.0 and same-peer dial fallback/resource limits: [contract](tlsx-adapter.md).

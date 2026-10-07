@@ -240,3 +240,13 @@ are all scoped/host-budgeted before execution; actual URLs/IPs recheck after pac
 Redirect following is limited to two hops of the same fixed catalog path with no
 query or HTTPS downgrade. Arbitrary in-scope paths also reject. Robots/sitemap/
 security discoveries remain data only. See [contract](common-file-inspector.md).
+
+## TLSX contact boundary (M3-T02)
+
+Every original TLS target/batch member and selected numeric contact independently
+passes ScopeValidator; one rejected member prevents all input/contact. Operator
+bindings and finite port allowlist select contacts without granting scope. All
+authorities/addresses revalidate before files and per process; original scoped
+hostnames supply SNI. Certificate CN/SANs remain observations only, with no derived
+asset/automatic contact or scope change. Future actions need independent validation.
+Existing host-level scope semantics are unchanged. See [contract](tlsx-adapter.md).

@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M3 — M3-T01 DONE; M3-T02 READY; M0/M1/M2 DONE
+Project phase: M3 — M3-T01–M3-T02 DONE; M3-T03 READY; M0/M1/M2 DONE
 
 Completed:
 
@@ -26,12 +26,13 @@ Completed:
 - M2-T06 — Nmap service fingerprint adapter (DONE)
 - M2-T07 — Initial deterministic discovery pipeline (DONE)
 - M3-T01 — Common-file inspector (DONE)
+- M3-T02 — TLSX adapter (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M3-T02 — TLSX adapter (READY; not started)
+- M3-T03 — Katana crawler adapter (READY; not started)
 
 ## Implementation reality
 
@@ -371,7 +372,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M3-T02 is READY; remaining 69 tasks are NOT STARTED.
+Only M3-T03 is READY; remaining 68 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -392,9 +393,31 @@ request errors/unsupported/truncated/malformed/rejected redirects retain explici
 partial collection limits. Existing state/dedup ingestion works without contract
 changes. Protected policy/runner/registry/config/CLI/M2 adapters/pipeline and all later
 subsystems remain unchanged; only the finite capability enum gains one identity.
-See docs/common-file-inspector.md and ADR 0015. M3-T02 READY; no active task/blocker.
+See docs/common-file-inspector.md and ADR 0015. M3-T01 DONE.
+
+M3-T02 adds standalone tools.tlsx.TlsxAdapter for existing inspect_tls/active_safe.
+Successful explicit Linux TLSX 1.4.0 detection enables execution; canonical original
+names/IPs/HTTPS authorities and numeric bindings independently pass scope. Strict
+finite candidate/port input and operator port allowlist reject whole mixed batches
+before files/contact. Private PATH/config/home/environment exclude OpenSSL startup/
+ambient credentials. Adapter-owned numeric/SNI files and fixed native ctls/JSON argv
+use sequential SNI groups, no global SNI cross product, revocation/cloud/update/
+enumeration/derived contact. One shared reservation/deadline and existing runner
+capture/cancellation cleanup apply; aggregate and normalized output bounds hold.
+
+Bounded deterministic JSONL normalizes subject/issuer/CN/DNS SANs/fingerprints/serial/
+validity/protocol/cipher/key exchange and explicit incomplete/handshake limitations
+into generic TLS Observations/untrusted Evidence. Source/version/capability/caller
+UTC/subject/execution/memory locator/SHA-256 preserve provenance. No certificate-
+derived asset/Finding or authorization; existing state lifecycle/dedup unchanged.
+No runtime dependency/core/policy/domain/runner/registry/common-file/M2/pipeline/CLI
+change. Source review includes same-peer fastdialer failure fallback (up to two dial
+attempts/logical probe), not a packet/heap/process-tree guarantee. See docs/tlsx-adapter.md
+and ADR 0016. M3-T03 READY; no active task/blocker; stop after M3-T02.
 
 ## Major architecture decisions
+
+- ADR 0016 selects detected Linux TLSX 1.4.0, independently scoped numeric contact/original SNI, isolated configuration/PATH and bounded generic untrusted TLS evidence.
 
 - ADR 0015 selects a fixed common-file catalog, scoped numeric native HTTP/SSL with h11 framing, narrow independently checked redirects and untrusted bounded text/XML metadata.
 
@@ -429,6 +452,25 @@ See docs/common-file-inspector.md and ADR 0015. M3-T02 READY; no active task/blo
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M3-T02: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0 / h11 0.16.0;
+Python 3.12 and live TLSX/targets not tested. Editable dev install/pip check passed.
+Focused TLSX/registry: 223 passed (125 new TLSX cases). Full, coverage and pre-collection
+network/DNS-blocked suites each: 2,443 passed. Ruff lint/format (142 files), strict Mypy
+(65 modules), isolated wheel/sdist build and editable/fresh-wheel inert CLI passed.
+Fresh external wheel venv/pip check, guarded cold imports/origins/empty registry/inert
+TLSX construction and 125 installed-wheel network-blocked fake-runner/state/dedup
+cases passed. Coverage 97% overall (4,439 statements / 1,472 branches), TLSX adapter
+94%, parser 99%, models 100%; remaining adapter branches are defensive malformed
+composition/setup/deadline/unsupported representation and optional environment seams.
+No gates weakened. Every existing production Python file remains byte-for-byte
+unchanged. AST execution boundary, artifact/secret, source/dependency wheel/sdist
+parity, append-only history, 92-task dependency/readiness, Markdown and final diff/
+whitespace checks passed. Logs/scripts are outside checkout under
+/tmp/recon-m3t02-validation. Guards precede collection and permit AF_UNIX plumbing
+only; harmless local interpreter children are not network sandboxed. No blocker or
+added future work. TLSX compatibility is pinned source/fixtures only, with limits in
+contract/ADR; no scanner installed or public-target test.
 
 M3-T01: Python 3.14.6 / Pydantic 2.13.5 / dnspython 2.8.0 / h11 0.16.0; Python 3.12
 and live targets not tested. Editable dev install/pip check passed. Focused common-file/

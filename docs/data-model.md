@@ -378,3 +378,15 @@ policy details are evidence; collection errors use parse_failed for valid partia
 ActionResult ingestion. Discovered URLs create no new executable subject/permission.
 Whole-action failures have no partial payload under the existing Result contract.
 See [normalization contract](common-file-inspector.md).
+
+## TLS/certificate normalized evidence (M3-T02)
+
+TlsInspectionOutput is an internal adapter envelope, not a new domain model. It
+projects original scoped host/address/port and selected protocol/certificate metadata
+into generic TLS Observations on one caller-owned host Asset and untrusted Evidence.
+Source tlsx/capability inspect_tls/version, caller UTC/subject/execution, evidence IDs,
+memory locator and fact SHA-256 preserve provenance. CN/SANs/organization strings
+stay plain discoveries; no derived asset or Finding is created. Validity, malformed/
+unreported fields and handshake failures have explicit partial limits/canonical
+ErrorInfo. Existing ActionResult and ReconState ingestion/dedup remain unchanged.
+See [contract](tlsx-adapter.md) for supported fields and source limitations.

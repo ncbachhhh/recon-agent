@@ -261,3 +261,14 @@ pin canonical names to numeric addresses; both independently need declared scope
 Redirect/body/path/HTTP method bounds are fixed trusted code, never planner parameters.
 h11 >=0.16,<0.17 is the sole added runtime dependency and provides no I/O/configuration
 startup. See [contract and limits](common-file-inspector.md).
+
+## TLSX trusted composition (M3-T02)
+
+TlsxSettings is adapter-local operator configuration, not a new global TOML/env
+section: canonical hostname/numeric address bindings and 1–64 unique allowed ports
+(default 443). These choices never grant scope. Planner TlsxInput permits only
+finite candidates and one optional structurally bounded port, which must match the
+operator allowlist/HTTPS authority. Explicit Linux TLSX 1.4.0 detection/AVAILABLE
+registration is required; there is no import/CLI auto-detection/install. Existing
+ExecutionConfig timeout/capture and shared ExecutionBudget limits apply; child
+config/home/PATH are isolated. No runtime dependency is added. See [contract](tlsx-adapter.md).

@@ -335,3 +335,19 @@ no discovery contact, real state/dedup and cancellation. Guards forbid network/D
 process contact; no live server/scanner/provider. Guarded installed-wheel cold imports
 and actual adapter/native fake-stream composition are required. h11 0.16 is the only
 new runtime dependency; imports and CLI stay inert. See [contract](common-file-inspector.md).
+
+## TLSX regressions (M3-T02)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_tlsx.py
+tests/unit/tools/test_registry.py -q`, then full/network-DNS-blocked/coverage/Ruff/
+format/Mypy/build/fresh-wheel/inert CLI/artifact/secret/diff validation. Reserved
+TLSX 1.4.0 source-shaped JSONL and guarded fake ProcessRunner require no real TLSX/
+network. Tests cover detection/registration, fixed argv/environment/PATH/numeric/SNI
+files, hostname/IP/HTTPS/port allowlist, atomic mixed rejection, per-group scope,
+CN/SAN/subject/issuer/validity/protocol/fingerprint/provenance, discovery/injection
+isolation, deterministic duplicates/conflicts/partial/empty/handshake results,
+canonical runner errors, shared deadlines/rates/host/output/concurrency/cancellation,
+and existing atomic state lifecycle/dedup. Installed-wheel cold imports prohibit
+runtime startup; installed-wheel tests use fakes with real registry/policy/budgets/
+state. Compatibility is reviewed Linux source/fixtures only, not live TLSX behavior.
+See [contract](tlsx-adapter.md) for dialer and field limitations.

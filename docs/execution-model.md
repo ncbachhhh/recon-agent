@@ -248,3 +248,13 @@ and whole-action/session timeouts, pacing and synchronous socket close/abort. Sh
 reservation/optional start notification precedes contact; cancellation propagates
 after permit cleanup. No DNS/proxy/cookie/auth/retry or curl/wget fallback. Existing
 runner/M2 pipeline remain unchanged. See [contract](common-file-inspector.md).
+
+## Trusted TLSX invocation (M3-T02)
+
+TLSX reuses AsyncProcessRunner/ProcessSpec; absolute executable/literal argv, DEVNULL
+stdin, immutable isolated child environment, per-stream capture and timeout/cancel
+direct-child cleanup remain unchanged. Sequential SNI groups share one remaining
+action/session deadline and reservation. Adapter checks cumulative capture and
+normalized output limits, removes private numeric/SNI files and propagates Python
+cancellation. No shell/installer/new runner behavior. Linux/version/dialer fallback/
+external-process resource limits are documented in [contract](tlsx-adapter.md).

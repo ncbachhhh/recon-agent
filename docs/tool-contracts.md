@@ -2,7 +2,7 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files. Later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX. Later scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -401,3 +401,15 @@ lifecycle and atomic completed/partial state ingestion. The default registry and
 pipeline remain unchanged. Common-file inspection = fixed safe metadata retrieval;
 Katana = future crawling; Ferox/FFUF = future content discovery.
 See [full contract](common-file-inspector.md) and [ADR 0015](decisions/0015-fixed-native-common-files.md).
+
+## inspect_tls implementation (M3-T02)
+
+Explicit detected TlsxAdapter supplies inspect_tls/active_safe with strict candidates
+and optional bounded port; trusted operator numeric bindings/port allowlist supply
+contacts. Whole-batch independent scope, current policy/dedup and one shared budget
+reservation precede isolated fixed Linux TLSX 1.4.0 argv. Native ctls, original scoped
+SNI, no revocation/follow-up/enumeration/cloud/update and numeric input preserve the
+contact boundary. Generic TLS Observations/Evidence retain untrusted certificate
+metadata and partial/handshake limitations, without derived assets/Findings. Imports/
+registry/CLI and M2 workflow remain inert/unchanged. See [contract](tlsx-adapter.md)
+and [ADR 0016](decisions/0016-numeric-tlsx-inspection.md).

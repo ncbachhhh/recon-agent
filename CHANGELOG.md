@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M3-T02: inspect_tls through detected Linux TLSX 1.4.0, fixed native profile,
+  independently scoped numeric contacts/original SNI and shared bounded runner
+  execution. Normalize certificate/protocol metadata and partial handshake failures
+  into untrusted generic observations/evidence; CN/SANs grant no authority/contact.
+  Offline fixtures/fakes, tests/docs; no runtime dependency or later M3 capability.
+
 - M3-T01: fixed inspect_common_files capability for robots.txt, sitemap.xml and
   .well-known/security.txt; native bounded HTTP via h11 with independently scoped
   numeric contacts/redirects, safe XML/directive metadata and untrusted provenance.

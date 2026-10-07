@@ -207,3 +207,11 @@ cancellation mapping; rejection details cannot masquerade as partial policy fail
 No state contract or M2 workflow extension is needed. Offline regressions verify
 completed and rejected-redirect partial ingestion and real dedup rejection.
 See [contract](common-file-inspector.md).
+
+## Standalone TLS observation ingestion (M3-T02)
+
+TLSX callers use existing requested/approved lifecycle, post-reservation/pre-contact
+on_started notification, and atomic terminal ActionResult with output.asset and
+TLS Observations/Evidence. Partial errors use canonical parser/tool codes; certificate
+discoveries create no extra subjects. Completed action history supports existing
+semantic dedup; no state schema/lifecycle behavior changed. See [contract](tlsx-adapter.md).

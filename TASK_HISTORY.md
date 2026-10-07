@@ -2121,3 +2121,105 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(web): add common-file inspection$"`.
 Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+
+## 2026-10-07 — M3-T02 — TLSX adapter
+
+Status: DONE. Objective: trusted bounded inspect_tls with generic untrusted certificate
+metadata; no certificate-derived authorization or later task implementation.
+
+### Repository evidence and scope
+
+- Startup followed AGENTS/maintenance skill order; reviewed state/current task/PLAN,
+  architecture/security/tools/execution/scope/budgets/state/HTTPX/M2/M3 docs, relevant
+  ADRs/history and source/tests. Expected prior HEAD matched exactly:
+  1d59c19e7478c41af5ae5448d662b8e0bbd55bbb. Working/staged diffs were clean;
+  M0/M1/M2/M3-T01 DONE, M3-T02 READY, no active task/blocker. No discrepancy.
+- Recorded M3-T02 IN PROGRESS before implementation. Protected all existing production
+  Python, dependencies, core/domain/policy/runner/registry/CLI/common-file/M2 workflow
+  and later subsystems. No unrelated modifications/future implementation added.
+
+### Changes and decisions
+
+- Added tlsx.py/tlsx_models.py/tlsx_parser.py for existing inspect_tls. Explicit
+  successful detected Linux TLSX 1.4.0 enables AVAILABLE execution. Planner schema
+  permits finite typed candidates and optional 1–65535 port; operator finite ports
+  and canonical name/numeric bindings authorize nothing. Complete independent
+  primary/batch/address scope precedes reservation/files/contact; per-process
+  revalidation and atomic mixed-batch containment apply.
+- Reviewed TLSX source commit ffe1cfef11fc71fd7b73e41c603c18bebfb28258,
+  fastdialer 0.5.18 eff51d62312508fb146a5314e52dd2fdc01091b2 and goflags 0.1.76
+  c2b50c5141a365283151dc487b288fc223e62b8c. No binary install/live handshake.
+  Native ctls/JSON/probe-status, concurrency one, one logical attempt, five-second
+  handshake cap and one-second input delay; no revocation/CRL/OCSP, enumeration,
+  cloud/update/CT logs/PTR/random SNI or certificate-derived contact. PATH isolation
+  prevents ambient OpenSSL initialization. Trusted SNI file avoids hostname-as-file
+  interpretation; groups prevent SNI cross products. Same-peer dialer TCP-failure
+  fallback can attempt once more; contract explicitly limits connection/packet/heap/
+  process-tree claims. Version detection is not binary attestation.
+- Reused existing runner timeout/cancellation/capture contracts, one shared remaining
+  action/session deadline/reservation, permanent attempt/output charges and concurrency
+  cleanup. Cumulative captured streams and serialized normalized output are bounded.
+  Canonical unavailable/timeout/nonzero/setup/parser failures; handshake/empty/malformed
+  subsets and invalid validity preserve explicit partial observations/limitations.
+- Normalized original host/address/port, protocol/cipher/key exchange, subject/issuer/
+  CN/DNS SANs/organizations, serial/fingerprints/validity/expiration metadata into generic
+  TLS Observation/untrusted Evidence. Stable source/version/capability/caller UTC/asset/
+  execution/evidence IDs/memory locator/SHA-256; no new TLSX domain entity or derived
+  Asset/Endpoint/Host/Service/Finding. Remote instructions stay strings. Existing atomic
+  state lifecycle/terminal ingestion and history dedup work without contract changes.
+- Added one guarded offline test module (125 cases), two reserved source-shaped JSONL
+  fixtures, TLSX contract/ADR 0016, relevant subsystem docs/README/CHANGELOG and task
+  governance. No dependency, existing production file or later capability changed.
+
+### Executed validation
+
+Repository .venv unless noted: Python 3.14.6, Pydantic 2.13.5, dnspython 2.8.0,
+h11 0.16.0. Python 3.12/live TLSX/network compatibility not tested. Package provisioning
+accessed the package index; source review accessed public upstream repositories;
+no reconnaissance target or scanner binary was contacted/run.
+Logs/scripts: /tmp/recon-m3t02-validation (outside checkout).
+
+| Check | Actual result |
+| --- | --- |
+| Setup | python --version; pip install -e '.[dev]' and pip check passed |
+| Focused | TLSX/registry 223 passed; 125 new TLSX cases |
+| Full | python -m pytest -q: 2,443 passed |
+| Network/DNS blocked | Guarded before collection, Groq key absent: 2,443 passed |
+| Coverage | coverage run -m pytest -q: 2,443 passed; report 97% overall, 4,439 statements / 1,472 branches; adapter 94%, parser 99%, models 100% |
+| Lint/format/types | Ruff check/format passed (142 files); strict Mypy passed (65 modules) |
+| Build/CLI | Isolated sdist/wheel build, editable and installed-wheel inert recon-agent, exit 0 |
+| Fresh wheel | New external wheel venv/pytest install/pip check; -I -B guarded cold imports/origins/empty registry/inert TLSX construction; 125 installed-wheel network/DNS-blocked fake-runner/state/dedup tests passed |
+| Artifacts/security | All existing production Python byte parity, AST/no shell/direct process/provider/dynamic imports, artifacts/secrets and wheel/sdist source/three-dependency metadata parity passed |
+| Closeout | 92 tasks: 23 DONE, M3-T03 alone READY, 68 NOT STARTED; no active task; append-only history, Markdown links/fences, acceptance and final working/staged diff/whitespace reviewed |
+
+Development corrections: removed a test-helper tuple, corrected optional validity/
+line-limit expectations and test clock mutation during detection, and adapted the
+state start callback to existing Success[None]. Source review justified Linux-only
+containment and the documented same-peer fallback limit. All final required checks
+passed, no outstanding failure/blocker or weakened gate. Remaining coverage branches
+are defensive composition/setup/deadline/representation/optional environment paths.
+Guards allow AF_UNIX loop plumbing only; harmless local interpreter children are
+not sandboxed. No TLSX/live server/public-target test or runtime startup.
+
+### Acceptance and handoff
+
+| Criterion | Concrete evidence |
+| --- | --- |
+| Trusted TLS capability/argv | Detected version gate and registry/composition cases; exact fixed argv/private environment/PATH/numeric/SNI assertions; strict flag/file/injection denials |
+| Every contact scoped/batches contained | Name/IP/HTTPS/port operator allowlist tests, numeric binding-only scope rejection, mixed-batch no temp/input/dispatch, final and later-group revalidation, 64-contact bound |
+| Certificate metadata normalized | CN/multiple SANs/subject/issuer/serial/fingerprint/validity/TLS/cipher/key exchange fixtures; generic provenance/serialization/actual state lifecycle/dedup tests |
+| Invalid/expired/malformed limitations | Expiration observed without Finding, invalid/missing/reversed dates partial, duplicate/conflict/hostile JSON/empty/partial and handshake structured outcomes |
+| Discovery never authorizes contact | Instruction-like CN/SAN/issuer/organization remain plain data; outside SAN action rejected, scope unchanged, no extra asset or contact |
+| Resources/canonical errors | Shared action/rate/host/concurrency/deadline/cumulative/normalized capture bounds, timeout/missing/nonzero/setup/cancellation/temp cleanup and start-hook abort |
+
+M0/M1/M2 and M3-T01–M3-T02 DONE; M3-T03 READY/unstarted; no active task/blocker.
+No Katana/M3-T03+, content discovery, Ferox/FFUF, protocol recon/Nuclei,
+Groq/planner/loop, persistence/reporting/real CLI or M2 workflow extension.
+Stop after M3-T02.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(tls): add TLSX inspection adapter`; resolve via
+`git log -1 --format=%H --grep="^feat(tls): add TLSX inspection adapter$"`.
+Final handoff reports actual hash/clean tree. No amend/squash/history rewrite,
+second task commit or push.

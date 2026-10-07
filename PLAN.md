@@ -896,7 +896,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M3-T02`
 - **Title:** TLSX adapter
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M3-T01`
 
@@ -934,7 +934,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M3-T03`
 - **Title:** Katana crawler adapter
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M3-T02`
 

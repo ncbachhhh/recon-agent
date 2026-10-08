@@ -306,3 +306,13 @@ remain mandatory. Rate counts connections, each with at most one six-byte FEAT;
 no packet-rate/OS buffer guarantee. Malformed feature overflow preserves only the
 valid greeting. Cancellation synchronously closes/aborts and releases the permit;
 timeout/connection failures have no partial payload. See [FTP contract](ftp-adapter.md).
+
+## Native SMTP metadata exchange (M4-T05)
+
+SmtpAdapter owns one scoped numeric connection: valid 220 then sole fixed 18-byte
+EHLO. No auth/mail/enumeration/TLS/client/process/runner path; smtps/465 reject.
+Whole-action native/outer/session deadlines, synchronous socket/permit cleanup,
+8192 aggregate bytes/512 bytes per line/64 lines per reply and serialized output
+bounds reuse shared atomic budgets. Rate counts connections with at most one EHLO,
+not packets/OS buffering. Malformed EHLO overflow retains valid greeting; timeout/
+connection failure has no partial payload. See [SMTP contract](smtp-adapter.md).

@@ -51,8 +51,8 @@ start notification and immediately before contact. Subject/address exclusions an
 private gates remain mandatory. No DNS, address switching, redirect, new hostname
 contact or derived authorization occurs. Numeric asyncio flags/family pin the contact.
 
-SSH/SMB/FTP are explicit alternative selected adapters under ADR 0003's single
-adapter per capability rule. No automatic router or conflicting registrations.
+SSH/SMB/FTP and M4-T05 [SMTP](smtp-adapter.md) are explicit alternatives under
+ADR 0003's single-adapter-per-capability rule. No automatic router or conflicting registrations.
 No change to earlier production modules, dependencies, policy/state/runner or CLI.
 
 ## Bounds and cleanup

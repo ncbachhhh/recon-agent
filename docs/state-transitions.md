@@ -280,3 +280,13 @@ timeout/malformed greeting yields Failure and no successful observations.
 Real state ingestion and completed-history dedup prevent a repeated equivalent
 family/port/tcp contact. Remote banners/features never create authorization or
 Findings. No state/schema/policy changes. See [FTP contract](ftp-adapter.md).
+
+## SMTP metadata ingestion (M4-T05)
+
+SmtpAdapter returns generic untrusted facts, never mutates the owner or promotes
+remote text to actions. Caller retains original Asset/Host/Service, records coherent
+requested/approved/started/execution/terminal history, then ingests SmtpOutput via
+existing ActionResult. Partial EHLO uses output.errors[0]; timeout/malformed greeting/
+refusal has no successful observation payload. Actual completed/partial ingestion
+and completed-history family/port/tcp dedup are covered offline. No state/schema/
+policy change or new destination/permission. See [SMTP contract](smtp-adapter.md).

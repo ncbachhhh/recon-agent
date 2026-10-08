@@ -3002,3 +3002,104 @@ or later work begun. Stop after M4-T04.
 Commit reference: the single focused commit containing this entry, titled
 `feat(protocols): add FTP metadata inspection`; resolve through Git log. Final response
 reports actual hash and clean tree. No second task commit/amend/squash/history rewrite/push.
+
+## 2026-10-08 — M4-T05 — SMTP metadata capability
+
+Status: DONE. Objective: safe SMTP greeting/ESMTP advertisements through
+inspect_protocol/family=smtp, without authentication, mail or enumeration. Startup
+verified expected HEAD abf1a69f5ff5f97fbdbe7896a4de91e2a8b25405, clean working/staged
+tree, M0/M1/M2/M3 and M4-T01–M4-T04 DONE, M4-T05 READY, no active task or blocker.
+M4-T05 alone transitioned READY → IN PROGRESS → DONE; only M4-T06 becomes READY.
+
+### Changes and decisions
+
+- tools/smtp.py: explicit standalone SmtpAdapter/native_smtp with immutable finite
+  prior Service/subject/numeric-contact bindings, strict family/port/tcp input and
+  exact SMTP/submission relevance. Current selected registry/policy/schema/dedup,
+  asset/observed-port matching and independent centralized subject/contact scope
+  precede shared atomic budgets. Scope/registry recheck immediately before contact;
+  denial does not contact or spend. smtps and port 465 reject before contact.
+- tools/native_smtp.py: one numeric plaintext connection, bounded greeting, only
+  valid 220 enables the sole fixed 18-byte EHLO [192.0.2.1] request, one reply, then
+  synchronous socket close/abort. Synthetic documentation-address inspection label
+  avoids local hostname/DNS or planner/remote client-identity substitution. A server
+  rejecting it yields partial metadata, no HELO/retry/fallback. No generic client.
+- No AUTH/credentials/username/password/guessing, MAIL/RCPT/DATA/BDAT/mail sending,
+  relay tests, VRFY/EXPN/user/recipient enumeration, arbitrary SMTP commands/options,
+  STARTTLS handshake/QUIT or exploitation path. AUTH mechanism names and STARTTLS
+  are advertisements only. No smtplib, subprocess, shell or new runtime dependency.
+- tools/smtp_parser.py/models.py: strict bounded SMTP CRLF/multiline same-code
+  framing, UTF-8 greeting and ASCII ESMTP extensions. First EHLO line is server text,
+  never an extension; preserve exact ordered unknown/repeated extensions, conservative
+  narrow Postfix/Exim version hints, advertised AUTH names, STARTTLS true-or-unknown,
+  optional SIZE limit. No verified identity/functionality or vulnerability inference.
+  8192 aggregate bytes/512 per line/64 lines per reply, native/outer/session deadlines,
+  serialized-output bound and socket/permit cancellation cleanup apply.
+- Original Service/common ProtocolMetadataOutput/generic Observation and untrusted
+  Evidence retain target/host/service/asset/port, exact banner/extensions/raw base64,
+  source/caller UTC/execution/links/memory locator/snapshot SHA256. Unsupported or
+  malformed/incomplete EHLO retains partial banner with canonical parse_failed;
+  malformed greeting/refused/unreachable/timeout use existing Failure/ErrorInfo.
+  Overflow discards malformed EHLO bytes but preserves valid greeting; timeout and
+  connection failures discard partial payload. Fixed diagnostics omit remote errors.
+- tests/unit/tools/test_smtp.py and test_native_smtp.py add 206 offline cases with
+  synthetic escaped-JSON fixtures. Independent exact native write-vector regression
+  proves no auth/mail/enumeration/TLS request, even when remote text advertises these
+  operations; subsequent authentication prompts are unread. Real policy/budget/state/
+  dedup and injected streams verify provenance, completed/partial ingestion, strict
+  parameter denials, current scope, failures, bounds/deadlines/cancellation/cleanup.
+- docs/smtp-adapter.md / ADR 0025 define reviewed greeting_ehlo_v1 assigned by PLAN.
+  SMTP capability = greeting + safe ESMTP metadata only. Protocol/security/tool/data/
+  execution/state/testing/architecture and reference-adapter docs, CHANGELOG and task
+  lifecycle updated. Explicit SMTP/SSH/SMB/FTP alternatives respect the existing one
+  selected adapter per capability; no router or default registration.
+- All earlier production source remains byte-identical, including framework/domain/
+  scope/policy/budgets/dedup/state/registry/runner/config/workflow/provider/CLI. No
+  database/M4-T06+, planner/Groq/autonomous loop/persistence/reporting/real CLI work.
+
+### Actual validation
+
+Python 3.14.6 in documented .venv. Install/build provisioning may contact package
+indexes; default tests never contact targets/Groq. Primary RFC 5321/3207/4954/1870/
+5737/4422 sources reviewed and linked in contract. No live SMTP server/client/scanner
+or Python 3.12 execution. Temporary logs/scripts: /tmp/recon-m4t05-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python 3.14.6; editable -e '.[dev]' and pip check passed |
+| Focused | SMTP/native/framework/registry: 419 passed, including 206 new cases |
+| Full | pytest: 3,639 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 3,639 passed |
+| Coverage | coverage run pytest: 3,639 passed; 96% overall, 6,811 statements / 2,344 branches; native/models 100%, adapter 95%, parser 99% |
+| Lint/format/types | Ruff check, format (209 files), strict Mypy (94 source modules) passed |
+| Build/CLI | Isolated sdist/wheel; editable and fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check; guarded all-module cold imports/origins/empty registry/inert SMTP composition; 419 copied installed-wheel blocked tests passed outside checkout |
+| Artifact/security | Earlier source byte parity, sole EHLO write AST/independent immutable vector, artifact/secret and wheel/sdist source/unchanged dependency parity passed |
+| Closeout | Individual acceptance/final working/staged diff/whitespace, append-only history and Markdown/task readiness checks passed: 32 DONE, only M4-T06 READY, 59 NOT STARTED |
+
+Development tests caught copied FTP fixture/product spellings and stale native parser
+expectations; corrected SMTP naming and reply vectors. Ruff import/format corrections
+completed before final baseline. All required final checks pass without weakened gates.
+Remaining uncovered adapter/parser paths are defensive malformed/stale composition
+and parser shapes, not auth/mail operations. Parent network guards allow AF_UNIX
+plumbing; harmless local interpreter children are not OS network sandboxed. Asyncio/
+OS buffering and connection-rate limits and fixed EHLO identity/implicit TLS/absent
+metadata are explicit in contract/ADR; advertised mechanisms are not exercised.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Operational scoped validated SMTP | Explicit native_smtp registry/schema; prior Service/port/asset binding; real policy and independent numeric scope; no-contact/no-spend denial tests |
+| Only safe metadata commands | Sole immutable EHLO after 220, independent exact outbound vector and unread next prompts; no HELO/STARTTLS/fallback/generic command API |
+| No authentication/mail/relay/enumeration | Strict extra-forbid typed schema rejects credentials/message/sender/recipient/options; absent client APIs and regression forbidding AUTH/MAIL/RCPT/DATA/BDAT/VRFY/EXPN |
+| Structured failures and partial metadata | Canonical Failure/ErrorInfo plus explicit partial SmtpOutput; greeting/multiline/malformed/refused/unreachable/timeout/EOF/denial/bound/cancellation fixtures |
+| Traceable untrusted normalization | Original Service intact; banner/hints/extensions/AUTH/STARTTLS/SIZE/port/source/time/execution/base64/hash; actual generic completed/partial state ingestion and history dedup |
+| Full baseline and task boundary | All required final checks pass; earlier production unchanged; M0/M1/M2/M3 and M4-T01–M4-T05 DONE; only M4-T06 READY; no active task/blocker |
+
+No new blocker/follow-up task. M4-T06 READY is lifecycle bookkeeping only; no database
+or later work begun. Stop after M4-T05.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(protocols): add SMTP metadata inspection`; resolve through Git log. Final response
+reports actual hash and clean tree. No second task commit/amend/squash/history rewrite/push.

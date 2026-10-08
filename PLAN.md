@@ -1269,7 +1269,7 @@ retry/fallback. Exact semantics: docs/ftp-adapter.md and ADR 0024.
 
 - **ID:** `M4-T05`
 - **Title:** SMTP metadata capability
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T04`
 
@@ -1280,6 +1280,12 @@ retry/fallback. Exact semantics: docs/ftp-adapter.md and ADR 0024.
 **In scope:** Bounded banner and safe capability negotiation profile, normalization and scoped dispatch.
 
 **Out of scope:** Mail submission, recipient enumeration, relay abuse, bulk mail, authentication attacks and arbitrary SMTP commands. All unrelated/future task work is excluded.
+
+**Reviewed profile:** Native `greeting_ehlo_v1`, one scoped numeric plaintext
+connection, valid 220 greeting then one fixed EHLO [192.0.2.1] and bounded reply.
+Greeting/advertised extensions only; no AUTH/mail/relay/VRFY/EXPN, TLS negotiation,
+HELO/retry/fallback. Reject smtps/465 before contact. Exact semantics/limits:
+docs/smtp-adapter.md and ADR 0025.
 
 **Implementation steps:**
 
@@ -1307,7 +1313,7 @@ retry/fallback. Exact semantics: docs/ftp-adapter.md and ADR 0024.
 
 - **ID:** `M4-T06`
 - **Title:** Database service metadata capability
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T05`
 

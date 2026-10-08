@@ -475,3 +475,14 @@ retain port/host/service/asset, exact banner/features/base64, conservative produ
 version hints, feature/TLS-advertisement collection limits and normalized snapshot
 SHA-256. TLS advertisement is true or unknown; no identity/vulnerability inference.
 No domain/state schema changes. See [FTP fields/limits](ftp-adapter.md).
+
+## SMTP advertised metadata (M4-T05)
+
+SmtpInput/ServiceBinding/Context specialize existing family/port/tcp and caller
+observed Service/subject/numeric contact/UTC/execution. SmtpOutput extends common
+ProtocolMetadataOutput with greeting_ehlo_v1, completed/partial and canonical error.
+Generic metadata Observation/untrusted Evidence retain original asset/host/service/
+port, banner, exact EHLO server text/extensions, narrow product/version hints, AUTH
+mechanism names/SIZE/STARTTLS advertisements and base64/source/time/execution/hash.
+Missing support stays unknown; no auth/mail/TLS test or Finding is inferred.
+No domain/state schema change. See [SMTP fields/limits](smtp-adapter.md).

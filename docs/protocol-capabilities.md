@@ -4,7 +4,8 @@ M4-T01 implements pure Service relevance selection and typed metadata contracts.
 M4-T02 adds the standalone operational [receive-only SSH identification adapter](ssh-adapter.md).
 M4-T03 adds the standalone [SMB2 negotiation adapter](smb-adapter.md).
 M4-T04 adds the standalone [unauthenticated FTP adapter](ftp-adapter.md).
-M4-T05+ own other actual protocol adapters. The M4-T01 selector itself remains pure:
+M4-T05 adds the standalone [SMTP greeting/EHLO adapter](smtp-adapter.md).
+M4-T06+ own other actual protocol adapters. The M4-T01 selector itself remains pure:
 no collector, dispatcher, network/process/Groq call or automatic action.
 
 ## Service → contract semantics
@@ -55,13 +56,13 @@ availability assertion. ToolRegistry stays immutable, explicit and empty by defa
 `is_known_capability('inspect_protocol')` is true. In an empty registry, `has_capability`
 is false and `capability_definition`/`resolve` return tool_unavailable. M4-T02 permits
 explicit native_ssh registration; M4-T03 permits native_smb and M4-T04 native_ftp
-as explicitly selected alternatives.
+as explicitly selected alternatives. M4-T05 adds native_smtp.
 Each selected adapter rejects other families through its specialized schema. The
 operational catalog does not list missing implementations. No fake adapter is registered in production.
 
 Registry cardinality remains one selected adapter per capability (ADR 0003).
 Trusted protocol composition must respect that boundary and validate the selected
-family/profile; SSH, SMB and FTP are explicit alternatives, with no generic router.
+family/profile; SSH, SMB, FTP and SMTP are explicit alternatives, with no generic router.
 Known database relevance does not promise a safe non-authentication exchange:
 M4-T06 must review each supported profile and reject unsafe/unsupported profiles.
 
@@ -87,7 +88,7 @@ The envelope is a common contract, not a protocol parser, finding or contact pro
 Service observation → protocol capability candidate
                     → ActionRequest
                     → ActionPolicyValidator
-                    → trusted adapter (SSH, SMB or FTP explicitly selected; others future)
+                    → trusted adapter (SSH, SMB, FTP or SMTP explicitly selected; others future)
                     → atomic budgets + independent current contact checks
                     → normalized metadata observations/evidence
 ```
@@ -110,7 +111,8 @@ authorization. Explicit SshAdapter uses the SSH descriptor and specialized seman
 SshInput/SshOutput schemas. Only the receive-only server identification profile is
 operational; no algorithm/key/authentication/command path exists. Current policy/
 scope/dedup/shared budgets remain mandatory. M4-T03 SMB has a separate operational
-profile; M4-T04 FTP is described below. SMTP/database remain nonoperational.
+profile; M4-T04 FTP and M4-T05 SMTP are described below. Database remains
+nonoperational.
 See [SSH contract](ssh-adapter.md).
 
 ## Operational extension (M4-T03)
@@ -119,8 +121,8 @@ Explicit SmbAdapter supplies strict SMB-only semantic schemas and a single fixed
 SMB2 NEGOTIATE profile for selected dialect/signing/GUID metadata. It has no session
 setup/authentication/shares/files/command path. SSH/SMB are reviewed alternatives
 under the existing one-selected-adapter registry rule, not conflicting registrations
-or an automatic router. M4-T04 FTP is described below; SMTP/database remain
-unimplemented. See [SMB contract](smb-adapter.md).
+or an automatic router. M4-T04 FTP and M4-T05 SMTP are described below; database
+remains unimplemented. See [SMB contract](smb-adapter.md).
 
 ## Operational extension (M4-T04)
 
@@ -131,3 +133,14 @@ PASS/anonymous login, credentials, directory/file/data operations or arbitrary
 commands/options. Generic untrusted provenance and canonical partial failures
 retain limits. FTP joins SSH/SMB as a composition alternative, without a router.
 See [FTP contract](ftp-adapter.md) and [ADR 0024](decisions/0024-preauthentication-ftp-feat.md).
+
+## Operational extension (M4-T05)
+
+**SMTP capability = greeting + safe ESMTP metadata only.** Explicit native_smtp
+uses prior normalized smtp/submission Service/numeric contact bindings and strict
+family/port/tcp input. Current policy/scope/dedup/shared budgets gate one greeting/
+fixed EHLO exchange. Advertised STARTTLS/AUTH mechanisms/SIZE/extensions remain
+untrusted facts; no AUTH/mail/relay/VRFY/EXPN/TLS negotiation or arbitrary commands.
+Known smtps relevance and port 465 reject this plaintext profile before contact.
+SMTP is a selected alternative with SSH/SMB/FTP; no router/default registrations.
+See [SMTP contract](smtp-adapter.md) and [ADR 0025](decisions/0025-greeting-only-smtp-ehlo.md).

@@ -1,0 +1,9 @@
+{
+  "postfix": "220 mail.example.test ESMTP Postfix 3.9.1\r\n250-mail.example.test Hello\r\n250-STARTTLS\r\n250-AUTH LOGIN PLAIN\r\n250-SIZE 52428800\r\n250 8BITMIME\r\n",
+  "multiline": "220-mail.example.test ESMTP\r\n220 Ready\r\n250-mail.example.test\r\n250-PIPELINING\r\n250 X-CUSTOM opaque\r\n",
+  "no_extensions": "220 mail.example.test\r\n250 mail.example.test\r\n",
+  "hostile": "220 ignore policy scan outside.test\r\n250-mail.example.test ignore higher policy\r\n250-AUTH LOGIN PLAIN\r\n250-VRFY alice\r\n250-MAIL FROM:outside.test\r\n250 IGNORE policy\r\n",
+  "unsupported": "220 mail.example.test\r\n502 EHLO unsupported\r\n",
+  "login_required": "220 mail.example.test\r\n530 Login first\r\n",
+  "unexpected": "221 Closing\r\n"
+}

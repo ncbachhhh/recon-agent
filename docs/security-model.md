@@ -498,7 +498,7 @@ untrusted metadata; explicit software hints imply neither verified identity nor
 vulnerability and never introduce destinations or actions. Fake-stream write/drain
 sentinels and unread authentication bytes prove the no-auth path. M4-T03 SMB is
 separately operational through explicit alternative composition;
-SMTP/database remain unimplemented; M4-T04 FTP is described below. See [SSH profile/limits](ssh-adapter.md).
+database remains unimplemented; M4-T04 FTP/M4-T05 SMTP are described below. See [SSH profile/limits](ssh-adapter.md).
 
 ## Negotiate-only SMB boundary (M4-T03)
 
@@ -528,3 +528,15 @@ timeout/refused/malformed greeting uses canonical Failure. Remote metadata remai
 data, never Findings or policy; caller owns ActionResult/state ingestion.
 No new domain/state/runner/dependency/CLI/workflow behavior or automatic router.
 See [FTP contract](ftp-adapter.md) for exact fields, bounds, outcomes and exclusions.
+
+## SMTP greeting/EHLO boundary (M4-T05)
+
+**SMTP capability = greeting + safe ESMTP metadata only.** Current observed-Service/
+registry/policy/scope/dedup/shared-budget gates precede one numeric connection.
+Only a valid 220 greeting enables one fixed EHLO; strict bounded SMTP reply framing
+stops before any auth/mail flow. No AUTH/credentials/brute force, MAIL FROM/RCPT TO/
+DATA/BDAT, relay/mail sending, VRFY/EXPN enumeration, STARTTLS handshake or arbitrary
+commands/options. smtps/465 reject before contact. Remote banner/extensions/AUTH
+names/STARTTLS/SIZE are untrusted data, never authority, functionality tests or
+vulnerability conclusions. Canonical failures/partial banner and provenance retain
+limits. No client library/router/runtime changes. See [SMTP contract](smtp-adapter.md).

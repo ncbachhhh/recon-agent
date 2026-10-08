@@ -3,8 +3,8 @@
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
 M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster; M3-T05 adds specialized FFUF vhost_names HEAD as an explicitly selected discover_content alternative. M4-T02 adds native receive-only inspect_protocol/family=ssh identification metadata. M4-T03 adds native SMB2 NEGOTIATE inspect_protocol/family=smb as an explicit
-alternative. M4-T04 adds native FTP greeting/FEAT. SMTP/database and later adapters
-remain unimplemented.
+alternative. M4-T04 adds native FTP greeting/FEAT; M4-T05 adds native SMTP greeting/EHLO.
+Database and later adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -468,8 +468,8 @@ It describes SSH/SMB/FTP/SMTP/database relevance from normalized Service.protoco
 without registering any operational adapter. ToolRegistry's one-adapter cardinality,
 availability and policy denial semantics remain unchanged. The default operational
 catalog is empty; known contracts have no availability flag. Only curated descriptor
-metadata is planner-facing. M4-T02–M4-T04 supply separate SSH/SMB/FTP adapters;
-SMTP/database remain future work. Exact name/transport
+metadata is planner-facing. M4-T02–M4-T05 supply separate SSH/SMB/FTP/SMTP adapters;
+database remains future work. Exact name/transport
 rules, product conflict vetoes, absent port fallback and provenance schema obligations
 are normative in [protocol contracts](protocol-capabilities.md). Selection does not
 invoke ActionPolicyValidator; every operational request must pass it before execution.
@@ -512,3 +512,14 @@ timeout/refused/malformed greeting uses canonical Failure. Remote metadata remai
 data, never Findings or policy; caller owns ActionResult/state ingestion.
 No new domain/state/runner/dependency/CLI/workflow behavior or automatic router.
 See [FTP contract](ftp-adapter.md) for exact fields, bounds, outcomes and exclusions.
+
+## inspect_protocol / SMTP implementation (M4-T05)
+
+**SMTP capability = greeting + safe ESMTP metadata only.** Explicit native_smtp/
+SmtpAdapter specializes family=smtp/port/tcp and prior smtp/submission Service/numeric
+bindings. Current registry/policy/scope/dedup/shared budgets gate one greeting and
+fixed EHLO. SmtpOutput uses generic untrusted metadata/evidence with advertised
+extensions/STARTTLS/AUTH names/SIZE and canonical partial banner/failures. No AUTH/
+credentials/message/sender/recipient/mail/relay/VRFY/EXPN or command/options API,
+TLS handshake/router/default registration. smtps/465 reject this plaintext profile.
+See [SMTP contract](smtp-adapter.md) for exact bounds/fields/failures/exclusions.

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M4-T05: native SMTP inspect_protocol greeting/fixed EHLO under prior Service/
+  numeric bindings and current policy/scope/dedup/shared budgets. Generic untrusted
+  ESMTP extensions/STARTTLS/AUTH mechanisms/SIZE/provenance with canonical partial
+  banner/failures. No auth/credentials/mail/relay/enumeration/arbitrary commands,
+  implicit SMTPS or TLS negotiation; no later protocol implementation.
+
 - M4-T04: native FTP-only inspect_protocol greeting/FEAT metadata with prior Service
   bindings, current policy/scope/dedup/shared budgets and bounded native transport.
   Untrusted banner/product hints/features/TLS advertisement and generic provenance/

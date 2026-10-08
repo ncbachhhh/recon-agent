@@ -461,3 +461,15 @@ family/port/service denials before spending/contact, banners/features/TLS claims
 provenance/hostile data, partial/malformed/refused/deadline/cancellation/bounds and
 cleanup. No live FTP server/client/library/binary/provider or M4-T05+ work.
 See [FTP contract](ftp-adapter.md).
+
+## SMTP greeting/EHLO regressions (M4-T05)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_smtp.py tests/unit/tools/test_native_smtp.py tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py -q`,
+then full/pre-collection network-DNS-blocked/coverage/Ruff/format/Mypy/build/fresh-wheel
+guarded cold imports/copied installed tests/inert CLI/artifact/secret/final diff gates.
+Synthetic JSON and fake streams assert exact sole EHLO bytes, unread auth/mail prompts
+and no AUTH/MAIL FROM/RCPT TO/DATA/VRFY/EXPN/STARTTLS. Actual policy/scope/budgets/
+state/dedup, strict Service/port/family/credentials/content/options/implicit TLS denial,
+multiline framing/STARTTLS/AUTH/SIZE/unknown claims/provenance/hostile text, partial/
+malformed/refused/unreachable/timeouts/cancellation/limits are offline. No live SMTP
+server/client/library/binary/Groq or database/M4-T06+ work. See [SMTP contract](smtp-adapter.md).

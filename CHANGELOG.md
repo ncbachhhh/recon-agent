@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M4-T06: scoped native database inspect_protocol with typed observed Service/type/
+  port bindings, receive-only MySQL/MariaDB version metadata and fixed PostgreSQL
+  SSL support signal (version unavailable/partial). Generic untrusted observations/
+  evidence, canonical failures and offline regressions; Redis/MongoDB/SQL Server
+  reject without contact. No credentials/auth/queries/data/mutation/client API.
+
 - M4-T05: native SMTP inspect_protocol greeting/fixed EHLO under prior Service/
   numeric bindings and current policy/scope/dedup/shared budgets. Generic untrusted
   ESMTP extensions/STARTTLS/AUTH mechanisms/SIZE/provenance with canonical partial

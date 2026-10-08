@@ -3103,3 +3103,111 @@ or later work begun. Stop after M4-T05.
 Commit reference: the single focused commit containing this entry, titled
 `feat(protocols): add SMTP metadata inspection`; resolve through Git log. Final response
 reports actual hash and clean tree. No second task commit/amend/squash/history rewrite/push.
+
+## 2026-10-08 — M4-T06 — Database service metadata capability
+
+Status: DONE. Objective: scoped, bounded pre-authentication database metadata through
+existing inspect_protocol/database; no credentials, authentication, queries or data.
+Startup verified HEAD 12c070efd68e84c94a420eba714821f20f44c980, clean working/staged
+tree, M0/M1/M2/M3 and M4-T01–M4-T05 DONE, M4-T06 READY, no active task or blocker.
+Only M4-T06 transitioned READY → IN PROGRESS → DONE; M4-T07 becomes READY only.
+
+### Changes and decisions
+
+- tools/database.py: explicit native_database/DatabaseAdapter with 1–64 immutable
+  prior Service/subject/numeric-address bindings and required canonical database_type
+  matching framework Service aliases, product-conflict vetoes, port/tcp/asset.
+  Current selected registry/policy/risk/schema/dedup, independent centralized subject/
+  contact scope and atomic shared budgets gate one connection; scope/registry recheck
+  immediately after start notification. Unknown/ambiguous/mismatched types deny.
+- tools/native_database.py: separate internal MySQL receive-only and PostgreSQL
+  fixed SSLRequest handlers. MySQL sends zero application bytes; PostgreSQL sends
+  exactly hex 0000000804d2162f, reads exactly one byte, then closes. No startup/TLS/
+  authentication/query/fallback or generic driver. Numeric-only IPv4/IPv6 flags, no
+  DNS/proxy/banner-name follow-up; finite framing/capture/output/whole-action/native/
+  session bounds and synchronous socket/permit cleanup apply.
+- tools/database_models.py/parser.py: strict DatabaseInput extends common family/
+  port/tcp with canonical mysql/postgresql/redis/mongodb/ms-sql-s. Extra credentials,
+  usernames/passwords, connection strings/URI, queries/commands, schema/table/user/
+  collection/data names and arbitrary options reject before contact/spending.
+  MySQL/MariaDB V10 fixed metadata exposes exact reported version, protocol 10,
+  connection ID, capability bits/SSL bit, charset/status and narrow whole-version
+  product hints. Reserved/vendor/authentication tail is opaque untrusted evidence,
+  never an auth offer to dispatch. V9/short fixed V10 prefix is explicitly partial;
+  malformed lengths/sequence/version/fixed fields fail closed. Completed refers to
+  fixed metadata, not full authentication handshake validation or exhaustive support.
+- PostgreSQL S/N willingness is partial/version_unavailable: no server-version or
+  negotiated-protocol-version inference. No StartupMessage/user/database/TLS/GSS/
+  auth/CancelRequest/Query/Parse/Bind/Execute path. Redis/MongoDB/SQL Server, although
+  assigned relevance by the framework, have no approved profile and return canonical
+  tool_unavailable before reservation/contact. No RESP/BSON/TDS query/command path.
+- Original Service/common ProtocolMetadataOutput/generic metadata Observation and
+  untrusted Evidence retain subject/contact/asset/host/service/port, source/caller
+  UTC/execution/base64/memory locator/SHA-256 and explicit false auth/query/data/
+  mutation/TLS flags. Partial outputs use canonical parse_failed ErrorInfo; MySQL
+  ERR/access-required/refused/closed/unreachable uses fixed tool_execution_failed;
+  malformed/oversized uses parse_failed; native/outer/session expiry uses tool_timeout.
+  No raw server error/credential fallback, inferred vulnerability or derived contact.
+- tests/unit/tools/test_database.py and test_native_database.py: 184 new offline
+  cases using independent synthetic hex fixtures/fake transports/streams. Exact
+  outbound vector, unread auth/SQL prompts and absence of authenticated/data/mutation
+  APIs prove no login/query/schema/user/document/file access or remote execution.
+  Real policy/scope/budgets/state/dedup test before-contact/no-spend denials, source/
+  version/protocol/hostile data/provenance, partial ingestion, fixed type routing,
+  malformed/auth-required/unsupported/refused/timeouts/cancellation/output bounds.
+  Actual adapter plus native fake streams verifies both operational profiles.
+- docs/database-adapter.md / ADR 0026 record PLAN's delegated initial safe set,
+  exact permitted bytes and explicitly unavailable metadata. Protocol/security/tool/
+  data/testing/execution/architecture/reference-adapter docs, README, CHANGELOG and
+  lifecycle files reconciled. Existing one-selected-adapter registry is unchanged;
+  database internally selects only finite reviewed wire handlers, no generic router.
+- Every earlier production source file and pyproject/dependencies remain byte-identical.
+  No M4-T07 matrix or later protocol/task, Nuclei/Groq/planner/runtime/autonomous loop/
+  persistence/reporting/real CLI work. No new blocker or follow-up task.
+
+### Actual validation
+
+Python 3.14.6 in documented .venv. Package install/build provisioning may contact
+indexes; default tests never contact targets/Groq. Primary MySQL packet/V10,
+MariaDB greeting and PostgreSQL SSLRequest/message-flow sources were reviewed and
+linked in the adapter contract. No live database/server/client/scanner or Python 3.12
+run. Logs/scripts are outside checkout: /tmp/recon-m4t06-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python 3.14.6; editable -e '.[dev]' and pip check passed |
+| Focused | Database/native/framework/registry: 397 passed, 184 new database cases |
+| Full | pytest: 3,823 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 3,823 passed |
+| Coverage | coverage run pytest: 3,823 passed; 96% overall, 7,099 statements / 2,450 branches; native/parser 100%, adapter 95%, models 94% |
+| Lint/format/types | Ruff check, format (218 files), strict Mypy (98 source modules) passed |
+| Build/CLI | Isolated sdist/wheel build; editable and fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check; guarded all-module imports/origins/empty registry/inert database composition; 397 copied installed-wheel blocked cases passed outside checkout |
+| Artifact/security | Earlier source byte parity, sole PostgreSQL immutable write AST/independent vector, no DB driver/auth/query/mutation, artifact/secret and archive source/dependency parity passed |
+| Closeout | Acceptance/final working/staged diff/whitespace, append-only history and task/Markdown gates: 33 DONE, only M4-T07 READY, 58 NOT STARTED; no active task |
+
+Development fixture-copy naming mistakes were corrected before the focused baseline.
+Three additional end-to-end/exact-boundary cases followed the first baseline; focused,
+full/network-blocked/coverage and installed-wheel tests subsequently passed with the
+final counts above. No acceptance gate was relaxed. Uncovered branches are defensive
+schema/composition/output-outcome shapes; no auth/query/data operation is present.
+Network guards permit AF_UNIX event-loop plumbing; harmless local interpreter children
+are not OS network sandboxed. Asyncio/OS buffering, connection-rate rather than
+packet-rate enforcement, opaque MySQL authentication tails and PostgreSQL unavailable
+version/identity remain documented limits. Unsupported catalog types never contact.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Each supported profile has explicit permitted exchanges | Contract/ADR 0026; native handlers; zero MySQL writes / exact sole PostgreSQL SSLRequest independent vectors and unread next packets |
+| Operational, target/port/type validated and scope checked | Strict registered input, observed Service/type/port/asset match, independent subject/address scope, current policy/dedup/shared budgets and native-adapter integration; denied actions never contact/spend |
+| Unsupported/auth-required fails safely | Redis/MongoDB/ms-sql-s tool_unavailable before reservation/contact; unknown/ambiguous/mismatched denial, MySQL ERR fixed canonical error and PostgreSQL invalid signal; no startup/login/retry |
+| No credential/query/data/modification path | Extra-forbid schemas; no driver/credential/session/query/command APIs; wire/no-auth/no-query/no-mutation regressions and AST boundary |
+| Version/protocol attributed with limits | Generic Observation/untrusted Evidence retains original Service, reported fixed fields, null unavailable versions, partial ErrorInfo, source/caller UTC/execution/port/base64/hash; hostile strings remain data, no findings |
+| Offline default and complete baseline | All final focused/full/network-blocked/coverage/lint/type/build/wheel/CLI/artifact checks pass; earlier production byte parity; no live network test |
+| Task boundary/lifecycle | M0/M1/M2/M3 and M4-T01–M4-T06 DONE; M4-T07 READY/unstarted; no active task/blocker, no later work begun |
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(protocols): add database metadata inspection`; resolve through Git log. Final
+response reports actual hash and clean tree. No second task commit/amend/squash/push.

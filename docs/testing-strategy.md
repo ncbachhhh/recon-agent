@@ -473,3 +473,17 @@ state/dedup, strict Service/port/family/credentials/content/options/implicit TLS
 multiline framing/STARTTLS/AUTH/SIZE/unknown claims/provenance/hostile text, partial/
 malformed/refused/unreachable/timeouts/cancellation/limits are offline. No live SMTP
 server/client/library/binary/Groq or database/M4-T06+ work. See [SMTP contract](smtp-adapter.md).
+
+## Database metadata regressions (M4-T06)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_database.py tests/unit/tools/test_native_database.py tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py -q`,
+then full/network-DNS-blocked/coverage/Ruff/format/Mypy/build/fresh-wheel guarded
+imports/copied installed tests/inert CLI/artifact-secret/diff checks. Independent
+synthetic hex and fake transports/streams assert zero MySQL writes, exactly one
+immutable PostgreSQL SSLRequest, unread authentication/SQL prompts and no database
+login/query/data/schema/user/mutation/command API. Actual policy/scope/budget/state/
+dedup tests prove denial before contact/spending, strict family/type/port/credentials/
+connection-string/options rejection, provenance/hostile strings as data and malformed/
+unsupported/auth-required/refused/timeouts/partial/cancellation/bounded cleanup.
+Redis/MongoDB/ms-sql-s return unavailable without contact, not synthetic success.
+No server/client/binary/Groq, live targets or M4-T07 matrix. See [database contract](database-adapter.md).

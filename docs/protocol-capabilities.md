@@ -5,7 +5,8 @@ M4-T02 adds the standalone operational [receive-only SSH identification adapter]
 M4-T03 adds the standalone [SMB2 negotiation adapter](smb-adapter.md).
 M4-T04 adds the standalone [unauthenticated FTP adapter](ftp-adapter.md).
 M4-T05 adds the standalone [SMTP greeting/EHLO adapter](smtp-adapter.md).
-M4-T06+ own other actual protocol adapters. The M4-T01 selector itself remains pure:
+M4-T06 adds the standalone [database metadata adapter](database-adapter.md).
+The M4-T01 selector itself remains pure:
 no collector, dispatcher, network/process/Groq call or automatic action.
 
 ## Service → contract semantics
@@ -56,15 +57,17 @@ availability assertion. ToolRegistry stays immutable, explicit and empty by defa
 `is_known_capability('inspect_protocol')` is true. In an empty registry, `has_capability`
 is false and `capability_definition`/`resolve` return tool_unavailable. M4-T02 permits
 explicit native_ssh registration; M4-T03 permits native_smb and M4-T04 native_ftp
-as explicitly selected alternatives. M4-T05 adds native_smtp.
+as explicitly selected alternatives. M4-T05 adds native_smtp; M4-T06 adds native_database.
 Each selected adapter rejects other families through its specialized schema. The
 operational catalog does not list missing implementations. No fake adapter is registered in production.
 
 Registry cardinality remains one selected adapter per capability (ADR 0003).
 Trusted protocol composition must respect that boundary and validate the selected
-family/profile; SSH, SMB, FTP and SMTP are explicit alternatives, with no generic router.
+family/profile; SSH, SMB, FTP, SMTP and database are explicit alternatives,
+with no generic router.
 Known database relevance does not promise a safe non-authentication exchange:
-M4-T06 must review each supported profile and reject unsafe/unsupported profiles.
+M4-T06 reviews MySQL/MariaDB greetings and PostgreSQL SSL support only;
+Redis/MongoDB/SQL Server reject without contact.
 
 ## Request/result boundary
 
@@ -88,7 +91,7 @@ The envelope is a common contract, not a protocol parser, finding or contact pro
 Service observation → protocol capability candidate
                     → ActionRequest
                     → ActionPolicyValidator
-                    → trusted adapter (SSH, SMB, FTP or SMTP explicitly selected; others future)
+                    → trusted adapter (SSH, SMB, FTP, SMTP or database explicitly selected)
                     → atomic budgets + independent current contact checks
                     → normalized metadata observations/evidence
 ```
@@ -111,8 +114,8 @@ authorization. Explicit SshAdapter uses the SSH descriptor and specialized seman
 SshInput/SshOutput schemas. Only the receive-only server identification profile is
 operational; no algorithm/key/authentication/command path exists. Current policy/
 scope/dedup/shared budgets remain mandatory. M4-T03 SMB has a separate operational
-profile; M4-T04 FTP and M4-T05 SMTP are described below. Database remains
-nonoperational.
+profile; M4-T04 FTP and M4-T05 SMTP are described below. Database has the
+M4-T06 reviewed profiles below.
 See [SSH contract](ssh-adapter.md).
 
 ## Operational extension (M4-T03)
@@ -121,8 +124,8 @@ Explicit SmbAdapter supplies strict SMB-only semantic schemas and a single fixed
 SMB2 NEGOTIATE profile for selected dialect/signing/GUID metadata. It has no session
 setup/authentication/shares/files/command path. SSH/SMB are reviewed alternatives
 under the existing one-selected-adapter registry rule, not conflicting registrations
-or an automatic router. M4-T04 FTP and M4-T05 SMTP are described below; database
-remains unimplemented. See [SMB contract](smb-adapter.md).
+or an automatic router. M4-T04 FTP, M4-T05 SMTP and reviewed M4-T06 database
+profiles are described below. See [SMB contract](smb-adapter.md).
 
 ## Operational extension (M4-T04)
 
@@ -144,3 +147,13 @@ untrusted facts; no AUTH/mail/relay/VRFY/EXPN/TLS negotiation or arbitrary comma
 Known smtps relevance and port 465 reject this plaintext profile before contact.
 SMTP is a selected alternative with SSH/SMB/FTP; no router/default registrations.
 See [SMTP contract](smtp-adapter.md) and [ADR 0025](decisions/0025-greeting-only-smtp-ehlo.md).
+
+## Operational extension (M4-T06)
+
+Explicit native_database uses required canonical database_type in addition to
+family=database/observed port/tcp. Exact prior Service aliases and current policy/
+scope/dedup/budgets gate a receive-only MySQL/MariaDB packet or one fixed PostgreSQL
+SSLRequest support signal. PostgreSQL version remains unavailable/partial, with no
+StartupMessage/auth negotiation. Redis/MongoDB/ms-sql-s are relevance-only and reject
+before contact/spending. No DB driver/credentials/queries/data/mutation path or generic
+router. See [database contract](database-adapter.md) and [ADR 0026](decisions/0026-preauthentication-database-metadata.md).

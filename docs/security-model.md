@@ -498,7 +498,7 @@ untrusted metadata; explicit software hints imply neither verified identity nor
 vulnerability and never introduce destinations or actions. Fake-stream write/drain
 sentinels and unread authentication bytes prove the no-auth path. M4-T03 SMB is
 separately operational through explicit alternative composition;
-database remains unimplemented; M4-T04 FTP/M4-T05 SMTP are described below. See [SSH profile/limits](ssh-adapter.md).
+database has reviewed M4-T06 profiles; M4-T04 FTP/M4-T05 SMTP are described below. See [SSH profile/limits](ssh-adapter.md).
 
 ## Negotiate-only SMB boundary (M4-T03)
 
@@ -540,3 +540,17 @@ commands/options. smtps/465 reject before contact. Remote banner/extensions/AUTH
 names/STARTTLS/SIZE are untrusted data, never authority, functionality tests or
 vulnerability conclusions. Canonical failures/partial banner and provenance retain
 limits. No client library/router/runtime changes. See [SMTP contract](smtp-adapter.md).
+
+## Database pre-authentication metadata boundary (M4-T06)
+
+DatabaseAdapter requires exact prior normalized Service/type/port and current
+registry/policy/dedup/shared budgets; every subject and concrete address passes
+ScopeValidator independently and rechecks before contact. MySQL/MariaDB sends zero
+bytes; PostgreSQL sends only fixed SSLRequest and closes after one byte, without
+TLS/StartupMessage/username/password/auth negotiation. Redis/MongoDB/ms-sql-s have
+no approved profile: no contact/spending. Strict extra-forbid input excludes credentials,
+connection strings, queries/commands/options. No data/schema/table/user/document
+access, reads/writes, Redis/MongoDB command, files, mutation or exploitation exists.
+Remote version/opaque offers remain bounded untrusted metadata with original Service/
+caller provenance; unsupported/auth-required/partial behavior cannot escalate, add
+contacts or infer vulnerabilities. See [database contract](database-adapter.md).

@@ -56,7 +56,8 @@ Registry and scope recheck after trusted start notification, immediately before
 contact. Numeric family/flags pin destination; no DNS/proxy/redirect/address switching,
 server-name follow-up or scope expansion. Exclusions/private gates apply independently.
 
-SMTP/SSH/SMB/FTP are explicitly selected composition alternatives under ADR 0003's
+SMTP/SSH/SMB/FTP and M4-T06 [database](database-adapter.md) are explicitly selected
+composition alternatives under ADR 0003's
 one-adapter-per-capability rule. No router/conflicting/default registration. Earlier
 production files, domain/policy/runner/state/dependencies/CLI/workflow stay unchanged.
 

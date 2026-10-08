@@ -316,3 +316,13 @@ Whole-action native/outer/session deadlines, synchronous socket/permit cleanup,
 bounds reuse shared atomic budgets. Rate counts connections with at most one EHLO,
 not packets/OS buffering. Malformed EHLO overflow retains valid greeting; timeout/
 connection failure has no partial payload. See [SMTP contract](smtp-adapter.md).
+
+## Native database metadata exchanges (M4-T06)
+
+One scoped numeric contact selects only an observed MySQL/MariaDB receive-only packet
+or PostgreSQL fixed eight-byte SSLRequest/one-byte signal. No driver/process/runner,
+startup/authentication/query/data/TLS/fallback path. MySQL length is checked before
+payload read; capture ≤4096 and serialized output must fit execution/shared allowance.
+Native/outer/session deadlines, shared atomic budgets and synchronous close/abort/
+permit cleanup apply. Rate counts connections, not packets/OS buffers; unread data
+is discarded. Redis/MongoDB/ms-sql-s reject before contact. See [database contract](database-adapter.md).

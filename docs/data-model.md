@@ -486,3 +486,16 @@ port, banner, exact EHLO server text/extensions, narrow product/version hints, A
 mechanism names/SIZE/STARTTLS advertisements and base64/source/time/execution/hash.
 Missing support stays unknown; no auth/mail/TLS test or Finding is inferred.
 No domain/state schema change. See [SMTP fields/limits](smtp-adapter.md).
+
+## Database fixed metadata and unavailable versions (M4-T06)
+
+Tools-owned DatabaseInput adds required canonical database_type to family/port/tcp;
+Service aliases remain observed data. DatabaseServiceBinding/Context preserve prior
+Service, explicit subject/numeric contact and caller UTC/execution. DatabaseOutput
+extends ProtocolMetadataOutput with type/profile/completed-partial/canonical errors.
+Generic metadata Observation/untrusted Evidence contain MySQL reported fixed greeting
+fields/version/product hints or PostgreSQL S/N willingness only; its version remains
+null with version_unavailable/partial. Exact base64/source/service/port/time/execution/
+memory locator/SHA-256 keep provenance, while authentication/query/data/mutation/TLS
+flags stay false. Unsupported catalog profiles produce Failure and no invented facts.
+No domain/state wire change or vulnerability inference. See [database fields/limits](database-adapter.md).

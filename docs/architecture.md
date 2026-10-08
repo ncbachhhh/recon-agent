@@ -79,10 +79,10 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | inspect_tls | Implemented bounded TLSX certificate inspection (M3-T02) |
 | crawl_web | Implemented bounded numeric Katana crawling (M3-T03) |
 | discover_content | Default bounded recursive numeric Feroxbuster paths (M3-T04); explicitly selected specialized FFUF vhost_names HEAD (M3-T05) |
-| inspect_protocol | Implemented SSH identification (M4-T02), SMB2 negotiation (M4-T03), FTP greeting/FEAT (M4-T04) or SMTP greeting/EHLO (M4-T05) through explicit selected adapters; database future |
+| inspect_protocol | Implemented SSH identification (M4-T02), SMB2 negotiation (M4-T03), FTP greeting/FEAT (M4-T04), SMTP greeting/EHLO (M4-T05) or reviewed MySQL/MariaDB/PostgreSQL metadata (M4-T06) through explicit selected adapters |
 | scan_templates | nuclei with named policy profiles |
 
-Except for implemented resolve_dns, verify_dns, enumerate_subdomains, probe_http, discover_ports, fingerprint_services, inspect_common_files, inspect_tls, crawl_web, discover_content and inspect_protocol (SSH/SMB/FTP/SMTP selected profiles), these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
+Except for implemented resolve_dns, verify_dns, enumerate_subdomains, probe_http, discover_ports, fingerprint_services, inspect_common_files, inspect_tls, crawl_web, discover_content and inspect_protocol (SSH/SMB/FTP/SMTP/database selected profiles), these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
 ## Provider layer — `providers/`
 

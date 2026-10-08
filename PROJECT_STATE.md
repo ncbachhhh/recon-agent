@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M4-T01–M4-T05 DONE; M4-T06 READY; M0/M1/M2/M3 DONE
+Project phase: M4-T01–M4-T06 DONE; M4-T07 READY; M0/M1/M2/M3 DONE
 
 Completed:
 
@@ -36,14 +36,32 @@ Completed:
 - M4-T03 — SMB metadata capability (DONE)
 - M4-T04 — FTP metadata capability (DONE)
 - M4-T05 — SMTP metadata capability (DONE)
+- M4-T06 — Database service metadata capability (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M4-T06 — Database service metadata capability (READY; not started).
+- M4-T07 — Protocol selection tests (READY; not started).
 
 ## Implementation reality
+
+M4-T06 adds standalone native_database/DatabaseAdapter for inspect_protocol/database.
+Required canonical database_type matches prior normalized Service aliases/port/tcp;
+immutable subject/numeric bindings, current registry/policy/dedup/independent scope
+and shared budgets gate one native connection. MySQL/MariaDB receive-only sequence-
+zero V10 metadata sends zero bytes; fixed prefix yields version/connection/capability/
+charset/status/SSL-bit/product hints, with opaque auth/vendor tail as untrusted data.
+PostgreSQL sends only immutable eight-byte SSLRequest, reads S/N and closes; no
+StartupMessage/TLS/auth negotiation, version unavailable remains explicit partial.
+Redis/MongoDB/ms-sql-s return tool_unavailable before contact/spending; unknown/type/
+family/port/credential/query/options mismatch rejects. No driver/auth/queries/data/
+schema/user/document/file/mutation/remote command API. Generic untrusted Observation/
+Evidence retains original Service/subject/port/caller UTC/execution/base64/hash;
+canonical malformed/denied/auth-required/refused/timeout/partial outcomes and bounded
+capture/serialized output/native-outer-session deadlines/cleanup apply. Earlier
+production source/dependencies/workflow/CLI are byte-identical. See database contract/
+ADR 0026. Only M4-T07 READY/unstarted; no active task/blocker or later work begun.
 
 M4-T05 adds standalone native_smtp/SmtpAdapter for inspect_protocol/family=smtp.
 SMTP capability = greeting + safe ESMTP metadata only. Immutable observed Service/
@@ -58,7 +76,7 @@ caller UTC/execution/raw snapshot/hash. Malformed/unavailable EHLO yields partia
 banner; malformed greeting/refused/unreachable/timeout uses canonical Failure.
 Native/outer/session deadlines, bounded capture/serialized output and synchronous
 socket/permit cleanup apply. Earlier production source/dependencies/CLI are unchanged.
-See docs/smtp-adapter.md / ADR 0025. Only M4-T06 READY/unstarted; no active task/blocker.
+See docs/smtp-adapter.md / ADR 0025. Only M4-T07 READY/unstarted; no active task/blocker.
 
 M4-T04 adds standalone native_ftp/FtpAdapter for inspect_protocol/family=ftp.
 FTP capability = unauthenticated metadata only. Strict observed Service/host/numeric
@@ -72,7 +90,7 @@ and caller UTC/execution/hash. Unsupported/auth-dependent/malformed features ret
 partial banner; refused/timeout/malformed greeting uses canonical Failure.
 Earlier production source/dependencies/CLI/workflow remain byte-identical. Explicit
 FTP/SSH/SMB alternatives respect the one-selected-adapter registry; no router.
-See docs/ftp-adapter.md / ADR 0024. Only M4-T06 READY/unstarted; no active task/blocker.
+See docs/ftp-adapter.md / ADR 0024. Only M4-T07 READY/unstarted; no active task/blocker.
 
 M4-T03 adds standalone native_smb/SmbAdapter for inspect_protocol/family=smb.
 One fixed SMB2 NEGOTIATE offering 2.0.2/2.1/3.0/3.0.2 runs on one authorized numeric
@@ -85,7 +103,7 @@ No session setup/authentication/credentials/shares/files/commands/fallback; SMB1
 NetBIOS/name/workgroup/domain/share inventory is explicitly uncollected. Port 139 and
 netbios-ssn reject before contact. Native SMB/SSH are explicit alternative selected
 adapters, no router. Every earlier production file/dependency/CLI/workflow is unchanged.
-See docs/smb-adapter.md / ADR 0023. Only M4-T06 READY/unstarted; no active task/blocker.
+See docs/smb-adapter.md / ADR 0023. Only M4-T07 READY/unstarted; no active task/blocker.
 
 M4-T02 adds standalone native_ssh/SshAdapter for inspect_protocol/family=ssh.
 Immutable observed-Service/subject/numeric bindings, strict SSH-only input, current
@@ -97,7 +115,7 @@ versions yield partial identification; malformed/closed/refused/timeouts use can
 failures. Injected streams, outer/native deadlines and synchronous abort/permit cleanup
 remain offline-testable. Existing production source, framework/registry/policy/state/
 runner/adapters/workflow/config/deps/CLI are byte-identical. See docs/ssh-adapter.md /
-ADR 0022. M4-T06 READY/unstarted; no active task or blocker, no later work begun.
+ADR 0022. M4-T07 READY/unstarted; no active task or blocker, no later work begun.
 
 M4-T01 adds pure domain.protocols family/semantic input/metadata output contracts and
 immutable tools.protocols relevance catalog under existing inspect_protocol. Exact
@@ -106,9 +124,9 @@ recognized conflicting product hints veto; unknown/composite/malformed/UDP servi
 return no candidate. No port-only/product-banner fallback. Existing registry metadata
 and strict schemas integrate without adapter registrations or availability claims.
 Selection does not authorize, consume budgets, change scope/state or call runtime.
-M4-T02/M4-T03 supply SSH/SMB metadata; M4-T04 supplies FTP; M4-T05 supplies SMTP; M4-T06+ own other reviewed collectors. Existing production files,
+M4-T02/M4-T03 supply SSH/SMB metadata; M4-T04 supplies FTP; M4-T05 supplies SMTP; M4-T06 supplies reviewed database collectors. Existing production files,
 registry/policy/budgets/dedup/state/runner/adapters/workflow/config/CLI stay unchanged.
-See docs/protocol-capabilities.md / ADR 0021. Only M4-T06 READY; no later work begun.
+See docs/protocol-capabilities.md / ADR 0021. Only M4-T07 READY; no later work begun.
 
 M3-T06 closes M3 with pure domain canonical_web_url, WebAssetIdentity/web-v1,
 WebAssetDiscovery and derived Endpoint/ReconState discovery/contact lookup. One
@@ -121,7 +139,7 @@ Existing web action identity reuses this URL normalization only after original
 scope validation, preserving all other M1-T08 admission/retry semantics. No scope,
 adapter execution/profile, budget, registry, configuration/dependency, M2 workflow,
 provider, CLI or future subsystem source change. See docs/web-identity.md / ADR 0020.
-M4-T01–M4-T05 are DONE; M4-T06 READY/unstarted, no active task or blocker.
+M4-T01–M4-T06 are DONE; only M4-T07 READY/unstarted; no active task/blocker.
 
 The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic, dnspython and h11 are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
 
@@ -459,7 +477,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M4-T06 is READY; remaining 59 tasks are NOT STARTED.
+Only M4-T07 is READY; remaining 58 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -560,9 +578,11 @@ HEAD body counts are omitted; responses confirm neither vhosts nor vulnerabiliti
 Partial/unreported/conflict/errors and state ingestion are tested offline. All prior
 production modules, dependencies/CLI/M2 workflow unchanged. See docs/ffuf-adapter.md
 and ADR 0019. M3-T06 pure identity and M4-T01 framework completion are recorded above;
-M4-T02 SSH/M4-T03 SMB/M4-T04 FTP/M4-T05 SMTP metadata is implemented; M4-T06+ remain unimplemented.
+M4-T02 SSH/M4-T03 SMB/M4-T04 FTP/M4-T05 SMTP metadata is implemented; M4-T06 database metadata is implemented; later tasks remain unimplemented.
 
 ## Major architecture decisions
+
+- ADR 0026 approves receive-only MySQL/MariaDB fixed greeting metadata and sole PostgreSQL SSLRequest signal, no startup/auth/query/data/mutation; unsupported catalog types reject without contact and version unavailability is explicit.
 
 - ADR 0025 selects native greeting/sole fixed EHLO metadata, strict multiline framing, advertised-only AUTH/STARTTLS/SIZE, current policy/scope/budgets and generic untrusted partial provenance; no mail/auth/enumeration/TLS fallback.
 
@@ -617,6 +637,25 @@ M4-T02 SSH/M4-T03 SMB/M4-T04 FTP/M4-T05 SMTP metadata is implemented; M4-T06+ re
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M4-T06: Python 3.14.6. Editable dev install/pip check, Ruff/format (218 files),
+strict Mypy (98 source modules), isolated sdist/wheel build and editable/fresh-wheel
+inert CLI passed. Focused database/native/framework/registry: 397 passed (184 new).
+Full, pre-collection network/DNS-blocked and coverage suites each: 3,823 passed.
+Coverage 96% overall (7,099 statements / 2,450 branches); parser/native 100%, adapter
+95%, models 94%. External fresh-wheel venv/pip check, guarded all-module cold imports/
+origins/empty registry/inert database composition and 397 copied installed-wheel
+network-blocked tests passed outside checkout. Existing production byte parity,
+sole immutable PostgreSQL write AST/vector, no database driver/auth/query/mutation,
+artifact/secret and wheel/sdist source/unchanged dependency checks passed. Final
+acceptance/diff/whitespace, append-only history and task/Markdown gates passed.
+Logs/scripts: /tmp/recon-m4t06-validation. No live DB/server/client/scanner/Groq or
+Python 3.12 execution. Guards precede collection and permit AF_UNIX plumbing;
+harmless interpreter children are not OS network sandboxed. Opaque MySQL tails,
+PostgreSQL unavailable version, unsupported Redis/MongoDB/SQL Server, native/OS
+buffering and connection-rate limits are explicit. No weakened gate or blocker.
+M0/M1/M2/M3 and M4-T01–M4-T06 DONE; only M4-T07 READY; no active task.
+
 
 M4-T05: Python 3.14.6. Editable dev install/pip check, Ruff/format (209 files),
 strict Mypy (94 source modules), isolated sdist/wheel build and editable/fresh-wheel

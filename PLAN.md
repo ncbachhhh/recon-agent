@@ -1313,7 +1313,7 @@ docs/smtp-adapter.md and ADR 0025.
 
 - **ID:** `M4-T06`
 - **Title:** Database service metadata capability
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T05`
 
@@ -1351,7 +1351,7 @@ docs/smtp-adapter.md and ADR 0025.
 
 - **ID:** `M4-T07`
 - **Title:** Protocol selection tests
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T06`
 

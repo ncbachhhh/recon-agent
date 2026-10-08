@@ -2703,3 +2703,109 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(protocols): establish protocol capability framework$"`.
 Final response reports actual hash and clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-08 — M4-T02 — SSH metadata capability
+
+Status: DONE. Objective: operational trusted unauthenticated SSH metadata under
+inspect_protocol/family=ssh, without login or command execution. Startup verified
+HEAD 422c380338ffeca494be2a131a155dcae197104c, clean working/staged tree,
+M0/M1/M2/M3 and M4-T01 DONE, M4-T02 READY, no active task/blocker.
+Only M4-T02 transitioned IN PROGRESS → DONE; M4-T03 alone becomes READY/unstarted.
+
+### Changes and decisions
+
+- tools/ssh.py: standalone SshAdapter/native_ssh using M4-T01 inspect_protocol SSH
+  descriptor and specialized strict semantic schema. Immutable 1–64 trusted observed
+  Service/host/numeric bindings validate SSH relevance and unique subject/port; request
+  asset/port/family/transport must match. Numeric subjects cannot substitute addresses.
+- Current registry binding and ActionPolicyValidator/risk/schema/real dedup/shared
+  budget eligibility, independent subject/contact ScopeValidator and one atomic charged
+  reservation gate every action. Recheck current registry/name/address scope after
+  trusted on_started, immediately before one connection. No scope mutation or DNS.
+- tools/native_ssh.py: injected SshBannerTransport/native receive-only asyncio stream
+  with explicit numeric host/service flags/family, one-byte reads, finite application
+  capture/line/preamble limits, timeout and synchronous close/abort on every outcome.
+  Zero application bytes sent; no client identification, binary packet reader/writer,
+  KEX, host-key/algorithm collection, auth/credential/key-file/session/command path.
+- tools/ssh_parser.py and ssh_models.py: RFC-shaped bounded identification grammar,
+  exact raw/banner/software/protocol/comment/preamble data; explicit complete OpenSSH/
+  dropbear hint grammar. Valid 2.0/1.99 identification completes this narrow profile;
+  other numeric protocol versions retain partial metadata with parse_failed. Malformed/
+  oversized/incomplete data, refused/unreachable/empty close, deadline and cancellation
+  preserve existing canonical failure/cleanup semantics without raw exception leakage.
+- SshOutput extends common ProtocolMetadataOutput: original Service, generic metadata
+  Observation/untrusted Evidence, subject/port/profile/capability, caller UTC time/
+  execution, raw base64, memory snapshot/hash and collected-field limitations. No
+  vulnerability, authentication, host-key fingerprint or negotiated algorithm is inferred.
+  Caller owns lifecycle/terminal ActionResult/atomic ingestion; actual state/dedup
+  regression proves completed aliases deny before a second contact or reservation.
+- Two new offline test modules (116 SSH/native cases), synthetic escaped-JSON fixture
+  greetings/README. Fake streams forbid every write/writelines/drain; unread KEX/userauth
+  bytes and transport authentication/send sentinels explicitly prove no authentication.
+  Scope/name/address/service/port/credential/raw-option/registry/risk/budget/history
+  denials, errors, provenance, bounds, cancellation and deadline regressions pass.
+- SSH profile contract and ADR 0022; protocol/tool/security/architecture/data/execution/
+  state/testing docs, CHANGELOG, precise PLAN profile and lifecycle records. Native
+  receive-only inspection was chosen because no SSH implementation was previously
+  decided; a full client/library/KEX profile would expand the required minimum.
+- All previously tracked production files remain byte-identical to startup, including
+  M4-T01 framework/domain, registry/policy/scope/budgets/dedup/state, runner/previous
+  adapters/parsers/native transports, discovery/config/dependencies/CLI/providers.
+  No generic router, future protocol, Groq/planner/loop/storage/reporting/real CLI work.
+
+### Actual validation
+
+Python 3.14.6. Editable install uses the documented .venv; package provisioning/build
+isolation may access package indexes, but tests never contact targets or Groq. RFC
+4253 sections 4.2/5.1 and local asyncio numeric-resolution implementation were reviewed;
+no live SSH/server/binary/library or Python 3.12 run. Logs/scripts are outside checkout
+under /tmp/recon-m4t02-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python 3.14.6; editable pip install -e '.[dev]' and pip check passed |
+| Focused | SSH/native/framework/registry: 329 passed (116 new cases) |
+| Full | pytest: 3,118 passed |
+| Network/DNS blocked | Pre-collection guards, Groq key absent: 3,118 passed |
+| Coverage | coverage run pytest: 3,118 passed; report: 96% overall, 5,932 statements / 2,028 branches; native/parser 100%, adapter 95%, models 92% |
+| Lint/format/types | Ruff check and format (182 files), strict Mypy (82 source modules) passed |
+| Build/CLI | Isolated sdist/wheel, editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check, guarded cold imports/origins/empty registry/inert SSH-only composition; 329 copied installed-wheel blocked cases passed outside checkout |
+| Artifacts/security | Protected source parity, AST no writes/auth/process/provider boundary, artifact/secrets, wheel/sdist source and unchanged runtime dependency metadata parity passed |
+| Closeout | Individual acceptance/final diff/whitespace, append-only history, Markdown links/fences and 92-task readiness passed; 29 DONE, M4-T03 alone READY, 62 NOT STARTED |
+
+Development checks exposed a new test syntax error, incorrectly chosen output-overflow
+threshold, and dedup assertions initially seeing the earlier budget rate rejection or
+wrong expected error wording. Corrected the tests to check actual fixed contracts and
+use explicit test-only rate capacity for dedup isolation; default rate/host/action/output
+admission is tested separately. Git would normalize initial raw CRLF text fixtures;
+escaped JSON now preserves exact wire bytes across checkouts. Final focused/full/
+blocked/coverage checks use that portable fixture form; no criterion or gate weakened.
+
+Uncovered adapter/model branches concern defensive malformed trusted metadata, stale
+constructed service/binding/reservation and inconsistent constructed output. No missing
+network or authentication path is hidden by coverage. Standard asyncio/OS buffering and
+in-flight connect cleanup limits are explicit; AF_UNIX is permitted for test loop plumbing
+and existing harmless interpreter children are not OS network sandboxed. No live
+compatibility claim; servers waiting on client identification time out without fallback.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Operational SSH-only capability | Explicit native_ssh inspect_protocol registration; real policy/resources and injected native stream exchange, fresh-wheel composition/tests |
+| Validated target/port/service and scope | Strict SshInput; exact observed SSH host/port binding; separate numeric ScopeValidator; exclusions/unknown/mismatch/malformed/credential/option denials before contact/spending |
+| Only approved unauthenticated metadata | server_identification_v1 is receive-only; write/drain/auth sentinels, unread KEX/userauth bytes, no client/auth/session/command/key API or library |
+| Generic normalized untrusted provenance | Existing Service unchanged, common metadata envelope, deterministic banner/raw/source/time/execution/service/evidence/hash and actual state-ingestion/dedup tests |
+| Canonical malformed/closed/timeout/partial failures | Fake malformed/oversized/refused/EOF/deadline cases; unsupported versions explicit partial parse_failed, bounded retention and cancellation cleanup |
+| Full baseline and task boundary | All required final checks pass; earlier production byte parity; M0/M1/M2/M3 and M4-T01–M4-T02 DONE, M4-T03 READY/unstarted; no active task/blocker |
+
+No new follow-up task or blocker. Profile explicitly does not collect keys/algorithms
+or complete SSH negotiation; no broad client/authentication fallback is planned by
+this task. Future protocols/composition belong to M4-T03+. Stop after M4-T02.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(protocols): add SSH metadata inspection`; resolve with
+`git log -1 --format=%H --grep="^feat(protocols): add SSH metadata inspection$"`.
+Final response reports actual hash and clean tree. No amend/squash/history rewrite,
+second task commit or push.

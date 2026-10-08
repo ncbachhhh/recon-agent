@@ -249,3 +249,13 @@ using existing Service/Observation/Evidence; session ingestion still needs the
 existing whole-state lineage/lifecycle checks and caller-supplied ActionResult.
 No state schema/owner behavior changes or automatic follow-up exists. See
 [protocol contracts](protocol-capabilities.md).
+
+## Standalone SSH metadata ingestion (M4-T02)
+
+SshAdapter caller retains original observed Asset/Host/Service and records requested/
+approved/on_started/terminal lifecycle through existing APIs. SshOutput observations/
+evidence ingest through ActionResult on the existing asset; preserve partial status
+and error for unsupported protocol identification. Service/product/source observations
+remain unchanged; no automatic state mutation, new subject or planner action exists.
+Completed-equivalent SSH family/port/tcp requests use real existing semantic dedup
+before further contact/spending. See [SSH contract](ssh-adapter.md).

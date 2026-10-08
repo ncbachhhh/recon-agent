@@ -1135,7 +1135,7 @@ and adapter registration belong to M4-T02+. No port-only fallback is permitted.
 
 - **ID:** `M4-T02`
 - **Title:** SSH metadata capability
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T01`
 
@@ -1146,6 +1146,12 @@ and adapter registration belong to M4-T02+. No port-only fallback is permitted.
 **In scope:** Bounded banner/handshake/protocol metadata, relevant service mapping, structured results/evidence and availability/failure handling.
 
 **Out of scope:** Login attempts, key/password guessing, credential collection, exploitation and host modification. All unrelated/future task work is excluded.
+
+**Reviewed profile:** Native receive-only `server_identification_v1`: one scoped
+numeric TCP connection, bounded banner/protocol/software/preamble metadata, zero
+application bytes sent. No client identification, KEX, algorithm/host-key negotiation
+or authentication. Exact limits/partial/failure semantics: docs/ssh-adapter.md and
+ADR 0022. This implements the permitted bounded banner/protocol profile only.
 
 **Implementation steps:**
 
@@ -1173,7 +1179,7 @@ and adapter registration belong to M4-T02+. No port-only fallback is permitted.
 
 - **ID:** `M4-T03`
 - **Title:** SMB metadata capability
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T02`
 

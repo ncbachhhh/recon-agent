@@ -479,8 +479,22 @@ contract; familiar ports and product/banner substrings cannot supply missing ide
 Unknown/composite/unreviewed/malformed data or recognized product conflicts select
 nothing. Selection never grants scope, consumes budgets, records actions or invokes
 policy/planner/adapter/runner. There are no auth/credential/command fields, exchanges,
-network/process/Groq calls or operational protocol registrations. M4-T02+ must define
-reviewed pre-authentication metadata profiles and revalidate current policy/scope/
-history/resources/contact before execution. Metadata result schemas preserve source
+network/process/Groq calls or operational registrations in the framework. Operational
+adapters, including M4-T02 SSH, require reviewed pre-authentication profiles and
+current policy/scope/history/resources/contact validation before execution. Metadata result schemas preserve source
 and untrusted evidence; hostile text cannot extend the capability table. See
 [protocol contracts](protocol-capabilities.md).
+
+## Receive-only SSH boundary (M4-T02)
+
+SSH capability = unauthenticated metadata only. Trusted observed-service bindings,
+current policy/risk/schema/dedup, independent subject/numeric scope and charged
+shared budgets gate one TCP connection. Native transport reads bounded server
+identification and closes with zero SSH application bytes sent, before binary
+packets. No client identification, auth attempts (including none/public key),
+credentials/private keys, commands/shell/SFTP/SCP/exploit or library fallback exist.
+Native numeric family/flags prevent DNS fallback. Banners/comments/preambles remain
+untrusted metadata; explicit software hints imply neither verified identity nor
+vulnerability and never introduce destinations or actions. Fake-stream write/drain
+sentinels and unread authentication bytes prove the no-auth path. Other protocol
+families are not operational. See [SSH profile/limits](ssh-adapter.md).

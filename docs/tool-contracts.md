@@ -2,7 +2,7 @@
 
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
-M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster; M3-T05 adds specialized FFUF vhost_names HEAD as an explicitly selected discover_content alternative. Later scanner adapters remain unimplemented.
+M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster; M3-T05 adds specialized FFUF vhost_names HEAD as an explicitly selected discover_content alternative. M4-T02 adds native receive-only inspect_protocol/family=ssh identification metadata. Other protocol/scanner adapters remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -466,7 +466,19 @@ It describes SSH/SMB/FTP/SMTP/database relevance from normalized Service.protoco
 without registering any operational adapter. ToolRegistry's one-adapter cardinality,
 availability and policy denial semantics remain unchanged. The default operational
 catalog is empty; known contracts have no availability flag. Only curated descriptor
-metadata is planner-facing. M4-T02+ supply real reviewed adapters. Exact name/transport
+metadata is planner-facing. M4-T02 supplies the SSH adapter; other families remain future work. Exact name/transport
 rules, product conflict vetoes, absent port fallback and provenance schema obligations
 are normative in [protocol contracts](protocol-capabilities.md). Selection does not
-invoke ActionPolicyValidator; every future request must pass it before execution.
+invoke ActionPolicyValidator; every operational request must pass it before execution.
+
+## inspect_protocol / SSH implementation (M4-T02)
+
+Explicit native_ssh/SshAdapter is operational only for family=ssh with strict
+SshInput port/tcp fields. Trusted immutable normalized SSH Service/host/address
+bindings define observed ports; planner cannot supply contacts/credentials/options.
+Current registry/policy/scope/dedup/shared budgets precede a single receive-only
+identification stream. No writes, key exchange, algorithm/host-key collection, auth
+or command API. SshOutput extends the common generic metadata/evidence envelope
+with explicit identification profile and completed/partial limitations. No default
+registration or other family availability is introduced; SshInput rejects their
+requests. Complete bounds/errors/provenance: [SSH contract](ssh-adapter.md).

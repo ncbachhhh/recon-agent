@@ -1,9 +1,9 @@
 # Protocol capability framework (M4-T01)
 
 M4-T01 implements pure Service relevance selection and typed metadata contracts.
-M4-T02+ own actual SSH/SMB/FTP/SMTP/database adapters, safe exchange profiles,
-availability, scope/contact/resource checks and normalization. No protocol adapter,
-collector, dispatcher, network/process/Groq call or automatic action exists here.
+M4-T02 adds the standalone operational [receive-only SSH identification adapter](ssh-adapter.md).
+M4-T03+ own other actual protocol adapters. The M4-T01 selector itself remains pure:
+no collector, dispatcher, network/process/Groq call or automatic action.
 
 ## Service → contract semantics
 
@@ -50,14 +50,15 @@ no executable, argv, NSE/script name, command, adapter ID or runtime object is e
 
 These contracts are **not** ToolAdapter or AdapterRegistration objects and have no
 availability assertion. ToolRegistry stays immutable, explicit and empty by default.
-`is_known_capability('inspect_protocol')` is true; `has_capability` is false and
-`capability_definition`/`resolve` return tool_unavailable until trusted composition
-supplies a real reviewed adapter. The operational catalog does not list missing
+`is_known_capability('inspect_protocol')` is true. In an empty registry, `has_capability`
+is false and `capability_definition`/`resolve` return tool_unavailable. M4-T02 permits
+explicit native_ssh registration for its reviewed SSH-only input/profile; other
+family requests are rejected by that specialized schema. The operational catalog does not list missing
 implementations. No fake adapter is registered in production.
 
 Registry cardinality remains one selected adapter per capability (ADR 0003).
-Future trusted protocol composition must respect that boundary and validate the
-selected family/profile; M4-T01 implements no router or executable interface.
+Trusted protocol composition must respect that boundary and validate the selected
+family/profile; M4-T02 supplies only SSH execution, with no generic router.
 Known database relevance does not promise a safe non-authentication exchange:
 M4-T06 must review each supported profile and reject unsafe/unsupported profiles.
 
@@ -67,7 +68,7 @@ Pure `domain.protocols` provides ProtocolFamily, strict frozen ProtocolMetadataI
 and ProtocolMetadataOutput. Input has only family (ssh/smb/ftp/smtp/database), strict
 port 1–65535 and tcp transport. ActionRequest.target remains the independently scoped
 host; there are no secondary destinations, credential/authentication parameters,
-protocol commands or arbitrary options. Future adapters must bind family/port/transport
+protocol commands or arbitrary options. Operational adapters must bind family/port/transport
 to actual observed Service and independently authorized numeric contact. Request
 claims alone cannot establish relevance or authorization.
 
@@ -81,9 +82,9 @@ The envelope is a common contract, not a protocol parser, finding or contact pro
 
 ```text
 Service observation → protocol capability candidate
-                    → future ActionRequest
+                    → ActionRequest
                     → ActionPolicyValidator
-                    → future trusted adapter (only if operational)
+                    → trusted adapter (M4-T02 SSH only; others future)
                     → atomic budgets + independent current contact checks
                     → normalized metadata observations/evidence
 ```
@@ -98,3 +99,12 @@ wording with the requested M4-T01 abstraction-only boundary.
 
 See [tool contracts](tool-contracts.md), [security model](security-model.md),
 [data model](data-model.md) and [ADR 0021](decisions/0021-protocol-relevance-contracts.md).
+
+## Operational extension (M4-T02)
+
+The original known-contract catalog and selector still assert no availability or
+authorization. Explicit SshAdapter uses the SSH descriptor and specialized semantic
+SshInput/SshOutput schemas. Only the receive-only server identification profile is
+operational; no algorithm/key/authentication/command path exists. Current policy/
+scope/dedup/shared budgets remain mandatory. All remaining family contracts remain
+nonoperational. See [SSH contract](ssh-adapter.md).

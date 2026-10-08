@@ -275,3 +275,13 @@ At most four sequential invocations share one atomic reservation, aggregate two-
 stream output and action/session deadline. Each candidate reserves two upstream
 Execute attempts; completed groups pace by 2/R or stricter shared interval. Existing
 timeout/cancellation/temp/permit cleanup applies. See [contract](ffuf-adapter.md).
+
+## Native receive-only SSH (M4-T02)
+
+SshAdapter executes existing inspect_protocol/family=ssh with one scoped numeric
+TCP identification read through native asyncio streams, not ExecutionRunner or an
+SSH binary/client library. The established injected native-transport pattern retains
+current policy/scope/dedup/shared atomic budget gating, finite capture/whole-action
+timeout and synchronous socket/permit cleanup. There is no write/authentication/
+KEX/command/session path. ProcessSpec/runner behavior stays unchanged. See
+[SSH contract](ssh-adapter.md) for strict profile, buffering and cancellation limits.

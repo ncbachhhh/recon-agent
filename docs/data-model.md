@@ -442,3 +442,15 @@ Service.protocol remains normalized service-name data; Service/Observation/Evide
 wire fields and ReconState behavior remain unchanged. Tools' separate relevance
 catalog selects a contract, never an operational adapter. M4-T02+ own collectors
 and normalization; see [exact contracts](protocol-capabilities.md).
+
+## SSH identification normalization (M4-T02)
+
+Tools-owned SshInput specializes ProtocolMetadataInput to SSH only. Trusted
+SshServiceBinding references an existing Service and explicit subject/numeric contact;
+SshContext supplies execution/time. SshOutput extends ProtocolMetadataOutput with
+query_target/contact/profile and completed/partial canonical errors. The original
+Service remains intact. Generic metadata Observation records banner/software/protocol/
+comments/preamble, exact base64 bytes, explicit collected-field limits and subject/
+port/profile/capability provenance; untrusted Evidence links source/time/execution/
+memory snapshot/hash. No inferred vulnerabilities, keys/algorithms or new domain
+wire/state contract. See [exact fields/limits](ssh-adapter.md).

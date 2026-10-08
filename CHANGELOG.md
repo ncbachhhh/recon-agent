@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M4-T02: native SSH-only inspect_protocol identification metadata from trusted
+  observed-service/numeric bindings behind current policy/scope/dedup/shared budgets.
+  Receive-only bounded greeting profile sends zero application bytes; generic
+  untrusted observations/evidence and canonical partial/failure outcomes. No auth,
+  credentials, commands, KEX/host-key/algorithm negotiation or later protocols.
+
 - M4-T01: finite protocol family contracts under inspect_protocol, deterministic
   normalized TCP Service relevance, conservative unknown/conflict rejection and
   strict semantic request/metadata provenance schemas. Separate known contracts

@@ -419,6 +419,20 @@ unknown/composite/hostile names, exact product conflict vetoes, TCP/UDP, nonstan
 ports, absent port-only fallback, malformed copies, determinism and immutable semantic
 catalogs. Guards forbid process/network/runner/adapter resolution. Test-only metadata
 bindings prove current availability/risk/scope/schema/budget/history denials; provenance
-fixtures retain hostile untrusted text. Production has no adapter or dispatcher and
-selection is tested with policy/scope/resource/state methods forbidden. No M4-T02+
-exchange is tested or implemented. See [contract](protocol-capabilities.md).
+fixtures retain hostile untrusted text. The framework supplies no adapter or dispatcher;
+selection is tested with policy/scope/resource/state methods forbidden. M4-T02 SSH
+exchange regressions are described below. See [contract](protocol-capabilities.md).
+
+## Receive-only SSH regressions (M4-T02)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_ssh.py tests/unit/tools/test_native_ssh.py tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py -q`,
+then the full baseline, pre-collection network/DNS-blocked suite, coverage/build,
+fresh-wheel guarded imports/inert composition/copied installed SSH tests/CLI and
+artifact/secret/diff checks. Synthetic RFC-shaped greetings use reserved fixture
+data, not an SSH server/library/binary. Real registry/policy/scope/dedup/shared
+budgets and fake transport/streams cover name/contact/port/service/credential/flag
+denials, exact banner/hints/raw/provenance, unsupported partial protocols, byte/
+line/output bounds, failures, cancellation, scope recheck, state and repeat admission.
+Native stream tests fail on write/writelines/drain; KEX/userauth bytes remain unread.
+No authentication or command path, DNS/network or later protocol task is executed.
+See [SSH contract](ssh-adapter.md).

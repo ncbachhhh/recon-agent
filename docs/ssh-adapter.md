@@ -131,9 +131,11 @@ must already be present; the adapter does not create/merge state, infer findings
 change scope or schedule work. Real history dedup denies completed equivalents before
 contact/spending when policy budget eligibility also holds. Default policy still denies.
 
-Only SSH has an operational profile. The registry's selected inspect_protocol adapter
+In composition selecting SshAdapter, only SSH is operational. The selected
+inspect_protocol adapter
 uses SshInput, which rejects SMB/FTP/SMTP/database families; their known M4-T01
-contracts remain nonoperational. M4-T03+ own future reviewed adapters/composition.
+contracts grant no availability. M4-T03 SMB is a separate explicit composition
+alternative; M4-T04+ remain unimplemented. No generic router exists.
 See [protocol contracts](protocol-capabilities.md), [security model](security-model.md),
 [budgets](execution-budgets.md), [state](state-transitions.md) and
 [ADR 0022](decisions/0022-receive-only-ssh-identification.md).

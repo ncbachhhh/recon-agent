@@ -1179,7 +1179,7 @@ ADR 0022. This implements the permitted bounded banner/protocol profile only.
 
 - **ID:** `M4-T03`
 - **Title:** SMB metadata capability
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T02`
 
@@ -1190,6 +1190,13 @@ ADR 0022. This implements the permitted bounded banner/protocol profile only.
 **In scope:** Reviewed non-destructive metadata profile, allowable share/configuration visibility, scoped service inputs, bounded results/evidence.
 
 **Out of scope:** Credential attacks, login guessing, share writes, file retrieval/execution, exploitation and privilege escalation. All unrelated/future task work is excluded.
+
+**Reviewed profile:** Native `smb2_negotiate_v1`: one scoped numeric Direct TCP
+connection, one fixed SMB2 NEGOTIATE offering 2.0.2/2.1/3.0/3.0.2, one bounded response.
+No session setup/authentication (including anonymous), shares/names/RPC/files/commands,
+SMB1/3.1.1/NetBIOS or fallback. Port 139/netbios-ssn reject. Only selected dialect,
+reported signing/GUID/configuration/time fields and untrusted evidence are collected.
+Exact permitted operation/limits/failures: docs/smb-adapter.md and ADR 0023.
 
 **Implementation steps:**
 
@@ -1218,7 +1225,7 @@ ADR 0022. This implements the permitted bounded banner/protocol profile only.
 
 - **ID:** `M4-T04`
 - **Title:** FTP metadata capability
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T03`
 

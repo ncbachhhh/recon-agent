@@ -285,3 +285,12 @@ current policy/scope/dedup/shared atomic budget gating, finite capture/whole-act
 timeout and synchronous socket/permit cleanup. There is no write/authentication/
 KEX/command/session path. ProcessSpec/runner behavior stays unchanged. See
 [SSH contract](ssh-adapter.md) for strict profile, buffering and cancellation limits.
+
+## Native SMB negotiation (M4-T03)
+
+SmbAdapter uses one native fixed NEGOTIATE request on independently scoped numeric
+Direct TCP. Existing current-policy/dedup/shared atomic reservation, whole-action/
+native deadlines and synchronous abort/permit cleanup apply. Bounded framing validates
+length before body read and stops after one response. No session/auth/file/command
+operation, process/client library, DNS/fallback/router or runner change. See
+[SMB profile](smb-adapter.md) for byte/request/buffering/cancellation limits.

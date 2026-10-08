@@ -2809,3 +2809,101 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(protocols): add SSH metadata inspection$"`.
 Final response reports actual hash and clean tree. No amend/squash/history rewrite,
 second task commit or push.
+
+## 2026-10-08 — M4-T03 — SMB metadata capability
+
+Status: DONE. Objective: trusted bounded safe SMB metadata through existing
+inspect_protocol/family=smb, without authentication or remote modification. Startup
+verified HEAD ce1942e5642809007e3e20219d4d90d47a787cb2, clean working/staged tree,
+M0/M1/M2/M3 and M4-T01–M4-T02 DONE, M4-T03 READY, no active task or blocker.
+M4-T03 alone transitioned IN PROGRESS → DONE; only M4-T04 becomes READY/unstarted.
+
+### Changes and decisions
+
+- tools/smb.py: standalone SmbAdapter/native_smb using existing SMB descriptor,
+  strict family/port/tcp schema, immutable finite observed-Service/subject/numeric
+  bindings, exact relevance and unique host/port. Mismatched service/asset/port/family,
+  port 139/netbios-ssn, credentials/operations/options reject before contact/spending.
+- Current registry binding, ActionPolicyValidator risk/schema/allowlists/real dedup/
+  budget eligibility, independent subject/contact ScopeValidator and one shared atomic
+  reservation gate execution; recheck registry/scope after trusted start notification.
+  Numeric subjects cannot substitute an address; discovery/bindings confer no permission.
+- tools/native_smb.py: one numeric Direct TCP connection, exactly one fixed 112-byte
+  SMB2 NEGOTIATE frame and one bounded response, then synchronous close/abort. No
+  session setup/authentication (including anonymous), credential/hash/key loading,
+  shares/RPC/files/read/write/delete/commands, relay/exploitation or retry/fallback.
+  Fixed dialect offer 2.0.2/2.1/3.0/3.0.2 and generated client GUID are adapter-owned,
+  never planner-controlled wire flags. Stream write is negotiation, never SMB WRITE.
+- tools/smb_parser.py/models.py: strict framing/header/command/session/compound/transform/
+  dialect/signing/buffer bounds, validated canonical protocol/access-required failures,
+  deterministic selected dialect/signing/GUID/config size/raw FILETIME/opaque response
+  metadata. SMB1/3.1.1/full dialect inventory/names/domain/workgroup/shares uncollected.
+  No negative support claims, authenticated signing/identity verification or Findings.
+- Existing Service/common ProtocolMetadataOutput/generic metadata Observation/untrusted
+  Evidence preserve target/port/host/service/source/caller UTC/execution/links/base64/
+  memory snapshot/hash. No raw exception leakage, state mutation, DNS or follow-up.
+  Real state ingestion/completed-history dedup denies a second equivalent contact.
+- Two new offline modules, 151 cases; synthetic independent hex fixtures/README.
+  Exact outbound vector checks command 0/session 0 and forbids second/auth/file packets.
+  Real native adapter through fake streams and real policy/scope/resources, malformed/
+  denied/unavailable/timeout/cancellation/bounds/provenance/hostile values all tested.
+- docs/smb-adapter.md and ADR 0023 establish reviewed finite profile (PLAN explicitly
+  assigned that choice). Anonymous share/name visibility is not approved. Updated
+  protocol/SSH/security/tool/architecture/data/execution/state/testing docs, CHANGELOG
+  and lifecycle. SSH/SMB remain explicit alternatives under one selected adapter per
+  capability; no router/default registration or fake future availability.
+- Every previously tracked production file remains byte-identical, including protocol
+  framework/SSH/domain/registry/scope/policy/budgets/dedup/state/runner/earlier adapters/
+  workflow/config/dependencies/providers/CLI. No M4-T04+, planner/loop/storage/reporting
+  or generic client work. No new dependency, binary or live target execution.
+
+### Actual validation
+
+Python 3.14.6, documented .venv. Package install/build provisioning may contact indexes;
+default tests never contact targets/Groq. Primary Microsoft MS-SMB2 transport, synchronous
+header, fixed negotiate request/response, error and SMB2-only negotiation specifications
+reviewed; source links in SMB contract. No live SMB/SSH server, client/binary/library or
+Python 3.12 execution. Logs/scripts outside checkout: /tmp/recon-m4t03-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python 3.14.6; editable install -e '.[dev]' and pip check passed |
+| Focused | SMB/native/framework/registry: 364 passed (151 new cases) |
+| Full | pytest: 3,269 passed |
+| Network/DNS blocked | Pre-collection guards, Groq key absent: 3,269 passed |
+| Coverage | coverage run pytest: 3,269 passed; 96% overall, 6,173 statements / 2,106 branches; native/models 100%, adapter 95%, parser 98% |
+| Lint/format/types | Ruff check/format (191 files), strict Mypy (86 source modules) passed |
+| Build/CLI | Isolated wheel/sdist and editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check, guarded all-module cold imports/origins/empty registry/inert SMB-only composition; 364 copied installed-wheel blocked tests passed outside checkout |
+| Artifact/security | Earlier production byte parity; fixed sole negotiate AST boundary; artifact/secret, wheel/sdist source and unchanged runtime dependency metadata parity passed |
+| Closeout | Individual acceptance/final working/staged diff/whitespace, append-only history/Markdown and 92-task readiness checks passed: 30 DONE, M4-T04 alone READY, 61 NOT STARTED |
+
+Development checks initially exposed a nonexistent test budget counter and duplicate
+keyword construction in native invalid-input fixtures. Fixed test assertions/input
+construction; a first text replacement missed formatter indentation and was corrected
+with an explicit patch. Mypy found dialect Literal typing and an optional normalized
+service-name dereference; added explicit shared dialect typing and None guard.
+Final required checks all pass; no acceptance/test gate weakened. Remaining coverage
+branches are defensive malformed trusted composition/stale binding/reservation/error
+shapes, not an untested auth/write path. Guards precede collection and allow AF_UNIX;
+existing harmless interpreter children are not OS network sandboxed. Standard asyncio
+connect/OS buffering/rate limitations and no live compatibility guarantee are documented.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Only named approved metadata operations | smb2_negotiate_v1 fixed NEGOTIATE builder/native sole-write assertion and independent exact vector; no generic operation input/router |
+| Operational scoped validated SMB capability | Explicit real native_smb registry/schema; exact observed binding; current policy, numeric ScopeValidator and atomic budget checks; rejected inputs do not contact/spend |
+| No credentials/attacks/remote modification | Strict extra-forbid schemas; no auth/session/share/file/command API; no second packet/auth/write dispatch in fakes/native adapter; no third-party client |
+| Inaccessible/auth-dependent data is a limitation | Valid access/logon/more-processing/unsupported errors return fixed canonical failures; no retry/escalation; domain/workgroup/shares and unoffered dialects explicitly unknown/uncollected |
+| Scope/time/request/output limits | One pinned numeric contact/request; framing bound before body read; outer/native/session deadlines and cancellation/socket/permit cleanup; host/rate/action/output denials |
+| Traceable generic untrusted evidence | Original Service unchanged, exact metadata/base64/source/caller time/execution/port/snapshot hash; generic state ingestion and real history dedup regression |
+| Full baseline and boundaries | All final required checks pass; earlier production source protected; M0/M1/M2/M3 and M4-T01–M4-T03 DONE; M4-T04 READY/unstarted, no active task |
+
+No new blocker/follow-up task. Profile excludes authentication/shares/files/names/SMB1/
+3.1.1/NetBIOS; no fallback/expanded client is planned by this task. Stop after M4-T03.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(protocols): add SMB metadata inspection`; resolve through Git log. Final response
+reports actual hash and clean tree. No second task commit, amend/squash or push.

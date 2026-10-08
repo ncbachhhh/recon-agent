@@ -2,7 +2,8 @@
 
 M4-T01 implements pure Service relevance selection and typed metadata contracts.
 M4-T02 adds the standalone operational [receive-only SSH identification adapter](ssh-adapter.md).
-M4-T03+ own other actual protocol adapters. The M4-T01 selector itself remains pure:
+M4-T03 adds the standalone [SMB2 negotiation adapter](smb-adapter.md).
+M4-T04+ own other actual protocol adapters. The M4-T01 selector itself remains pure:
 no collector, dispatcher, network/process/Groq call or automatic action.
 
 ## Service → contract semantics
@@ -52,13 +53,13 @@ These contracts are **not** ToolAdapter or AdapterRegistration objects and have 
 availability assertion. ToolRegistry stays immutable, explicit and empty by default.
 `is_known_capability('inspect_protocol')` is true. In an empty registry, `has_capability`
 is false and `capability_definition`/`resolve` return tool_unavailable. M4-T02 permits
-explicit native_ssh registration for its reviewed SSH-only input/profile; other
-family requests are rejected by that specialized schema. The operational catalog does not list missing
-implementations. No fake adapter is registered in production.
+explicit native_ssh registration; M4-T03 permits explicit native_smb as an alternative.
+Each selected adapter rejects other families through its specialized schema. The
+operational catalog does not list missing implementations. No fake adapter is registered in production.
 
 Registry cardinality remains one selected adapter per capability (ADR 0003).
 Trusted protocol composition must respect that boundary and validate the selected
-family/profile; M4-T02 supplies only SSH execution, with no generic router.
+family/profile; SSH and SMB are explicit alternatives, with no generic router.
 Known database relevance does not promise a safe non-authentication exchange:
 M4-T06 must review each supported profile and reject unsafe/unsupported profiles.
 
@@ -84,7 +85,7 @@ The envelope is a common contract, not a protocol parser, finding or contact pro
 Service observation → protocol capability candidate
                     → ActionRequest
                     → ActionPolicyValidator
-                    → trusted adapter (M4-T02 SSH only; others future)
+                    → trusted adapter (SSH or SMB explicitly selected; others future)
                     → atomic budgets + independent current contact checks
                     → normalized metadata observations/evidence
 ```
@@ -106,5 +107,13 @@ The original known-contract catalog and selector still assert no availability or
 authorization. Explicit SshAdapter uses the SSH descriptor and specialized semantic
 SshInput/SshOutput schemas. Only the receive-only server identification profile is
 operational; no algorithm/key/authentication/command path exists. Current policy/
-scope/dedup/shared budgets remain mandatory. All remaining family contracts remain
-nonoperational. See [SSH contract](ssh-adapter.md).
+scope/dedup/shared budgets remain mandatory. M4-T03 SMB has a separate operational
+profile; FTP/SMTP/database remain nonoperational. See [SSH contract](ssh-adapter.md).
+
+## Operational extension (M4-T03)
+
+Explicit SmbAdapter supplies strict SMB-only semantic schemas and a single fixed
+SMB2 NEGOTIATE profile for selected dialect/signing/GUID metadata. It has no session
+setup/authentication/shares/files/command path. SSH/SMB are reviewed alternatives
+under the existing one-selected-adapter registry rule, not conflicting registrations
+or an automatic router. Other families remain unimplemented. See [SMB contract](smb-adapter.md).

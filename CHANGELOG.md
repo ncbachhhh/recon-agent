@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- M4-T03: native SMB-only inspect_protocol through one fixed bounded SMB2 NEGOTIATE
+  behind current observed-service/policy/scope/dedup/shared budgets. Reported dialect/
+  signing/GUID metadata and generic untrusted provenance/canonical failures; no
+  authentication, shares/files/commands/fallback or later protocol implementation.
+
 - M4-T02: native SSH-only inspect_protocol identification metadata from trusted
   observed-service/numeric bindings behind current policy/scope/dedup/shared budgets.
   Receive-only bounded greeting profile sends zero application bytes; generic

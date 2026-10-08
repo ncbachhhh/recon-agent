@@ -496,5 +496,18 @@ credentials/private keys, commands/shell/SFTP/SCP/exploit or library fallback ex
 Native numeric family/flags prevent DNS fallback. Banners/comments/preambles remain
 untrusted metadata; explicit software hints imply neither verified identity nor
 vulnerability and never introduce destinations or actions. Fake-stream write/drain
-sentinels and unread authentication bytes prove the no-auth path. Other protocol
-families are not operational. See [SSH profile/limits](ssh-adapter.md).
+sentinels and unread authentication bytes prove the no-auth path. M4-T03 SMB is
+separately operational through explicit alternative composition;
+FTP/SMTP/database remain unimplemented. See [SSH profile/limits](ssh-adapter.md).
+
+## Negotiate-only SMB boundary (M4-T03)
+
+SMB capability = safe metadata collection only. One fixed command-0/session-0 SMB2
+NEGOTIATE occurs after current registry/policy/dedup, independent subject/numeric
+scope and shared budget checks. No session setup/authentication (including anonymous),
+credentials/hashes, spraying/brute force/relay/capture/pass-the-hash, shares/RPC/files,
+remote reads/writes/deletes/commands, exploitation or fallback. Network stream write
+sends negotiation only; no SMB WRITE dispatch exists. Server GUID/signing and opaque
+strings remain untrusted reported facts, never Findings/authority or new contacts.
+Exact outbound-byte and no-second-packet regressions guard this boundary. No new
+library/binary/router/provider/CLI path. See [SMB contract](smb-adapter.md).

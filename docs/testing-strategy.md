@@ -436,3 +436,15 @@ line/output bounds, failures, cancellation, scope recheck, state and repeat admi
 Native stream tests fail on write/writelines/drain; KEX/userauth bytes remain unread.
 No authentication or command path, DNS/network or later protocol task is executed.
 See [SSH contract](ssh-adapter.md).
+
+## SMB negotiation regressions (M4-T03)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_smb.py tests/unit/tools/test_native_smb.py tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py -q`,
+then the full baseline, pre-collection network/DNS-blocked run, coverage/build,
+fresh-wheel guarded cold imports/SMB composition/copied installed tests/inert CLI and
+artifact/secret/diff checks. Synthetic independent hex frames cover SMB2/3 dialects
+and signing bits, GUID and opaque hostile strings. Fake streams assert sole fixed
+NEGOTIATE/session-zero output, no second/auth/share/file packets; real policy/scope/
+budget/dedup/state tests verify denial, provenance, limits, failure and cancellation.
+No live target or client/binary exists in default tests. Missing auth-dependent shares/
+names and unoffered SMB1/3.1.1 support remain explicit. See [SMB contract](smb-adapter.md).

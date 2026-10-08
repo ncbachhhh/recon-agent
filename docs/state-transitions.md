@@ -259,3 +259,12 @@ and error for unsupported protocol identification. Service/product/source observ
 remain unchanged; no automatic state mutation, new subject or planner action exists.
 Completed-equivalent SSH family/port/tcp requests use real existing semantic dedup
 before further contact/spending. See [SSH contract](ssh-adapter.md).
+
+## SMB metadata ingestion (M4-T03)
+
+Caller owns requested/approved/started/terminal history and existing ActionResult
+ingestion of SmbOutput generic observations/evidence. Original Asset/Host/Service
+must already be present. Negotiation success completes only its bounded profile;
+denied/auth-required/unsupported metadata is a canonical failure, never a follow-up.
+Real completed-equivalent family/port/tcp dedup denies another contact/reservation.
+No state owner/schema/scope changes. See [SMB contract](smb-adapter.md).

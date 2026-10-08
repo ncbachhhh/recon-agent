@@ -454,3 +454,13 @@ comments/preamble, exact base64 bytes, explicit collected-field limits and subje
 port/profile/capability provenance; untrusted Evidence links source/time/execution/
 memory snapshot/hash. No inferred vulnerabilities, keys/algorithms or new domain
 wire/state contract. See [exact fields/limits](ssh-adapter.md).
+
+## SMB negotiation normalization (M4-T03)
+
+SmbInput specializes the common protocol schema to SMB. Trusted SmbServiceBinding/
+SmbContext preserve original Service and caller subject/numeric address/UTC/execution.
+SmbOutput completes only the fixed negotiation profile with generic untrusted metadata/
+evidence: selected dialect, reported signing/GUID/capability/size/FILETIME values, exact
+base64 response and stable snapshot digest. Missing domain/workgroup/shares and
+SMB1/3.1.1 inventory are explicit, not guessed. No Findings, new domain/state schemas
+or implicit contact authority. See [SMB fields/limits](smb-adapter.md).

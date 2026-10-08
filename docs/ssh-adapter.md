@@ -135,7 +135,8 @@ In composition selecting SshAdapter, only SSH is operational. The selected
 inspect_protocol adapter
 uses SshInput, which rejects SMB/FTP/SMTP/database families; their known M4-T01
 contracts grant no availability. M4-T03 SMB is a separate explicit composition
-alternative; M4-T04+ remain unimplemented. No generic router exists.
+alternative; M4-T04 adds separate [FTP metadata](ftp-adapter.md);
+M4-T05+ remain unimplemented. No generic router exists.
 See [protocol contracts](protocol-capabilities.md), [security model](security-model.md),
 [budgets](execution-budgets.md), [state](state-transitions.md) and
 [ADR 0022](decisions/0022-receive-only-ssh-identification.md).

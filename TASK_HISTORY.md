@@ -2907,3 +2907,98 @@ No new blocker/follow-up task. Profile excludes authentication/shares/files/name
 Commit reference: the single focused commit containing this entry, titled
 `feat(protocols): add SMB metadata inspection`; resolve through Git log. Final response
 reports actual hash and clean tree. No second task commit, amend/squash or push.
+
+## 2026-10-08 — M4-T04 — FTP metadata capability
+
+Status: DONE. Objective: bounded trusted FTP pre-authentication metadata through
+inspect_protocol/family=ftp without credentials, login or file operations. Startup
+verified expected HEAD dc9edb20282e1ae3b15f3bcd6a76aca98798d49f, clean working/staged
+tree, M0/M1/M2/M3 and M4-T01–M4-T03 DONE, M4-T04 READY, no active task or blocker.
+M4-T04 alone transitioned READY → IN PROGRESS → DONE; only M4-T05 becomes READY.
+
+### Changes and decisions
+
+- tools/ftp.py: explicit standalone FtpAdapter/native_ftp with strict family/port/tcp
+  schema, finite immutable prior Service/subject/numeric-contact bindings, exact FTP
+  relevance and asset/port matching. Current registry/policy/risk/schema/dedup and
+  independent centralized subject/contact scope precede shared atomic budgets.
+  Registry/scope recheck after start notification; denials do not contact or spend.
+- tools/native_ftp.py: one pinned numeric control connection, initial greeting, only
+  valid 220 enables one fixed argument-free FEAT, one feature reply, synchronous abort.
+  No authentication (including anonymous), usernames/passwords/credentials/brute force,
+  LIST/RETR/STOR/DELE/writable testing, data connections/PORT/PASV, command execution,
+  arbitrary protocol options, TLS negotiation, retry/fallback or generic FTP client.
+- tools/ftp_parser.py/models.py: strict bounded CRLF reply framing, UTF-8 greeting and
+  ASCII feature syntax, 8192 aggregate bytes/512 line bytes/64 lines per reply, native/
+  outer/session deadlines and serialized-output limit. Valid unsupported greeting or
+  unavailable/auth-required/malformed FEAT preserves partial banner with canonical
+  parse_failed limitation. Refused/unreachable/empty close/malformed greeting/timeout
+  use existing Failure/ErrorInfo; no exception/raw diagnostic leakage or fallback.
+- Original Service/common ProtocolMetadataOutput/generic metadata Observation and
+  untrusted Evidence retain target/host/service/asset/port, exact banner/features/raw
+  base64, narrow full-banner product/version hints, source/caller UTC/execution/links/
+  memory locator/hash. AUTH TLS advertisement is true or unknown, never a TLS test
+  or vulnerability inference. Unknown/instruction-like features are data, not commands.
+- tests/unit/tools/test_ftp.py and test_native_ftp.py add 164 offline cases with
+  synthetic escaped-JSON fixtures. Independent exact outbound vector forbids every
+  login/file/data command, even when remote text advertises USER anonymous or STOR.
+  Actual native adapter/fake streams/real policy/budget and generic completed/partial
+  state ingestion/dedup verify authorization, provenance, failures, deadlines and cleanup.
+- docs/ftp-adapter.md / ADR 0024 define the reviewed greeting_feat_v1 choice assigned
+  by PLAN, exact limits and prohibited operations. Updated architecture/protocol/
+  security/tool/data/execution/state/testing/SSH/SMB docs, CHANGELOG and lifecycle.
+  FTP capability = unauthenticated metadata only. Explicit FTP/SSH/SMB alternatives
+  respect one selected adapter per capability; no router/default registration.
+- Every previously tracked production file is byte-identical, including domain/
+  protocol framework/SSH/SMB/registry/policy/scope/budgets/dedup/state/runner/config/
+  dependencies/workflow/provider/CLI. No SMTP/database/planner/autonomous-loop/
+  persistence/reporting/real CLI or M4-T05+ implementation; no new dependency.
+
+### Actual validation
+
+Python 3.14.6 in documented .venv. Install/build provisioning may contact package
+indexes; default tests never contact targets/Groq. Primary RFC 959 framing, RFC 2389
+FEAT and RFC 4217 TLS-advertisement sources reviewed and linked in FTP contract.
+No live FTP server/client/scanner/library or Python 3.12 execution. Temporary logs/
+scripts: /tmp/recon-m4t04-validation, outside checkout.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python 3.14.6; editable -e '.[dev]' and pip check passed |
+| Focused | FTP/native/framework/registry: 377 passed, including 164 new FTP cases |
+| Full | pytest: 3,433 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 3,433 passed |
+| Coverage | coverage run pytest: 3,433 passed; 96% overall, 6,480 statements / 2,220 branches; native/models 100%, adapter 95%, parser 98% |
+| Lint/format/types | Ruff check, format (200 files), strict Mypy (90 source modules) passed |
+| Build/CLI | Isolated sdist/wheel; editable and fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check; guarded all-module cold imports/origins/empty registry/inert FTP composition; 377 copied installed-wheel blocked tests passed outside checkout |
+| Artifact/security | Protected earlier source byte parity, sole FEAT write AST and immutable vector, artifact/secret, wheel/sdist source and unchanged runtime dependency parity passed |
+| Closeout | Individual acceptance/final working/staged diff/whitespace, append-only history and Markdown/task readiness checks passed: 31 DONE, only M4-T05 READY, 60 NOT STARTED |
+
+Development checks caught Mypy's heterogeneous **kwargs typing and a stale copied
+fixture name, then a Ruff import/format issue. Corrected with explicit TypedDict,
+FTP fixture naming and formatting; final required checks pass without weakened gates.
+Remaining uncovered adapter/parser branches are defensive stale/composition/error
+shapes, not authentication or file operations. Parent network guards allow AF_UNIX
+plumbing; existing harmless interpreter children are not OS network sandboxed.
+Asyncio/OS buffering and connection-rate limits, implicit FTPS and absent TLS/auth
+metadata are explicit. Overflow discards malformed feature bytes but retains the
+valid greeting; timeout/connection failure retains no partial payload.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Operational scoped validated FTP | Explicit native_ftp registry/schema; prior observed Service/port binding; real current policy and independent numeric scope; no-contact/no-spend denial assertions |
+| Only documented pre-authentication exchanges | Sole fixed FEAT after valid 220; independent fake-stream outbound vector, no second/request/auth/file dispatch; valid 120 yields banner-only partial |
+| No credentials/login/file operations | Strict extra-forbid schema, no client/credential/data/command APIs or library; credential/anonymous/paths/options rejection and exact native byte regression |
+| Structured malformed/timeout/unsupported/partial outcomes | Canonical ErrorInfo/Failure and explicit partial FtpOutput; greeting/feature malformed/denied/EOF/refused/unreachable/bounds/deadline/cancellation cases |
+| Generic traceable untrusted facts and limits | Original Service intact; banner/hints/features/unknown TLS/source/time/execution/port/base64/hash; actual generic completed and partial state ingestion/history dedup |
+| Full baseline and task boundary | All final required validation passes; earlier production unchanged; M0/M1/M2/M3 and M4-T01–M4-T04 DONE; only M4-T05 READY; no active task/blocker |
+
+No new blocker/follow-up task. M4-T05 READY is lifecycle bookkeeping only; no SMTP
+or later work begun. Stop after M4-T04.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(protocols): add FTP metadata inspection`; resolve through Git log. Final response
+reports actual hash and clean tree. No second task commit/amend/squash/history rewrite/push.

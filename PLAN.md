@@ -1225,7 +1225,7 @@ Exact permitted operation/limits/failures: docs/smb-adapter.md and ADR 0023.
 
 - **ID:** `M4-T04`
 - **Title:** FTP metadata capability
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T03`
 
@@ -1236,6 +1236,12 @@ Exact permitted operation/limits/failures: docs/smb-adapter.md and ADR 0023.
 **In scope:** Bounded banner/protocol capability profile, evidence normalization and service relevance.
 
 **Out of scope:** USER/PASS guessing, anonymous-login automation unless separately scoped future task, file listing/download/upload and exploit commands. All unrelated/future task work is excluded.
+
+**Reviewed profile:** `greeting_feat_v1`, native greeting plus at most one fixed FEAT
+on one independently scoped numeric TCP control connection. Only valid 220 permits
+FEAT; unsupported/auth-required features yield partial banner data. No authentication
+(including anonymous), files/data connection, arbitrary command/options, TLS handshake,
+retry/fallback. Exact semantics: docs/ftp-adapter.md and ADR 0024.
 
 **Implementation steps:**
 
@@ -1263,7 +1269,7 @@ Exact permitted operation/limits/failures: docs/smb-adapter.md and ADR 0023.
 
 - **ID:** `M4-T05`
 - **Title:** SMTP metadata capability
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T04`
 

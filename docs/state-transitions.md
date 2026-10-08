@@ -268,3 +268,15 @@ must already be present. Negotiation success completes only its bounded profile;
 denied/auth-required/unsupported metadata is a canonical failure, never a follow-up.
 Real completed-equivalent family/port/tcp dedup denies another contact/reservation.
 No state owner/schema/scope changes. See [SMB contract](smb-adapter.md).
+
+## FTP metadata ingestion (M4-T04)
+
+FtpAdapter returns generic observations/evidence without mutating the owner.
+Caller must already record the original Asset/Host/Service and coherent action
+lifecycle/execution. Completed or partial ActionResult ingests existing generic
+untrusted facts; partial results use output.errors[0] as the canonical error.
+Unsupported/auth-required/malformed FEAT yields partial banner metadata; refused/
+timeout/malformed greeting yields Failure and no successful observations.
+Real state ingestion and completed-history dedup prevent a repeated equivalent
+family/port/tcp contact. Remote banners/features never create authorization or
+Findings. No state/schema/policy changes. See [FTP contract](ftp-adapter.md).

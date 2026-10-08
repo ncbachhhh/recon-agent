@@ -448,3 +448,16 @@ NEGOTIATE/session-zero output, no second/auth/share/file packets; real policy/sc
 budget/dedup/state tests verify denial, provenance, limits, failure and cancellation.
 No live target or client/binary exists in default tests. Missing auth-dependent shares/
 names and unoffered SMB1/3.1.1 support remain explicit. See [SMB contract](smb-adapter.md).
+
+## FTP pre-authentication regressions (M4-T04)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_ftp.py tests/unit/tools/test_native_ftp.py tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py -q`,
+then the full baseline/pre-collection network-DNS-blocked suite, coverage/build/
+fresh-wheel guarded cold imports and copied installed tests/inert CLI/artifact/
+secret/diff checks. Synthetic JSON preserves CRLF. Fake streams assert the sole
+fixed FEAT byte vector and prohibit all authentication/file/command/data operations.
+Real registry/policy/scope/resources/dedup/state test invalid credentials/options/
+family/port/service denials before spending/contact, banners/features/TLS claims/
+provenance/hostile data, partial/malformed/refused/deadline/cancellation/bounds and
+cleanup. No live FTP server/client/library/binary/provider or M4-T05+ work.
+See [FTP contract](ftp-adapter.md).

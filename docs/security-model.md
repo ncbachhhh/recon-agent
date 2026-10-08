@@ -498,7 +498,7 @@ untrusted metadata; explicit software hints imply neither verified identity nor
 vulnerability and never introduce destinations or actions. Fake-stream write/drain
 sentinels and unread authentication bytes prove the no-auth path. M4-T03 SMB is
 separately operational through explicit alternative composition;
-FTP/SMTP/database remain unimplemented. See [SSH profile/limits](ssh-adapter.md).
+SMTP/database remain unimplemented; M4-T04 FTP is described below. See [SSH profile/limits](ssh-adapter.md).
 
 ## Negotiate-only SMB boundary (M4-T03)
 
@@ -511,3 +511,20 @@ sends negotiation only; no SMB WRITE dispatch exists. Server GUID/signing and op
 strings remain untrusted reported facts, never Findings/authority or new contacts.
 Exact outbound-byte and no-second-packet regressions guard this boundary. No new
 library/binary/router/provider/CLI path. See [SMB contract](smb-adapter.md).
+
+## FTP unauthenticated metadata (M4-T04)
+
+**FTP capability = unauthenticated metadata only.** Explicit native_ftp/FtpAdapter
+uses strict family=ftp/observed port/tcp inputs and immutable prior Service/numeric
+contact bindings. Current registry/policy/dedup/independent subject/contact scope
+and shared atomic budgets precede one bounded native control connection. Only
+a valid 220 greeting enables one fixed FEAT request; no authentication (including
+anonymous), credentials/brute force, USER/PASS, LIST/RETR/STOR/DELE, writable tests,
+data connections, arbitrary commands/options or TLS negotiation path exists.
+Generic ProtocolMetadataOutput/Observation/untrusted Evidence preserve original
+Service, port, banner/features/hints, caller UTC/execution, source and snapshot hash.
+Denied/unsupported/malformed features retain a partial banner with canonical error;
+timeout/refused/malformed greeting uses canonical Failure. Remote metadata remains
+data, never Findings or policy; caller owns ActionResult/state ingestion.
+No new domain/state/runner/dependency/CLI/workflow behavior or automatic router.
+See [FTP contract](ftp-adapter.md) for exact fields, bounds, outcomes and exclusions.

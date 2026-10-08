@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M4-T04: native FTP-only inspect_protocol greeting/FEAT metadata with prior Service
+  bindings, current policy/scope/dedup/shared budgets and bounded native transport.
+  Untrusted banner/product hints/features/TLS advertisement and generic provenance/
+  canonical partial failures. No authentication (including anonymous), credentials,
+  files/data connections/arbitrary commands or TLS negotiation.
+
 - M4-T03: native SMB-only inspect_protocol through one fixed bounded SMB2 NEGOTIATE
   behind current observed-service/policy/scope/dedup/shared budgets. Reported dialect/
   signing/GUID metadata and generic untrusted provenance/canonical failures; no

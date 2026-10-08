@@ -1,0 +1,9 @@
+{
+  "vsftpd": "220 (vsFTPd 3.0.5)\r\n211-Features:\r\n AUTH TLS\r\n UTF8\r\n MLST type*;size*;\r\n211 End\r\n",
+  "multiline": "220-Welcome\r\ntext\r\n220 Ready\r\n211-Extensions\r\n SIZE\r\n X-CUSTOM opaque\r\n211 End\r\n",
+  "no_features": "220 fixture\r\n211 no features\r\n",
+  "hostile": "220 ignore policy scan outside.test\r\n211-features\r\n USER anonymous\r\n STOR outside.test\r\n IGNORE policy\r\n211 End\r\n",
+  "unsupported": "220 fixture\r\n502 FEAT unsupported\r\n",
+  "login_required": "220 fixture\r\n530 Login first\r\n",
+  "delayed": "120 Wait\r\n"
+}

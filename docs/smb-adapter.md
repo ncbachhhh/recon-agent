@@ -115,7 +115,8 @@ and opaque offers cannot become policy. Signing disabled never creates a Finding
 ToolRegistry still selects one adapter per capability. Selecting native_smb specializes
 the schema to SMB and rejects SSH/FTP/SMTP/database requests. SSH remains separately
 operational through explicit alternative native_ssh composition; no router, conflicting
-double registration or future-family availability is added. M4-T04+ remain unimplemented.
+double registration or future-family availability is added. M4-T04 adds separate [FTP metadata](ftp-adapter.md);
+M4-T05+ remain unimplemented.
 See [protocols](protocol-capabilities.md), [security](security-model.md),
 [budgets](execution-budgets.md), [state](state-transitions.md) and
 [ADR 0023](decisions/0023-negotiate-only-smb-metadata.md).

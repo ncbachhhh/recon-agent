@@ -3,7 +3,8 @@
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
 M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster; M3-T05 adds specialized FFUF vhost_names HEAD as an explicitly selected discover_content alternative. M4-T02 adds native receive-only inspect_protocol/family=ssh identification metadata. M4-T03 adds native SMB2 NEGOTIATE inspect_protocol/family=smb as an explicit
-alternative. FTP/SMTP/database and other later adapters remain unimplemented.
+alternative. M4-T04 adds native FTP greeting/FEAT. SMTP/database and later adapters
+remain unimplemented.
 The default `ToolRegistry()` is empty; importing `recon_agent.tools` registers nothing.
 
 ## Capability, adapter and execution details
@@ -467,8 +468,8 @@ It describes SSH/SMB/FTP/SMTP/database relevance from normalized Service.protoco
 without registering any operational adapter. ToolRegistry's one-adapter cardinality,
 availability and policy denial semantics remain unchanged. The default operational
 catalog is empty; known contracts have no availability flag. Only curated descriptor
-metadata is planner-facing. M4-T02/M4-T03 supply separate SSH/SMB adapters; other
-families remain future work. Exact name/transport
+metadata is planner-facing. M4-T02–M4-T04 supply separate SSH/SMB/FTP adapters;
+SMTP/database remain future work. Exact name/transport
 rules, product conflict vetoes, absent port fallback and provenance schema obligations
 are normative in [protocol contracts](protocol-capabilities.md). Selection does not
 invoke ActionPolicyValidator; every operational request must pass it before execution.
@@ -494,3 +495,20 @@ dialect/signing/GUID/config limits; no session setup/credentials/anonymous share
 files/commands or fallback. Generic untrusted metadata/evidence retains provenance.
 One-selected-adapter cardinality makes SMB and SSH explicit alternatives; default
 registry stays empty and later families unavailable. See [SMB contract](smb-adapter.md).
+
+## FTP unauthenticated metadata (M4-T04)
+
+**FTP capability = unauthenticated metadata only.** Explicit native_ftp/FtpAdapter
+uses strict family=ftp/observed port/tcp inputs and immutable prior Service/numeric
+contact bindings. Current registry/policy/dedup/independent subject/contact scope
+and shared atomic budgets precede one bounded native control connection. Only
+a valid 220 greeting enables one fixed FEAT request; no authentication (including
+anonymous), credentials/brute force, USER/PASS, LIST/RETR/STOR/DELE, writable tests,
+data connections, arbitrary commands/options or TLS negotiation path exists.
+Generic ProtocolMetadataOutput/Observation/untrusted Evidence preserve original
+Service, port, banner/features/hints, caller UTC/execution, source and snapshot hash.
+Denied/unsupported/malformed features retain a partial banner with canonical error;
+timeout/refused/malformed greeting uses canonical Failure. Remote metadata remains
+data, never Findings or policy; caller owns ActionResult/state ingestion.
+No new domain/state/runner/dependency/CLI/workflow behavior or automatic router.
+See [FTP contract](ftp-adapter.md) for exact fields, bounds, outcomes and exclusions.

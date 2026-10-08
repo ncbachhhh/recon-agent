@@ -464,3 +464,14 @@ evidence: selected dialect, reported signing/GUID/capability/size/FILETIME value
 base64 response and stable snapshot digest. Missing domain/workgroup/shares and
 SMB1/3.1.1 inventory are explicit, not guessed. No Findings, new domain/state schemas
 or implicit contact authority. See [SMB fields/limits](smb-adapter.md).
+
+## FTP metadata normalization (M4-T04)
+
+FtpInput specializes ProtocolMetadataInput to FTP. Trusted FtpServiceBinding and
+FtpContext preserve the original Service, logical host, numeric contact and caller
+UTC/execution. FtpOutput extends the common envelope with greeting_feat_v1 and
+completed/partial canonical outcomes. Generic metadata Observation/untrusted Evidence
+retain port/host/service/asset, exact banner/features/base64, conservative product/
+version hints, feature/TLS-advertisement collection limits and normalized snapshot
+SHA-256. TLS advertisement is true or unknown; no identity/vulnerability inference.
+No domain/state schema changes. See [FTP fields/limits](ftp-adapter.md).

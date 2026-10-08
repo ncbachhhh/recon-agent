@@ -294,3 +294,15 @@ native deadlines and synchronous abort/permit cleanup apply. Bounded framing val
 length before body read and stops after one response. No session/auth/file/command
 operation, process/client library, DNS/fallback/router or runner change. See
 [SMB profile](smb-adapter.md) for byte/request/buffering/cancellation limits.
+
+## Native FTP control exchange (M4-T04)
+
+FtpAdapter owns one scoped numeric connection and at most one fixed FEAT request
+following a valid 220 greeting. No process runner/client, auth/file/data/command/TLS
+API or retry/fallback. Native/outer deadlines share configured/session limits;
+8192 aggregate bytes, 512 bytes per line and 64 lines per reply bound capture.
+Serialized output and shared atomic action/host/rate/concurrency/output budgets
+remain mandatory. Rate counts connections, each with at most one six-byte FEAT;
+no packet-rate/OS buffer guarantee. Malformed feature overflow preserves only the
+valid greeting. Cancellation synchronously closes/aborts and releases the permit;
+timeout/connection failures have no partial payload. See [FTP contract](ftp-adapter.md).

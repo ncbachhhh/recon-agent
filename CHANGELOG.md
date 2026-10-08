@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M4-T07: offline protocol selection matrix covering documented aliases, all families,
+  port independence, product/version noise, exact conflicts, unknown/malformed data
+  and runtime isolation. Real adapters with fake collectors verify policy/budget/
+  availability/profile denials and supported collection; unsupported databases remain
+  unavailable. No production change; M4 complete, M5-T01 ready only.
+
 - M4-T06: scoped native database inspect_protocol with typed observed Service/type/
   port bindings, receive-only MySQL/MariaDB version metadata and fixed PostgreSQL
   SSL support signal (version unavailable/partial). Generic untrusted observations/

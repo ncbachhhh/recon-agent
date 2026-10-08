@@ -107,6 +107,24 @@ wording with the requested M4-T01 abstraction-only boundary.
 See [tool contracts](tool-contracts.md), [security model](security-model.md),
 [data model](data-model.md) and [ADR 0021](decisions/0021-protocol-relevance-contracts.md).
 
+## Selection regression coverage (M4-T07)
+
+`tests/unit/tools/test_protocol_selection.py` independently specifies every documented
+identity/alias across standard and unrelated ports, all exact product hints (including
+conflicts within the database family), unknown/hostile product and version noise,
+UDP, unreviewed FTPS/composite/module names, unknown and malformed records, repeated
+selection and preserved Service serialization. Runtime sentinels prohibit registry,
+policy, scope, budget, adapter, runner, credential and contact calls during selection.
+
+Real explicitly selected adapters with fake collectors prove scope/contact/schema/
+risk/capability/budget denial leaves collection and resource/state snapshots untouched.
+Availability cannot change relevance or trigger fallback. Known netbios-ssn/139 and
+smtps/465 relevance does not enable the unreviewed native profile; Redis/MongoDB/
+SQL Server return tool_unavailable before spending/contact. Positive authorized fake
+collection covers every implemented family and operational alias on a nonstandard
+port, preserving the original Service. No selector behavior or production code changes.
+See [test commands and limitations](testing-strategy.md#protocol-selection-regressions-m4-t07).
+
 ## Operational extension (M4-T02)
 
 The original known-contract catalog and selector still assert no availability or

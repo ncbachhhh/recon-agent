@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M4-T01–M4-T06 DONE; M4-T07 READY; M0/M1/M2/M3 DONE
+Project phase: M4 DONE; M5-T01 READY; M0/M1/M2/M3 DONE
 
 Completed:
 
@@ -37,14 +37,26 @@ Completed:
 - M4-T04 — FTP metadata capability (DONE)
 - M4-T05 — SMTP metadata capability (DONE)
 - M4-T06 — Database service metadata capability (DONE)
+- M4-T07 — Protocol selection tests (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M4-T07 — Protocol selection tests (READY; not started).
+- M5-T01 — Nuclei adapter foundation (READY; not started).
 
 ## Implementation reality
+
+M4-T07 adds 781 independent offline protocol-selection cases: every documented
+identity/alias across standard/nonstandard ports; exact product hints and conflicts
+(including database identities), unknown/hostile metadata, unreviewed aliases,
+malformed records, UDP, repeated/JSON selection and immutable Service provenance.
+Selection cannot call policy/scope/registry/budgets/adapters/runner/credentials/contact.
+Real adapters with fake collectors verify denial before contact/spending, availability
+without fallback, unsupported database/profile rejection and authorized family/alias
+collection on a nonstandard port. No classifier bug; all production/dependencies/
+configuration/workflow/CLI remain byte-identical. Docs describe regression evidence,
+not new runtime behavior. M4 DONE; only M5-T01 READY, no later implementation begun.
 
 M4-T06 adds standalone native_database/DatabaseAdapter for inspect_protocol/database.
 Required canonical database_type matches prior normalized Service aliases/port/tcp;
@@ -61,7 +73,7 @@ Evidence retains original Service/subject/port/caller UTC/execution/base64/hash;
 canonical malformed/denied/auth-required/refused/timeout/partial outcomes and bounded
 capture/serialized output/native-outer-session deadlines/cleanup apply. Earlier
 production source/dependencies/workflow/CLI are byte-identical. See database contract/
-ADR 0026. Only M4-T07 READY/unstarted; no active task/blocker or later work begun.
+ADR 0026. M4 DONE; only M5-T01 READY/unstarted; no active task/blocker or later work begun.
 
 M4-T05 adds standalone native_smtp/SmtpAdapter for inspect_protocol/family=smtp.
 SMTP capability = greeting + safe ESMTP metadata only. Immutable observed Service/
@@ -76,7 +88,7 @@ caller UTC/execution/raw snapshot/hash. Malformed/unavailable EHLO yields partia
 banner; malformed greeting/refused/unreachable/timeout uses canonical Failure.
 Native/outer/session deadlines, bounded capture/serialized output and synchronous
 socket/permit cleanup apply. Earlier production source/dependencies/CLI are unchanged.
-See docs/smtp-adapter.md / ADR 0025. Only M4-T07 READY/unstarted; no active task/blocker.
+See docs/smtp-adapter.md / ADR 0025. M4 DONE; only M5-T01 READY/unstarted; no active task/blocker.
 
 M4-T04 adds standalone native_ftp/FtpAdapter for inspect_protocol/family=ftp.
 FTP capability = unauthenticated metadata only. Strict observed Service/host/numeric
@@ -90,7 +102,7 @@ and caller UTC/execution/hash. Unsupported/auth-dependent/malformed features ret
 partial banner; refused/timeout/malformed greeting uses canonical Failure.
 Earlier production source/dependencies/CLI/workflow remain byte-identical. Explicit
 FTP/SSH/SMB alternatives respect the one-selected-adapter registry; no router.
-See docs/ftp-adapter.md / ADR 0024. Only M4-T07 READY/unstarted; no active task/blocker.
+See docs/ftp-adapter.md / ADR 0024. M4 DONE; only M5-T01 READY/unstarted; no active task/blocker.
 
 M4-T03 adds standalone native_smb/SmbAdapter for inspect_protocol/family=smb.
 One fixed SMB2 NEGOTIATE offering 2.0.2/2.1/3.0/3.0.2 runs on one authorized numeric
@@ -103,7 +115,7 @@ No session setup/authentication/credentials/shares/files/commands/fallback; SMB1
 NetBIOS/name/workgroup/domain/share inventory is explicitly uncollected. Port 139 and
 netbios-ssn reject before contact. Native SMB/SSH are explicit alternative selected
 adapters, no router. Every earlier production file/dependency/CLI/workflow is unchanged.
-See docs/smb-adapter.md / ADR 0023. Only M4-T07 READY/unstarted; no active task/blocker.
+See docs/smb-adapter.md / ADR 0023. M4 DONE; only M5-T01 READY/unstarted; no active task/blocker.
 
 M4-T02 adds standalone native_ssh/SshAdapter for inspect_protocol/family=ssh.
 Immutable observed-Service/subject/numeric bindings, strict SSH-only input, current
@@ -115,7 +127,7 @@ versions yield partial identification; malformed/closed/refused/timeouts use can
 failures. Injected streams, outer/native deadlines and synchronous abort/permit cleanup
 remain offline-testable. Existing production source, framework/registry/policy/state/
 runner/adapters/workflow/config/deps/CLI are byte-identical. See docs/ssh-adapter.md /
-ADR 0022. M4-T07 READY/unstarted; no active task or blocker, no later work begun.
+ADR 0022. M4 DONE; M5-T01 READY/unstarted; no active task or blocker, no later work begun.
 
 M4-T01 adds pure domain.protocols family/semantic input/metadata output contracts and
 immutable tools.protocols relevance catalog under existing inspect_protocol. Exact
@@ -126,7 +138,7 @@ and strict schemas integrate without adapter registrations or availability claim
 Selection does not authorize, consume budgets, change scope/state or call runtime.
 M4-T02/M4-T03 supply SSH/SMB metadata; M4-T04 supplies FTP; M4-T05 supplies SMTP; M4-T06 supplies reviewed database collectors. Existing production files,
 registry/policy/budgets/dedup/state/runner/adapters/workflow/config/CLI stay unchanged.
-See docs/protocol-capabilities.md / ADR 0021. Only M4-T07 READY; no later work begun.
+See docs/protocol-capabilities.md / ADR 0021. M4 DONE; only M5-T01 READY; no later work begun.
 
 M3-T06 closes M3 with pure domain canonical_web_url, WebAssetIdentity/web-v1,
 WebAssetDiscovery and derived Endpoint/ReconState discovery/contact lookup. One
@@ -139,7 +151,7 @@ Existing web action identity reuses this URL normalization only after original
 scope validation, preserving all other M1-T08 admission/retry semantics. No scope,
 adapter execution/profile, budget, registry, configuration/dependency, M2 workflow,
 provider, CLI or future subsystem source change. See docs/web-identity.md / ADR 0020.
-M4-T01–M4-T06 are DONE; only M4-T07 READY/unstarted; no active task/blocker.
+M4 DONE; only M5-T01 READY/unstarted; no active task/blocker.
 
 The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic, dnspython and h11 are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
 
@@ -477,7 +489,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M4-T07 is READY; remaining 58 tasks are NOT STARTED.
+Only M5-T01 is READY; remaining 57 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -637,6 +649,22 @@ M4-T02 SSH/M4-T03 SMB/M4-T04 FTP/M4-T05 SMTP metadata is implemented; M4-T06 dat
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M4-T07: Python 3.14.6. Editable dev install/pip check, Ruff check/format (219 files),
+strict Mypy (98 source modules), isolated sdist/wheel build and editable/fresh-wheel
+inert CLI passed. Focused selection/framework/registry/five-adapter suite: 1,583
+passed, including 781 new selection cases. Full, pre-collection network/DNS-blocked
+and coverage suites each: 4,604 passed. Coverage 96% overall (7,099 statements /
+2,450 branches); domain/tools protocol modules 100%. External fresh-wheel venv/pip
+check, guarded all-module cold imports/origins/empty registry/inert composition and
+1,583 copied installed-wheel blocked cases passed outside checkout. Production and
+pyproject byte parity, AST boundaries, artifact/secret/archive checks and append-only
+history passed; final acceptance/lifecycle/Markdown/diff checks recorded in history.
+Logs/scripts: /tmp/recon-m4t07-validation. No live network/scanner/Groq/credential
+or Python 3.12 run. Guards precede collection and permit AF_UNIX plumbing; existing
+harmless local interpreter tests in the full suite are not OS network sandboxed.
+M0/M1/M2/M3/M4 DONE; M5-T01 READY only; no active task/blocker.
+
 
 M4-T06: Python 3.14.6. Editable dev install/pip check, Ruff/format (218 files),
 strict Mypy (98 source modules), isolated sdist/wheel build and editable/fresh-wheel

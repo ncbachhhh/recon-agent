@@ -486,4 +486,31 @@ dedup tests prove denial before contact/spending, strict family/type/port/creden
 connection-string/options rejection, provenance/hostile strings as data and malformed/
 unsupported/auth-required/refused/timeouts/partial/cancellation/bounded cleanup.
 Redis/MongoDB/ms-sql-s return unavailable without contact, not synthetic success.
-No server/client/binary/Groq, live targets or M4-T07 matrix. See [database contract](database-adapter.md).
+No server/client/binary/Groq or live targets. See [database contract](database-adapter.md).
+
+## Protocol selection regressions (M4-T07)
+
+Run the focused suite:
+
+```bash
+.venv/bin/python -m pytest tests/unit/tools/test_protocol_selection.py tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py tests/unit/tools/test_ssh.py tests/unit/tools/test_smb.py tests/unit/tools/test_ftp.py tests/unit/tools/test_smtp.py tests/unit/tools/test_database.py -q
+```
+
+Then run full/network-DNS-blocked/coverage/Ruff/format/Mypy/build/fresh-wheel guarded
+imports/copied focused tests/inert CLI/artifact-secret/source-parity/final diff checks.
+The independent selection matrix crosses all documented normalized aliases and port
+hints, exact matching/conflicting product identities, unknown product/version noise,
+unsupported/hostile/composite/FTPS/module names, malformed copies and UDP. Repetition
+and JSON round trips preserve Service data. Sentinels prohibit policy/registry/runtime/
+credential use during selection. Real adapters with fake collectors cover policy and
+independent numeric scope denial, strict parameter/family/risk/capability/credential/
+auth/exploit rejection, shared budget denial and availability without fallback.
+
+Redis/MongoDB/SQL Server remain relevance-only with no-contact/no-spend unavailable
+results. SMB NetBIOS and SMTP implicit TLS remain rejected native profiles. Positive
+authorized fake collection for every implemented family/alias verifies the denial
+harness and original Service preservation. Module guards prohibit network/DNS/process/
+runner/credential use; full blocked-suite guards precede collection and allow AF_UNIX
+event-loop plumbing. Existing harmless local interpreter runner tests remain the
+full-suite exception for subprocesses and are not OS network sandboxed. No live
+server/scanner/Groq or M5 implementation. See [selection contract](protocol-capabilities.md).

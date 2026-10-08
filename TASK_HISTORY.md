@@ -3211,3 +3211,93 @@ version/identity remain documented limits. Unsupported catalog types never conta
 Commit reference: the single focused commit containing this entry, titled
 `feat(protocols): add database metadata inspection`; resolve through Git log. Final
 response reports actual hash and clean tree. No second task commit/amend/squash/push.
+
+## 2026-10-08 — M4-T07 — Protocol selection tests
+
+Status: DONE. Objective: comprehensive regression evidence that normalized Service
+identity selects only the relevant protocol contract, independently of port guesses,
+operational availability, authorization or execution. Startup verified current HEAD
+b1ae001ccb8eeb24fec67dcadee0055cbbb0b003, clean working/staged tree, all prerequisites
+DONE, M4-T07 READY and no active task/blocker. Only M4-T07 transitioned READY →
+IN PROGRESS → DONE; M5-T01 becomes READY as bookkeeping, with no implementation.
+
+### Changes and decisions
+
+- tests/unit/tools/test_protocol_selection.py: 781 new parameterized offline cases.
+  An independent documented table crosses 15 canonical/alias identities with 15
+  standard/unrelated ports, all 14 exact product hints and within-database conflicts.
+  All supported SSH/SMB/FTP/SMTP/MySQL/MariaDB/PostgreSQL families are covered.
+  Unknown products and hostile versions remain preserved data; repeated selection,
+  copied records and JSON round trips retain original Service serialization.
+- Unknown identities cannot be rescued by any familiar port or recognized product;
+  UDP, malformed/blank/copied/constructed metadata, unreviewed FTPS/composite/Unicode/
+  module/adapter-shaped names return no candidate. Exact conflicting hints veto
+  selection even at 445 or within the same database family.
+- Runtime sentinels prohibit policy/scope/registry/budget/state/adapter/runner calls
+  during selection. Offline guards prohibit network/DNS/process/provider credential
+  loading and remove the Groq key. No credential, remote banner or model-shaped name
+  can extend the finite catalog. Existing catalog remains relevance-only.
+- Actual adapters, real registry/policy/scope/dedup/shared budgets and fake collectors
+  prove primary/contact scope, schema/family/risk/capability/credential/auth/exploit/
+  budget denials prevent collection and preserve budget/state snapshots. Available,
+  unavailable and not_checked registrations never change relevance or cause fallback.
+  Authorized fake collection covers each implemented family and operational alias on
+  a nonstandard port and retains the original Service; this also verifies the harness.
+- Redis/MongoDB/ms-sql-s retain documented database relevance but return canonical
+  tool_unavailable before reservation/contact. SMB netbios-ssn/139 and SMTP smtps/465
+  relevance does not enable the rejected native profiles. No unsupported collector,
+  guessed fallback, authentication, exploit or generic router was introduced.
+- No classifier bug found and no production fix required. Every existing source
+  file, earlier test, dependency/configuration/workflow and CLI remains byte-identical.
+  Five contract/testing/security/data docs, CHANGELOG and lifecycle records updated
+  with regression evidence; no contract change or consequential decision needing ADR.
+
+### Actual validation
+
+Python 3.14.6 in documented .venv. Focused checks preceded the complete baseline.
+Installation/build provisioning may access package indexes; tests require no target
+network or credentials. Logs/scripts: /tmp/recon-m4t07-validation, outside checkout.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python 3.14.6; editable -e '.[dev]' install and pip check passed |
+| Focused | Selection/framework/registry/five adapters: 1,583 passed (781 new) |
+| Full | pytest: 4,604 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 4,604 passed |
+| Coverage | 4,604 passed; 96% overall, 7,099 statements / 2,450 branches; domain/tools protocol modules 100% |
+| Lint/format/types | Ruff check and format (219 files), strict Mypy (98 source modules) passed |
+| Build/CLI | Isolated sdist/wheel; editable and fresh-wheel inert CLI passed |
+| Fresh wheel | External venv/pip check; guarded all-module imports/origins/empty registry/inert composition; 1,583 copied installed-wheel blocked cases passed outside checkout |
+| Artifact/security | All production byte parity, AST boundaries, artifact/secret, wheel/sdist source and unchanged dependency parity passed |
+| Closeout | Individual acceptance, working/staged final diff/whitespace, append-only history, Markdown/task dependency/readiness checks passed: 34 DONE, only M5-T01 READY, 57 NOT STARTED |
+
+The initial new-suite run found a test assertion using an incorrect BudgetState
+field name (10 failed, 771 passed); corrected to the existing permitted_actions
+contract before all final focused/full/blocked/coverage/wheel passes. No production
+failure, required final validation failure or weakened gate remains. Network guards
+permit AF_UNIX event-loop plumbing; existing harmless local interpreter runner tests
+in the full suite are not OS network sandboxed. New M4-T07 tests execute no subprocess,
+network/DNS, scanner, Groq, credentials or live protocol. No Python 3.12 run claimed.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Comprehensive canonical/alias coverage of every implemented family | Independent IDENTITIES/PRODUCTS/PORTS matrix and ten authorized native-adapter fake collection cases |
+| Unsupported databases covered conservatively | Redis/MongoDB/ms-sql-s relevance plus real adapter unavailable result with untouched collector/budget |
+| No port-only guessing | Known identities across 15 ports; unknown/absent/http/database across every port and all recognized products |
+| Unknown/conflicting/malformed evidence fails closed | Exact cross-family and within-database product matrix, malformed copies/constructs, hostile/composite/Unicode/module/FTPS names and UDP |
+| Selection separated from availability/authorization/execution | All-family registry/policy/scope/budget/state/execute/runner/credential sentinels; availability matrix; real denial no-dispatch/no-spend assertions |
+| No auth/exploit capability or new implementation | Finite inspect_protocol/active_safe descriptors; strict credential/auth/exploit rejection; complete production/dependency/earlier-test parity |
+| Required validation and package behavior | All focused/full/blocked/coverage/lint/type/build/fresh-wheel/CLI/artifact gates passed as recorded above |
+| Task boundary and lifecycle | M0/M1/M2/M3/M4 DONE, M5-T01 READY/unstarted, later tasks NOT STARTED; no active task/blocker or new follow-up |
+
+Files: tests/unit/tools/test_protocol_selection.py; docs/protocol-capabilities.md,
+docs/testing-strategy.md, docs/tool-contracts.md, docs/security-model.md,
+docs/data-model.md; CHANGELOG.md, PLAN.md, PROJECT_STATE.md, CURRENT_TASK.md and this
+append-only history. No blocker/follow-up, M5/Nuclei/Groq/autonomous execution,
+persistence/reporting or operational CLI work. Stop after M4-T07.
+
+Commit reference: the single user-authorized focused commit containing this entry,
+titled `test(protocols): harden protocol selection`; resolve through Git log. Final
+response reports actual hash and clean tree. No amend/squash/history rewrite/push.

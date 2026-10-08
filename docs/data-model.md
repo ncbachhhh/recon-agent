@@ -1,5 +1,11 @@
 # Domain data model
 
+M4-T07's [selection matrix](protocol-capabilities.md#selection-regression-coverage-m4-t07)
+verifies existing Service aliases, strict malformed-record rejection, preserved hostile
+product/version text and stable Python/JSON repeated selection. Port alone supplies no
+identity; known unsupported database relevance supplies no operational availability.
+Service and protocol input/output schemas remain unchanged.
+
 M0-T04 implements 13 Pydantic v2 contracts under `recon_agent.domain`. They describe
 operator declarations, normalized subjects, collected facts, traceable evidence,
 action intent/outcomes, planner recommendations and session/state composition.

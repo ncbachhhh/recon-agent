@@ -1,5 +1,11 @@
 # Capability and tool contracts
 
+M4-T07 adds [selection regressions](protocol-capabilities.md#selection-regression-coverage-m4-t07)
+across every documented Service alias and implemented protocol adapter. They verify
+that relevance does not imply availability, authorization or execution; unknown and
+conflicting observations cannot construct an operational binding. Existing one selected
+adapter registration and schemas remain unchanged; there is no automatic fallback.
+
 M1-T04 implements finite semantic metadata in `domain/capabilities.py` and explicit,
 immutable registry composition in `tools/`. M2-T01 adds an operational native DNS adapter;
 M2-T02 adds passive Subfinder; M2-T03 adds bulk verify_dns through DNSX; M2-T04 adds constrained probe_http through HTTPX; M3-T01 adds fixed native inspect_common_files; M3-T02 adds bounded inspect_tls through TLSX; M3-T03 adds bounded numeric crawl_web through Katana; M3-T04 adds bounded numeric discover_content through Feroxbuster; M3-T05 adds specialized FFUF vhost_names HEAD as an explicitly selected discover_content alternative. M4-T02 adds native receive-only inspect_protocol/family=ssh identification metadata. M4-T03 adds native SMB2 NEGOTIATE inspect_protocol/family=smb as an explicit

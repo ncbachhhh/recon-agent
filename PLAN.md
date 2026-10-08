@@ -1351,7 +1351,7 @@ docs/smtp-adapter.md and ADR 0025.
 
 - **ID:** `M4-T07`
 - **Title:** Protocol selection tests
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T06`
 
@@ -1390,7 +1390,7 @@ docs/smtp-adapter.md and ADR 0025.
 
 - **ID:** `M5-T01`
 - **Title:** Nuclei adapter foundation
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T07`
 

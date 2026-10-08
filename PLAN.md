@@ -1091,7 +1091,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M4-T01`
 - **Title:** Protocol capability framework
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M3-T06`
 
@@ -1099,15 +1099,20 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 **Repository areas:** src/recon_agent/tools/, policy/, domain/; tests/unit/, fixtures/, integration/
 
-**In scope:** Protocol module interface/catalog, service relevance rules, safe request/result schemas, scoped dispatch and capability registration.
+**In scope:** Protocol module interface/catalog, service relevance rules, safe request/result schemas, policy-boundary checks and capability metadata integration (no production dispatch).
 
 **Out of scope:** Actual SSH/SMB/FTP/SMTP/database collection, authentication or generic arbitrary protocol scripting. All unrelated/future task work is excluded.
+
+**Task boundary clarification:** M4-T01 selects known contracts only; the current
+user request overrides initial scoped-dispatch/fake-module wording. Existing policy
+rejection is tested with test-only schema bindings; production dispatch, collection
+and adapter registration belong to M4-T02+. No port-only fallback is permitted.
 
 **Implementation steps:**
 
 1. Define protocol metadata contract and relevance mapping
 2. Integrate registry/risk/parameter checks
-3. Provide fake modules and evidence normalization
+3. Provide test-only metadata bindings and evidence/provenance contracts
 4. Document unsupported/ambiguous service handling.
 
 **Acceptance criteria:**
@@ -1130,7 +1135,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M4-T02`
 - **Title:** SSH metadata capability
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M4-T01`
 

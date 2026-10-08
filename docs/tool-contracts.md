@@ -457,3 +457,16 @@ Existing web action dedup reuses shared URL canonicalization after original scop
 checks, denying aliases before execution/resource reservation. Method and FFUF candidate
 Host variants stay distinct contact assets. See the normative [web identity contract](web-identity.md)
 for query/encoding/authority rules and exact observed-versus-contacted semantics.
+
+## Protocol contracts without adapters (M4-T01)
+
+The separate finite protocol relevance catalog uses existing inspect_protocol,
+CapabilityDescriptor/active_safe and strict ProtocolMetadataInput/Output classes.
+It describes SSH/SMB/FTP/SMTP/database relevance from normalized Service.protocol
+without registering any operational adapter. ToolRegistry's one-adapter cardinality,
+availability and policy denial semantics remain unchanged. The default operational
+catalog is empty; known contracts have no availability flag. Only curated descriptor
+metadata is planner-facing. M4-T02+ supply real reviewed adapters. Exact name/transport
+rules, product conflict vetoes, absent port fallback and provenance schema obligations
+are normative in [protocol contracts](protocol-capabilities.md). Selection does not
+invoke ActionPolicyValidator; every future request must pass it before execution.

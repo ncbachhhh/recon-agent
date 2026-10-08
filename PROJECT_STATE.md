@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M3 DONE; M4-T01 READY; M0/M1/M2 DONE
+Project phase: M4-T01 DONE; M4-T02 READY; M0/M1/M2/M3 DONE
 
 Completed:
 
@@ -31,14 +31,26 @@ Completed:
 - M3-T04 — Feroxbuster content-discovery adapter (DONE)
 - M3-T05 — FFUF adapter (DONE)
 - M3-T06 — Web asset deduplication and URL canonicalization (DONE)
+- M4-T01 — Protocol capability framework (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M4-T01 — Protocol capability framework (READY; not started).
+- M4-T02 — SSH metadata capability (READY; not started).
 
 ## Implementation reality
+
+M4-T01 adds pure domain.protocols family/semantic input/metadata output contracts and
+immutable tools.protocols relevance catalog under existing inspect_protocol. Exact
+recognized ASCII case-insensitive TCP Service.protocol is mandatory on every port;
+recognized conflicting product hints veto; unknown/composite/malformed/UDP services
+return no candidate. No port-only/product-banner fallback. Existing registry metadata
+and strict schemas integrate without adapter registrations or availability claims.
+Selection does not authorize, consume budgets, change scope/state or call runtime.
+M4-T02+ own actual reviewed collectors/contact checks. Existing production files,
+registry/policy/budgets/dedup/state/runner/adapters/workflow/config/CLI stay unchanged.
+See docs/protocol-capabilities.md / ADR 0021. Only M4-T02 READY; no later work begun.
 
 M3-T06 closes M3 with pure domain canonical_web_url, WebAssetIdentity/web-v1,
 WebAssetDiscovery and derived Endpoint/ReconState discovery/contact lookup. One
@@ -51,7 +63,7 @@ Existing web action identity reuses this URL normalization only after original
 scope validation, preserving all other M1-T08 admission/retry semantics. No scope,
 adapter execution/profile, budget, registry, configuration/dependency, M2 workflow,
 provider, CLI or future subsystem source change. See docs/web-identity.md / ADR 0020.
-M4-T01 is READY only; no active task or blocker and no later work begun.
+M4-T01 is DONE; M4-T02 READY/unstarted, no active task or blocker.
 
 The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic, dnspython and h11 are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
 
@@ -389,7 +401,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M4-T01 is READY; remaining 64 tasks are NOT STARTED.
+Only M4-T02 is READY; remaining 63 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -489,10 +501,12 @@ status/header length/type/Location/profile/source/version/UTC/execution/hash lin
 HEAD body counts are omitted; responses confirm neither vhosts nor vulnerabilities.
 Partial/unreported/conflict/errors and state ingestion are tested offline. All prior
 production modules, dependencies/CLI/M2 workflow unchanged. See docs/ffuf-adapter.md
-and ADR 0019. M3-T06 pure identity completion is recorded above; M4 and later
-remain unimplemented.
+and ADR 0019. M3-T06 pure identity and M4-T01 framework completion are recorded above;
+M4-T02+ operational adapters and later subsystems remain unimplemented.
 
 ## Major architecture decisions
+
+- ADR 0021 separates exact normalized TCP protocol relevance contracts from operational registry availability, keeps inspect_protocol and disables port/product-banner inference; selection grants no authority.
 
 - ADR 0020 selects conservative shared HTTP(S) contact identity, exact method/Host variants, derived provenance-preserving state grouping and web action URL reuse after scope; no new execution or authorization.
 
@@ -537,6 +551,23 @@ remain unimplemented.
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M4-T01: Python 3.14.6. Editable dev install/pip check in documented .venv passed
+(system Python install initially refused PEP 668; resolved with the virtual env).
+Focused protocol/registry: 213 passed (115 protocol cases). Full, coverage and
+pre-collection network/DNS-blocked suites: each 3,002 passed. Ruff check/format
+(173 files), strict Mypy (78 modules), isolated wheel/sdist build and inert CLI passed.
+Coverage 96% overall (5,684 statements / 1,944 branches); both new modules 100%.
+Fresh external wheel venv/pip check, guarded cold imports/origins/empty registry/
+protocol relevance and inert CLI, 213 copied installed-wheel blocked tests passed.
+An initial installed-wheel run from checkout also passed 1,418 tool cases; focused
+wheel tests were then verified outside checkout. Protected source/AST execution,
+artifact/secrets, wheel/sdist source/dependency parity, append-only history and final
+lifecycle/Markdown/diff checks passed. Logs/scripts: /tmp/recon-m4t01-validation.
+Network guards precede collection and permit AF_UNIX plumbing; harmless interpreter
+children are not OS network sandboxed. No scanner/target/Groq/Python 3.12 execution.
+No blocker; M0/M1/M2/M3 DONE, M4-T01 DONE, M4-T02 READY, no active task.
+
 
 M3-T06: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (168 files),
 strict Mypy (76 source modules), isolated wheel/sdist build and editable/fresh-wheel

@@ -470,3 +470,17 @@ reported-contact state is untrusted evidence, never permission for a future requ
 Raw observations/evidence remain unchanged. The [precise identity contract](web-identity.md)
 defines normalization and malformed-candidate failure; each later concrete contact
 still needs independent current scope/policy/resource checks.
+
+## Protocol relevance boundary (M4-T01)
+
+Remote normalized Service names/products/version strings remain untrusted evidence.
+Exact reviewed TCP service names select only a semantic inspect_protocol family
+contract; familiar ports and product/banner substrings cannot supply missing identity.
+Unknown/composite/unreviewed/malformed data or recognized product conflicts select
+nothing. Selection never grants scope, consumes budgets, records actions or invokes
+policy/planner/adapter/runner. There are no auth/credential/command fields, exchanges,
+network/process/Groq calls or operational protocol registrations. M4-T02+ must define
+reviewed pre-authentication metadata profiles and revalidate current policy/scope/
+history/resources/contact before execution. Metadata result schemas preserve source
+and untrusted evidence; hostile text cannot extend the capability table. See
+[protocol contracts](protocol-capabilities.md).

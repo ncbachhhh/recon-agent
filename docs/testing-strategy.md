@@ -408,3 +408,17 @@ actual five-adapter normalizers and equivalent action denials before fake runner
 and spending. Budget counter assertions exclude only elapsed remaining session time.
 No DNS/network/provider or scanner execution; existing harmless local interpreter tests
 remain the full-suite exception for process-runner validation. See [web identity](web-identity.md).
+
+## Protocol framework regressions (M4-T01)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_protocols.py tests/unit/tools/test_registry.py -q`,
+then the full baseline, pre-collection network/DNS-blocked suite, coverage/build,
+fresh-wheel guarded cold imports/installed framework tests/inert CLI and artifact/
+secret/diff checks. Normalized Service fixtures cover all families, unsupported/
+unknown/composite/hostile names, exact product conflict vetoes, TCP/UDP, nonstandard
+ports, absent port-only fallback, malformed copies, determinism and immutable semantic
+catalogs. Guards forbid process/network/runner/adapter resolution. Test-only metadata
+bindings prove current availability/risk/scope/schema/budget/history denials; provenance
+fixtures retain hostile untrusted text. Production has no adapter or dispatcher and
+selection is tested with policy/scope/resource/state methods forbidden. No M4-T02+
+exchange is tested or implemented. See [contract](protocol-capabilities.md).

@@ -2615,3 +2615,91 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(web): canonicalize and deduplicate web assets$"`.
 Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
 task commit or push.
+
+## 2026-10-08 — M4-T01 — Protocol capability framework
+
+Status: DONE. Objective: deterministic normalized Service → protocol metadata
+capability contracts, without collectors or execution. Startup verified HEAD
+624c7cb0bee630b230c4396f186214105a561fdb and clean working/staged tree,
+M0/M1/M2/M3 DONE, M4-T01 READY, no active task/blocker. Only M4-T01 transitioned
+IN PROGRESS → DONE; only dependent M4-T02 becomes READY/unstarted.
+
+### Changes and decisions
+
+- domain/protocols.py: finite SSH/SMB/FTP/SMTP/database ProtocolFamily; strict frozen
+  ProtocolMetadataInput (family/port/tcp only); bounded ProtocolMetadataOutput with
+  existing Service/metadata Observation/untrusted Evidence. Unique IDs, capability,
+  asset/source/execution/evidence linkage validation; no facts or lineage invented.
+- tools/protocols.py: frozen ProtocolCapabilityContract and sorted finite catalog,
+  pure select_protocol_capability(Service). Revalidates constructed/copied records;
+  exact recognized ASCII case-insensitive TCP name required on every port. Explicit
+  normalized aliases; exact recognized products only veto conflicts, including DB
+  identity disagreements. Unknown/composite/unreviewed/UDP/malformed services return
+  None. No port-only fallback or product/version/banner substring inference.
+- Existing PLAN/CapabilityId inspect_protocol is retained with semantic family
+  parameters. Share CapabilityDescriptor/active_safe and strict AdapterDefinition
+  schema conventions; contract catalog contains no availability and registers no
+  adapters. Default operational registry remains empty; known missing adapter returns
+  tool_unavailable through current ActionPolicyValidator. One adapter per capability
+  remains the existing cardinality; future protocol composition/profile checks stay
+  with M4-T02+. Relevance never authorizes or triggers any action.
+- 115 new offline normalized Service/schema/provenance cases, immutable/deterministic
+  catalog and hostile/conflicting/unknown/port precedence rules. Runtime guards and
+  forbidden policy/scope/resource/state calls prove pure selection. Test-only metadata
+  schema adapter (no execute/collector) exercises current unavailable/allowlist/scope/
+  parameter/budget/history denials without dispatch or spending. Hostile evidence text
+  remains data, preserving original source, time, execution and artifact references.
+- Normative protocol contract and ADR 0021; architecture/tool/security/data/state/
+  testing docs, CHANGELOG, PLAN clarification and lifecycle reconciliation. Explicit
+  user abstraction-only instruction overrides initial PLAN scoped-dispatch/fake-module
+  wording: no production dispatch or operational fake modules were introduced.
+- Every previously tracked production file is byte-identical to startup. Registry,
+  policy/scope/budgets/dedup/state, adapters/parsers/runner/workflow/config/dependencies,
+  CLI/provider/persistence/reporting are protected and unchanged. No M4-T02+ work.
+
+### Actual validation
+
+Python 3.14.6; no Python 3.12 or live scanner/target/Groq run. Package installation and
+isolated build may provision dependencies from package indexes; framework/tests make
+no network contact. Logs/scripts are outside checkout: /tmp/recon-m4t01-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | python --version: 3.14.6; system editable install initially refused OS PEP 668; documented .venv editable dev install and pip check passed |
+| Focused | Protocol/registry: 213 passed (115 new protocol cases) |
+| Full | pytest: 3,002 passed |
+| Network/DNS blocked | Pre-collection guards, Groq key absent: 3,002 passed |
+| Coverage | coverage run pytest: 3,002 passed; report: 96% overall, 5,684 statements / 1,944 branches; both new modules 100% |
+| Lint/format/types | Ruff check and format (173 files), strict Mypy (78 source modules) passed |
+| Build/CLI | Isolated sdist/wheel build, editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check; guarded cold imports/origins/empty registry/protocol and shared web semantics passed; 213 copied installed-wheel blocked cases passed outside checkout |
+| Additional wheel run | Initial wheel tool-suite command used checkout cwd: 1,418 passed; focused copied tests then confirmed outside checkout |
+| Artifacts/security | Protected source parity, AST no execution/provider boundary, artifact/secrets, wheel/sdist source and unchanged dependency metadata parity passed |
+| Closeout | Individual acceptance/final diff/whitespace, append-only history, Markdown links/fences and 92-task readiness passed; 28 DONE, M4-T02 alone READY, 63 NOT STARTED |
+
+No validation gate or acceptance criterion weakened; all required final checks pass.
+Network guards permit AF_UNIX event-loop plumbing; existing harmless local interpreter
+children are reviewed but not OS network sandboxed. Selection does not assert remote
+protocol truth or that a safe DB exchange exists. Future profiles must revalidate
+service relevance, current policy/scope/history/resources and actual numeric contact.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Only predefined relevant capabilities selected | Finite exact-name TCP mapping and five typed contracts under existing inspect_protocol; deterministic normalized fixtures |
+| Unknown/ambiguous protocols create no executable modules | None for missing/unsupported/composite/conflicting/malformed records; no product/port fallback, adapter or dispatcher |
+| Every request still passes scope/budgets | Existing validator untouched; explicit test-only binding scope/schema/budget/history/availability denials with unchanged counters and no resolution/runner calls |
+| Metadata results retain source/evidence | Common output lineage validator and round-trip fixture preserve source/execution/time/evidence/untrusted hostile text |
+| Fake framework runs offline | Test-only schema composition and normalized Service/metadata fixtures under runtime/contact guards; full/blocked/installed-wheel passes |
+| User security/registry boundary | No credentials/auth/commands/exchanges/Groq/network/process or automatic actions; no false future adapter availability; existing source parity |
+| Complete validation and lifecycle | All required final checks pass; M0/M1/M2/M3 DONE, M4-T01 DONE, M4-T02 READY/unstarted; no active task/blocker |
+
+No additional follow-up task or blocker. Protocol exchange/profile/router choices are
+future owning tasks, not implemented here. Stop after M4-T01.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(protocols): establish protocol capability framework`; resolve with
+`git log -1 --format=%H --grep="^feat(protocols): establish protocol capability framework$"`.
+Final response reports actual hash and clean tree. No amend/squash/history rewrite,
+second task commit or push.

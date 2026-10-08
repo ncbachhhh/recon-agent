@@ -431,3 +431,14 @@ fail lookup closed. They are ordinary properties, absent from raw state dumps;
 projections rebuild deterministically after Python/JSON reconstruction. Asset seed
 labels are not substituted for actual endpoint identities. Exact URL/method/query/
 encoding/contact semantics: [web identity](web-identity.md).
+
+## Protocol metadata contracts (M4-T01)
+
+Pure domain.protocols adds ProtocolFamily and strict frozen ProtocolMetadataInput
+(finite family, port, tcp) / ProtocolMetadataOutput (family, existing Service and
+bounded existing metadata Observations/Evidence with unique/source/execution/asset/
+evidence attribution checks). No collected facts or authorization are generated.
+Service.protocol remains normalized service-name data; Service/Observation/Evidence
+wire fields and ReconState behavior remain unchanged. Tools' separate relevance
+catalog selects a contract, never an operational adapter. M4-T02+ own collectors
+and normalization; see [exact contracts](protocol-capabilities.md).

@@ -1,0 +1,100 @@
+# Protocol capability framework (M4-T01)
+
+M4-T01 implements pure Service relevance selection and typed metadata contracts.
+M4-T02+ own actual SSH/SMB/FTP/SMTP/database adapters, safe exchange profiles,
+availability, scope/contact/resource checks and normalization. No protocol adapter,
+collector, dispatcher, network/process/Groq call or automatic action exists here.
+
+## Service → contract semantics
+
+`tools.protocols.select_protocol_capability(Service)` revalidates the existing
+normalized Service and returns one frozen ProtocolCapabilityContract or `None`.
+Service.protocol is the normalized service name (Nmap already supplies this field);
+no new banner parser or scanner command mapping is introduced. All matching is
+exact ASCII case-insensitive lookup; whitespace, composite names and arbitrary
+banner substrings are never stripped, split or searched.
+
+| Family | Recognized Service.protocol names | Exact product hints |
+| --- | --- | --- |
+| SSH | ssh | OpenSSH, Dropbear |
+| SMB | smb, microsoft-ds, netbios-ssn | Samba |
+| FTP | ftp | vsftpd, ProFTPD, Pure-FTPd |
+| SMTP | smtp, smtps, submission | Postfix, Exim |
+| Database | mysql, mariadb; postgresql, postgres; ms-sql-s; mongodb; redis | MySQL/MariaDB; PostgreSQL; Microsoft SQL Server; MongoDB; Redis |
+
+TCP is required. UDP and malformed copied/constructed Service records return None.
+A recognized service name is mandatory on every port, including nonstandard ports.
+Port-only fallback is **disabled**: PLAN calls ports hints, and does not explicitly
+permit that fallback. Missing/unknown/unsupported names return None even with a
+familiar port or recognized product. A known name on another family's usual port
+uses the name; for example ssh on 445 selects SSH, http on 22 selects nothing.
+
+Products only veto conflicts when the entire product value matches an explicit
+hint above. Cross-family conflicts and different database identities return None.
+MySQL/MariaDB and PostgreSQL/postgres are explicit aliases. Unrecognized product
+text and version text are preserved but ignored; `OpenSSH 9.9` is not parsed for
+identity. Unsupported/composite service names such as ssl/ssh, ssh/ftp and generic
+database return None. Expanding these tables requires reviewed code/tests/docs;
+remote evidence cannot extend the catalog. Selection is advisory relevance, never
+proof of protocol correctness, safety or permission.
+
+## Capability and operational availability
+
+`protocol_capability_contracts()` returns five known contracts sorted by family.
+Each contains a ProtocolFamily, existing CapabilityDescriptor for `inspect_protocol`
+with active_safe risk, internal input/output schema references and explicit empty
+secondary-target-field metadata. PLAN and CapabilityId already name inspect_protocol;
+family parameters preserve semantic distinctions without inventing executable names.
+Only the curated descriptor is planner-facing. Schema classes remain internal;
+no executable, argv, NSE/script name, command, adapter ID or runtime object is exposed.
+
+These contracts are **not** ToolAdapter or AdapterRegistration objects and have no
+availability assertion. ToolRegistry stays immutable, explicit and empty by default.
+`is_known_capability('inspect_protocol')` is true; `has_capability` is false and
+`capability_definition`/`resolve` return tool_unavailable until trusted composition
+supplies a real reviewed adapter. The operational catalog does not list missing
+implementations. No fake adapter is registered in production.
+
+Registry cardinality remains one selected adapter per capability (ADR 0003).
+Future trusted protocol composition must respect that boundary and validate the
+selected family/profile; M4-T01 implements no router or executable interface.
+Known database relevance does not promise a safe non-authentication exchange:
+M4-T06 must review each supported profile and reject unsafe/unsupported profiles.
+
+## Request/result boundary
+
+Pure `domain.protocols` provides ProtocolFamily, strict frozen ProtocolMetadataInput
+and ProtocolMetadataOutput. Input has only family (ssh/smb/ftp/smtp/database), strict
+port 1–65535 and tcp transport. ActionRequest.target remains the independently scoped
+host; there are no secondary destinations, credential/authentication parameters,
+protocol commands or arbitrary options. Future adapters must bind family/port/transport
+to actual observed Service and independently authorized numeric contact. Request
+claims alone cannot establish relevance or authorization.
+
+Output holds family, existing Service, at most 128 metadata Observations and 256
+untrusted Evidence records. It validates unique IDs, inspect_protocol evidence
+attribution, service asset ownership and matching source/execution/evidence links.
+It generates no observations or evidence. Hostile text remains untrusted data;
+no source/time/artifact/execution is invented. Empty metadata is structurally valid;
+ActionResult owns success/partial/failure and ReconState owns session lineage/lifecycle.
+The envelope is a common contract, not a protocol parser, finding or contact proof.
+
+```text
+Service observation → protocol capability candidate
+                    → future ActionRequest
+                    → ActionPolicyValidator
+                    → future trusted adapter (only if operational)
+                    → atomic budgets + independent current contact checks
+                    → normalized metadata observations/evidence
+```
+
+Selection never calls policy, adapter resolution/execution, runner or planner,
+consumes budgets, records actions, mutates Service/Scope/ReconState or performs I/O.
+Every future execution still requires current capability/risk/schema/scope/history/
+budget eligibility and an atomic charged reservation; a candidate is no bypass.
+Test-only metadata bindings exercise existing registry/policy denials without any
+collector or dispatch. This reconciles PLAN's initial fake-module/scoped-dispatch
+wording with the requested M4-T01 abstraction-only boundary.
+
+See [tool contracts](tool-contracts.md), [security model](security-model.md),
+[data model](data-model.md) and [ADR 0021](decisions/0021-protocol-relevance-contracts.md).

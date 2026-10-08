@@ -240,3 +240,12 @@ and known-adapter response/contact claims are separate; invalid participating da
 fails the lookup closed. No authoritative index, extra mutation/transition, permission
 or retry rule is added. The state owner still detaches inputs/snapshots and validates
 all lineage atomically. See [web identity](web-identity.md).
+
+## Protocol candidates (M4-T01)
+
+Protocol selection reads normalized Service only, never records a request, approval,
+execution, fact or budget snapshot. Its typed metadata output is a future envelope
+using existing Service/Observation/Evidence; session ingestion still needs the
+existing whole-state lineage/lifecycle checks and caller-supplied ActionResult.
+No state schema/owner behavior changes or automatic follow-up exists. See
+[protocol contracts](protocol-capabilities.md).

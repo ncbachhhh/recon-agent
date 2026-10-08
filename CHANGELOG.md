@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- M4-T01: finite protocol family contracts under inspect_protocol, deterministic
+  normalized TCP Service relevance, conservative unknown/conflict rejection and
+  strict semantic request/metadata provenance schemas. Separate known contracts
+  from operational registry availability; offline tests/docs, no protocol adapters
+  or execution. Only M4-T02 becomes ready.
+
 - M3-T06: shared conservative HTTP(S) URL/method/Host identity, deterministic
   evidence-preserving web discovery/contact state lookup, and existing web action
   alias dedup before dispatch. Precise query/encoding/authority rules, offline tests

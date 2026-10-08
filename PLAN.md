@@ -1051,7 +1051,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M3-T06`
 - **Title:** Web asset deduplication and URL canonicalization
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M3-T05`, `M1-T08`
 
@@ -1091,7 +1091,7 @@ override is added; see docs/action-deduplication.md and ADR 0007.
 
 - **ID:** `M4-T01`
 - **Title:** Protocol capability framework
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M3-T06`
 

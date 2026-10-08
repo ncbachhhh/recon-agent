@@ -5,6 +5,7 @@ import json
 import os
 import socket
 import subprocess
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import Mock
@@ -801,3 +802,27 @@ def test_availability_failure_contract(result, code, monkeypatch):
         )
     )
     assert isinstance(result, Failure) and result.error.code == code
+
+
+@pytest.mark.parametrize(
+    "target", ["https://API.EXAMPLE.test", "HTTPS://api.example.test:00443/"]
+)
+def test_shared_web_identity_denies_equivalent_primary_and_candidates(target):
+    c = compose()
+    first = request(
+        target="https://api.example.test/", candidates=["https://api.example.test/"]
+    )
+    assert isinstance(c[4].record_action_requested(first, recorded_at=WHEN), Success)
+    calls = len(c[1].calls)
+    budget = c[3].state
+    repeated = request(id="equivalent", target=target, candidates=[target])
+    denied = c[2].validate(repeated)
+    assert isinstance(denied, Failure)
+    assert (
+        denied.error.message == "Equivalent action is not eligible for another attempt"
+    )
+    outcome = execute(c, repeated)
+    assert isinstance(outcome, Failure)
+    assert outcome.error.code == ErrorCode.PLANNER_VALIDATION_FAILED
+    assert len(c[1].calls) == calls
+    assert replace(c[3].state, remaining_seconds=budget.remaining_seconds) == budget

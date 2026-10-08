@@ -4,6 +4,7 @@ import asyncio
 import json
 import socket
 import subprocess
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import Mock
@@ -998,3 +999,23 @@ def test_platform_and_probe_failures(monkeypatch):
         ).error.code
         == ErrorCode.TOOL_UNAVAILABLE
     )
+
+
+@pytest.mark.parametrize("target", ["http://192.0.2.10", "HTTP://192.0.2.10:00080/"])
+def test_shared_web_identity_denies_equivalent_action_before_dispatch(target):
+    c = compose()
+    first = request()
+    assert isinstance(c[4].record_action_requested(first, recorded_at=WHEN), Success)
+    calls = len(c[1].calls)
+    budget = c[3].state
+    repeated = request(id="equivalent", target=target)
+    denied = c[2].validate(repeated)
+    assert isinstance(denied, Failure)
+    assert (
+        denied.error.message == "Equivalent action is not eligible for another attempt"
+    )
+    outcome = execute(c, repeated)
+    assert isinstance(outcome, Failure)
+    assert outcome.error.code == ErrorCode.PLANNER_VALIDATION_FAILED
+    assert len(c[1].calls) == calls
+    assert replace(c[3].state, remaining_seconds=budget.remaining_seconds) == budget

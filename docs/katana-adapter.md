@@ -122,3 +122,9 @@ Reserved source-shaped fixtures and fake runners verify exact argv/private cwd, 
 containment, scope-before-call, duplicates/order/provenance, remote data, limits, errors,
 budgets, cancellation and existing state/dedup. Default tests need no binary/network.
 See [ADR 0017](decisions/0017-single-page-katana.md). Stop after M3-T03.
+
+## Shared identity (M3-T06)
+
+Generic output participates in the [shared web identity/state contract](web-identity.md).
+Raw evidence and adapter-specific contact/profile checks remain unchanged. Existing
+web action dedup now recognizes canonical URL aliases; identity grants no authority.

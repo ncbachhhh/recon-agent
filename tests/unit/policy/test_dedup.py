@@ -365,6 +365,8 @@ def test_meaningful_action_changes_remain_new(changes):
         ("2001:0DB8:0:0:0:0:0:1", "2001:db8::1"),
         ("2001:0db8:0:0::/032", "2001:db8::/32"),
         ("https://[2001:0DB8::1]:00443/a", "https://[2001:db8::1]:443/a"),
+        ("https://example.test", "https://EXAMPLE.test:443/"),
+        ("https://example.test/#a", "https://example.test/#b"),
     ],
 )
 def test_established_primary_and_secondary_target_equivalents(left, right):
@@ -381,10 +383,9 @@ def test_established_primary_and_secondary_target_equivalents(left, right):
     "left,right",
     [
         ("example.test", "https://example.test"),
-        ("https://example.test", "https://example.test:443"),
         ("https://example.test/A", "https://example.test/a"),
         ("https://example.test/?a=1&b=2", "https://example.test/?b=2&a=1"),
-        ("https://example.test/#a", "https://example.test/#b"),
+        ("https://example.test/", "https://example.test/?"),
     ],
 )
 def test_no_extra_url_or_host_semantic_merging(left, right):
@@ -785,3 +786,42 @@ def test_canonical_identity_excludes_asset_and_decision_correlation():
     assert value(service.canonicalizer.identify(first)) == value(
         service.canonicalizer.identify(correlated)
     )
+
+
+def test_non_web_capability_keeps_m1_url_identity_semantics():
+    old = canonicalizer()
+    registry = ToolRegistry(
+        (
+            AdapterRegistration(
+                FixtureAdapter(CapabilityId.INSPECT_TLS, fields=()),
+                AdapterAvailability.AVAILABLE,
+            ),
+        )
+    )
+    canon = ActionCanonicalizer(registry, old.scope_validator)
+    left = value(
+        canon.identify(
+            action(capability="inspect_tls", target="https://example.test/#one")
+        )
+    )
+    right = value(
+        canon.identify(
+            action(capability="inspect_tls", target="https://example.test:443/#two")
+        )
+    )
+    assert left != right
+
+
+@pytest.mark.parametrize(
+    "target", ["https://example.test/%", "https://example.test/?x=%GG"]
+)
+def test_web_action_encoding_fails_closed_even_when_host_is_in_scope(target):
+    service = dedup()
+    before = service.state_machine.state.model_dump_json()
+    assert isinstance(
+        service.record_request(action(target=target), recorded_at=WHEN), Failure
+    )
+    assert isinstance(
+        service.canonicalizer.identify(action(parameters={"peer": target})), Failure
+    )
+    assert service.state_machine.state.model_dump_json() == before

@@ -37,10 +37,10 @@ Trusted schema validators must remain deterministic, strict and free of side eff
 Primary targets and every trusted declared secondary target (including defaults)
 reuse ScopeValidator.validate_value and its canonical values. DNS case/trailing-dot
 and textual IP/CIDR/URL-authority equivalences already accepted there collapse.
-No DNS lookup, hostname-to-address merging, wider scope or extra URL interpretation
-is introduced. Schemes, paths, queries, fragments and explicit ports remain as the
-scope contract preserves them; default-port removal/resource URL merging belongs
-to future owning tasks. Secondary sequence order remains significant.
+No DNS lookup, hostname-to-address merging or wider scope is introduced. M3-T06
+extends web capability URL targets with the shared contact URL contract below;
+non-web capabilities retain scope-preserved scheme/path/query/fragment/port text.
+Secondary sequence order remains significant.
 
 ## History and retries
 
@@ -120,5 +120,19 @@ Existing discover_content identities include mandatory profile=vhost_names when
 FFUF is selected. Ferox empty input and FFUF profile schemas cannot both register in
 one registry; no default content-path duplication/fallback exists. Same-profile
 repeats deny through real history eligibility. Trusted contracts/settings/registry
-stay fixed per session; M3-T06 cross-adapter URL equivalence is not implemented.
+stay fixed per session; M3-T06 now supplies shared URL equivalence below.
 See [FFUF contract](ffuf-adapter.md).
+
+## Web URL extension (M3-T06)
+
+For probe_http, inspect_common_files, crawl_web and discover_content, primary and
+registered declared secondary URL targets now reuse [canonical web identity](web-identity.md).
+Original scope validation precedes identity. Default ports, empty path and validated
+fragments become equivalent; explicit nondefault ports, path/query/encoding distinctions
+remain. Canonicalization uses original URL strings to retain an explicit empty query
+marker. Non-web target semantics and all capability/schema/default/order/type/history/
+retry/atomic admission rules are unchanged. Existing web adapters reject equivalent
+pending or completed work through this policy seam before dispatch. Distinct web
+capabilities/profiles are still distinct work; state asset equivalence does not skip
+capability-specific work or authorize follow-up. Keys rebuild from raw in-memory
+history; no persistence migration or scheduling runtime is implemented.

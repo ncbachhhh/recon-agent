@@ -391,3 +391,20 @@ request/rate/concurrency bounds including retry allowance, aggregate output/dead
 cancellation, provenance/duplicates/malformed/partial/empty/failures and real state/dedup.
 Fresh-wheel guarded cold imports and installed-wheel network-blocked fake tests apply.
 Compatibility is reviewed source/fixtures only; see [contract](ffuf-adapter.md).
+
+## Web canonicalization regressions (M3-T06)
+
+Run the focused suite:
+
+```bash
+.venv/bin/python -m pytest tests/unit/test_web_identity.py tests/unit/policy/test_dedup.py tests/unit/tools/test_httpx.py tests/unit/tools/test_common_files.py tests/unit/tools/test_katana.py tests/unit/tools/test_feroxbuster.py tests/unit/tools/test_ffuf.py tests/unit/test_domain.py -q
+```
+
+Then run the complete baseline, pre-collection network/DNS-blocked suite, coverage/build,
+fresh-wheel guarded cold imports/installed tests/inert CLI and artifact/secret/diff checks.
+Tests cover exact conservative URL tables and malformed authorities/escapes, method
+case, Host variants, provenance-preserving state reconstruction, seen/contact separation,
+actual five-adapter normalizers and equivalent action denials before fake runner/transport
+and spending. Budget counter assertions exclude only elapsed remaining session time.
+No DNS/network/provider or scanner execution; existing harmless local interpreter tests
+remain the full-suite exception for process-runner validation. See [web identity](web-identity.md).

@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M3 — M3-T01–M3-T05 DONE; M3-T06 READY; M0/M1/M2 DONE
+Project phase: M3 DONE; M4-T01 READY; M0/M1/M2 DONE
 
 Completed:
 
@@ -30,14 +30,28 @@ Completed:
 - M3-T03 — Katana crawler adapter (DONE)
 - M3-T04 — Feroxbuster content-discovery adapter (DONE)
 - M3-T05 — FFUF adapter (DONE)
+- M3-T06 — Web asset deduplication and URL canonicalization (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M3-T06 — Web asset deduplication and URL canonicalization (READY; not started).
+- M4-T01 — Protocol capability framework (READY; not started).
 
 ## Implementation reality
+
+M3-T06 closes M3 with pure domain canonical_web_url, WebAssetIdentity/web-v1,
+WebAssetDiscovery and derived Endpoint/ReconState discovery/contact lookup. One
+conservative URL contract collapses established host/scheme/numeric/default-port/
+empty-path/fragment aliases, preserves exact path/query/percent bytes and methods,
+and rejects unsupported/ambiguous authority. FFUF explicit candidate Host variants
+stay distinct. Sorted provenance grouping preserves every raw source record;
+known-adapter response claims distinguish reported contact from discovery.
+Existing web action identity reuses this URL normalization only after original
+scope validation, preserving all other M1-T08 admission/retry semantics. No scope,
+adapter execution/profile, budget, registry, configuration/dependency, M2 workflow,
+provider, CLI or future subsystem source change. See docs/web-identity.md / ADR 0020.
+M4-T01 is READY only; no active task or blocker and no later work begun.
 
 The 92-task roadmap, governance, maintenance skill and design documentation exist. `recon-agent` 0.1.0 installs through setuptools with Python >=3.12 metadata. Pydantic, dnspython and h11 are the direct runtime dependencies; developer tooling and inert CLI are unchanged.
 
@@ -375,7 +389,7 @@ Audit events describe autonomous recon operations and confer no authorization. A
 producers, generic Action/ToolExecution/Finding entities, later scanners, Groq/provider/planner
 runtime, automatic retry scheduling, autonomous loop, persistence and operational
 reports remain unimplemented. No chat transcript or private reasoning contract exists.
-Only M3-T06 is READY; remaining 65 tasks are NOT STARTED.
+Only M4-T01 is READY; remaining 64 tasks are NOT STARTED.
 
 M3-T01 adds standalone tools.common_files.CommonFilesAdapter for inspect_common_files,
 active_safe, strict empty planner parameters and the fixed robots/sitemap/security
@@ -453,7 +467,8 @@ status/length/Location/body completeness, caller subject/UTC/execution/hash prov
 Duplicate/order/conflict and canonical partial/empty/malformed/missing/timeout/nonzero
 contracts reuse existing policy/dedup/state/shared aggregate budgets/runner. No existing
 production module, dependencies, config, registry, CLI or M2 pipeline changed in
-M3-T04. No M3-T06 URL canonicalization, planner/loop/persistence/reporting implemented.
+M3-T04. Its scanner adds no planner/loop/persistence/reporting; shared URL identity
+is supplied separately by completed M3-T06.
 See docs/feroxbuster-adapter.md and ADR 0018. M3-T04 DONE; specialized FFUF follows below.
 
 M3-T05 adds tools.ffuf.FfufAdapter for existing discover_content/active_safe as an
@@ -463,7 +478,7 @@ URL/IP and application four-label catalog plus independently scoped operator suf
 Private one-candidate wordlists/env/cwd, no DNS/new vhost/redirect contact or arbitrary
 planner flags/files/templates/FUZZ placement. No credential/body/parameter/path fuzzing.
 One selected adapter per capability prevents implicit Ferox overlap; real existing
-history dedup denies repeats, without M3-T06 identity work or registry changes.
+history dedup denies repeats; M3-T06 now also handles URL aliases without registry changes.
 
 Upstream one-time request-error retry is counted: at most eight Execute attempts,
 one worker/four sequential children; completed groups pace by 2/R or stricter shared
@@ -474,9 +489,12 @@ status/header length/type/Location/profile/source/version/UTC/execution/hash lin
 HEAD body counts are omitted; responses confirm neither vhosts nor vulnerabilities.
 Partial/unreported/conflict/errors and state ingestion are tested offline. All prior
 production modules, dependencies/CLI/M2 workflow unchanged. See docs/ffuf-adapter.md
-and ADR 0019. M3-T06 and later remain unimplemented.
+and ADR 0019. M3-T06 pure identity completion is recorded above; M4 and later
+remain unimplemented.
 
 ## Major architecture decisions
+
+- ADR 0020 selects conservative shared HTTP(S) contact identity, exact method/Host variants, derived provenance-preserving state grouping and web action URL reuse after scope; no new execution or authorization.
 
 - ADR 0019 selects explicit FFUF vhost_names HEAD testing on scoped numeric endpoints, fixed catalog/operator suffix, retry-aware attempt pacing and one selected discover_content adapter without default Ferox duplication.
 
@@ -519,6 +537,21 @@ and ADR 0019. M3-T06 and later remain unimplemented.
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M3-T06: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (168 files),
+strict Mypy (76 source modules), isolated wheel/sdist build and editable/fresh-wheel
+inert CLI passed. Focused URL/action/five-adapter/domain suite: 879 passed. Full,
+coverage and pre-collection network/DNS-blocked suites each: 2,887 passed. Coverage
+96% overall (5,619 statements / 1,924 branches); web identity 97%, projection 92%.
+Fresh external wheel venv/pip check, guarded cold imports/origins/empty registry/
+inert composition/shared web state reconstruction and 879 installed-wheel blocked
+cases passed. Protected source parity, AST execution boundaries, artifacts/secrets,
+wheel/sdist source/unchanged dependency parity and append-only history checks passed.
+Logs/scripts: /tmp/recon-m3t06-validation. Guards precede collection, permit AF_UNIX
+plumbing; reviewed harmless interpreter children are not network sandboxed. No live
+scanner/target/Groq or Python 3.12 run. Final lifecycle/Markdown/diff checks passed.
+No blocker; M3 DONE, M4-T01 READY/unstarted, no active task.
+
 
 M3-T05: Python 3.14.6. Editable dev install/pip check, Ruff lint/format (163 files),
 strict Mypy (74 source modules), isolated wheel/sdist build and editable/fresh-wheel

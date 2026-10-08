@@ -457,3 +457,16 @@ argv/private config environment and cwd, two-attempt-per-candidate retry account
 sequential pacing, aggregate capture and shared deadline/budget contracts apply.
 Location/candidates remain untrusted evidence; no vulnerability/vhost confirmation
 follows from status. See [precise bounds and limits](ffuf-adapter.md).
+
+## Web identity boundary (M3-T06)
+
+Pure canonical URL identity performs no network/DNS/process/provider work and
+confers no authorization. Original action URL inputs pass centralized scope before
+shared identity is computed; ScopeValidator membership rules are unchanged. Userinfo,
+encoded/ambiguous authority, zones/mapped IPv6 and unsupported host forms reject.
+Outside hosts remain outside, including suffix lookalikes. Percent-encoded path/query
+bytes, order/duplicates, methods and FFUF Host variants remain distinct. Seen or
+reported-contact state is untrusted evidence, never permission for a future request.
+Raw observations/evidence remain unchanged. The [precise identity contract](web-identity.md)
+defines normalization and malformed-candidate failure; each later concrete contact
+still needs independent current scope/policy/resource checks.

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- M3-T06: shared conservative HTTP(S) URL/method/Host identity, deterministic
+  evidence-preserving web discovery/contact state lookup, and existing web action
+  alias dedup before dispatch. Precise query/encoding/authority rules, offline tests
+  and docs; no new scanner or runtime capability. M3 complete; M4-T01 ready only.
+
 - M3-T05: explicit specialized FFUF 2.1.0 vhost_names HEAD discovery as a trusted
   discover_content alternative. Scoped numeric contacts/operator suffix, fixed small
   wordlist, bounded retry-aware requests/rate/concurrency/deadlines/output, generic

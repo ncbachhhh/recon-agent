@@ -86,7 +86,8 @@ IDs must be unique within each entity collection. This protects lineage identity
 not semantic equivalence: distinct IDs may contain identical target/parameter/fact
 content. M1-T08 supplies canonical action equivalence and retry eligibility in
 policy, derived from this history. No separate retry counter or sophisticated
-observation deduplication is implemented.
+observation deletion/merging is implemented. M3-T06 supplies derived web contact
+identity grouping without altering these raw records.
 
 Subject observation references must exist and belong to the same asset. Hosts require
 known assets; service host ownership and optional endpoint service ownership must
@@ -229,3 +230,13 @@ FFUF caller owns on_started and atomic completed/partial ActionResult ingestion 
 Asset/HEAD Endpoint/Observations/Evidence. Only the numeric contact is a subject;
 candidate hostnames remain metadata. Existing semantic dedup denies repeats without
 changing state/identity contracts or M2 workflow. See [contract](ffuf-adapter.md).
+
+## Derived web discovery lookup (M3-T06)
+
+`ReconState.web_assets` and `find_web_asset` provide a sorted deterministic projection
+of Endpoint and existing M3 HTTP observations. Equivalent contact identities group
+references, preserving each raw record and conflicting fact. Seen/discovered resources
+and known-adapter response/contact claims are separate; invalid participating data
+fails the lookup closed. No authoritative index, extra mutation/transition, permission
+or retry rule is added. The state owner still detaches inputs/snapshots and validates
+all lineage atomically. See [web identity](web-identity.md).

@@ -173,3 +173,9 @@ trusted `on_started` callback runs inside the single owned budget permit before 
 Failure/malformed outcome aborts without contact and releases concurrency. Default
 adapter use is unchanged. Existing profiles/parsers/scope/resource limits remain intact.
 M2 is an integration proof; M6/M7 AI planning/autonomous loops remain future work.
+
+## Shared identity (M3-T06)
+
+Generic output participates in the [shared web identity/state contract](web-identity.md).
+Raw evidence and adapter-specific contact/profile checks remain unchanged. Existing
+web action dedup now recognizes canonical URL aliases; identity grants no authority.

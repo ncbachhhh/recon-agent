@@ -9,6 +9,11 @@ from recon_agent.domain.observations import Evidence, Observation
 from recon_agent.domain.sessions import ReconSession, ReconState
 from recon_agent.domain.state import ReconStateMachine
 from recon_agent.domain.targets import Scope, Target
+from recon_agent.domain.web import (
+    WebAssetDiscovery,
+    WebAssetIdentity,
+    canonical_web_url,
+)
 
 __all__ = [
     "ActionDedupDecision",
@@ -34,4 +39,7 @@ __all__ = [
     "Scope",
     "Service",
     "Target",
+    "WebAssetDiscovery",
+    "WebAssetIdentity",
+    "canonical_web_url",
 ]

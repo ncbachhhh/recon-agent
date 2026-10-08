@@ -12,6 +12,8 @@ from recon_agent.domain.budgets import BudgetSnapshot
 from recon_agent.domain.lifecycle import ActionLifecycle, ActionPhase
 from recon_agent.domain.observations import Evidence, Observation
 from recon_agent.domain.targets import Scope, Target
+from recon_agent.domain.web import WebAssetDiscovery, WebAssetIdentity
+from recon_agent.domain.web_state import web_discoveries
 
 
 class _Identified(Protocol):
@@ -51,6 +53,19 @@ class ReconState(Record):
     planner_decisions: tuple[PlannerDecision, ...] = ()
     action_lifecycles: tuple[ActionLifecycle, ...] = ()
     budget_snapshots: tuple[BudgetSnapshot, ...] = ()
+
+    @property
+    def web_assets(self) -> tuple[WebAssetDiscovery, ...]:
+        """Deterministic detached projection, never a second authoritative store."""
+        return web_discoveries(self.endpoints, self.observations)
+
+    def find_web_asset(
+        self, url: str, *, method: str = "GET", host_header: str | None = None
+    ) -> WebAssetDiscovery | None:
+        identity = WebAssetIdentity(url=url, method=method, host_header=host_header)
+        return next(
+            (item for item in self.web_assets if item.identity == identity), None
+        )
 
     @model_validator(mode="after")
     def relationships_are_consistent(self) -> Self:

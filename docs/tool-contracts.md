@@ -443,6 +443,17 @@ default bounded recursive content discovery; FFUF only accepts explicit
 HTTP(S) endpoint. Application catalog/operator suffix supply wordlist values; planner
 cannot select files, flags, headers, FUZZ positions or other modes. No auth/body/
 parameter/path fuzzing or duplicate default Ferox scheduling. Real semantic dedup
-prevents repeated profile work; broader cross-adapter URL dedup remains M3-T06.
+prevents repeated profile work; M3-T06 supplies shared URL/state identity below.
 Generic endpoint/observation/evidence and canonical errors reuse existing runner/
 policy/resource/state boundaries. See [full contract](ffuf-adapter.md).
+
+## Shared web identity (M3-T06)
+
+HTTPX/common-file/Katana/Feroxbuster/FFUF generic outputs can use the shared
+Endpoint identity and ReconState web discovery/contact projection without per-tool
+identity rules. Preserve raw fields and evidence. URL identity never performs scope
+validation or contact; existing adapter input/profile/contact checks stay mandatory.
+Existing web action dedup reuses shared URL canonicalization after original scope
+checks, denying aliases before execution/resource reservation. Method and FFUF candidate
+Host variants stay distinct contact assets. See the normative [web identity contract](web-identity.md)
+for query/encoding/authority rules and exact observed-versus-contacted semantics.

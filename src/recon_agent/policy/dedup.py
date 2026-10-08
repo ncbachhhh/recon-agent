@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
 
 from recon_agent.core.results import Failure, OperationResult, Success
 from recon_agent.domain.actions import ActionRequest
+from recon_agent.domain.capabilities import CapabilityId
 from recon_agent.domain.identity import (
     ActionDedupDecision,
     ActionIdentity,
@@ -16,9 +17,19 @@ from recon_agent.domain.identity import (
 from recon_agent.domain.lifecycle import ActionPhase
 from recon_agent.domain.sessions import ReconState
 from recon_agent.domain.state import ReconStateMachine
+from recon_agent.domain.web import canonical_web_url
 from recon_agent.policy.actions import _invalid, _validate_action_inputs
 from recon_agent.policy.scope import ScopeValidator
 from recon_agent.tools import ToolRegistry
+
+_WEB_CAPABILITIES = frozenset(
+    (
+        CapabilityId.PROBE_HTTP,
+        CapabilityId.INSPECT_COMMON_FILES,
+        CapabilityId.CRAWL_WEB,
+        CapabilityId.DISCOVER_CONTENT,
+    )
+)
 
 
 def _json_data(value: object) -> JsonValue:
@@ -79,12 +90,25 @@ class ActionCanonicalizer:
             # already validated matches in declared sequence, including defaults.
             assert isinstance(data, dict)
             matches = iter(normalized.parameter_scope_matches)
+
+            def target_value(original: str, canonical: str, kind: str) -> str:
+                # Original inputs have already passed scope. Canonical identity
+                # must not erase an explicit empty query via scope's urlunsplit.
+                if normalized.capability in _WEB_CAPABILITIES and kind == "url":
+                    return canonical_web_url(original)
+                return canonical
+
             for name in facts.value.parameter_target_fields or ():
                 value = getattr(normalized.parameters, name)
                 if isinstance(value, str):
-                    data[name] = next(matches).canonical_target.value
+                    match = next(matches).canonical_target
+                    data[name] = target_value(value, match.value, match.kind)
                 else:
-                    data[name] = [next(matches).canonical_target.value for _ in value]
+                    values: list[JsonValue] = []
+                    for original in value:
+                        match = next(matches).canonical_target
+                        values.append(target_value(original, match.value, match.kind))
+                    data[name] = values
             target = normalized.scope_match.canonical_target
             if target.kind == "domain":
                 raise ValueError("action target classification must be concrete")
@@ -92,7 +116,9 @@ class ActionCanonicalizer:
                 value=ActionIdentity(
                     capability=normalized.capability,
                     target_kind=target.kind,
-                    target_value=target.value,
+                    target_value=target_value(
+                        request.target, target.value, target.kind
+                    ),
                     parameters_json=canonical_json(data),
                 )
             )

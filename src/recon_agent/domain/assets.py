@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from pydantic import StringConstraints
 
 from recon_agent.domain._base import NonEmptyText, Port, Record
+from recon_agent.domain.web import WebAssetIdentity
 
 
 class Asset(Record):
@@ -51,3 +52,8 @@ class Endpoint(Record):
     ] = "GET"
     service_id: NonEmptyText | None = None
     observation_ids: tuple[NonEmptyText, ...] = ()
+
+    @property
+    def web_identity(self) -> WebAssetIdentity:
+        """Opt-in pure identity; preserves original URL/method and evidence."""
+        return WebAssetIdentity(url=self.url, method=self.method)

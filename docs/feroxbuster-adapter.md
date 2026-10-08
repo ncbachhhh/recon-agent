@@ -175,3 +175,9 @@ Reserved source-shaped fixtures and fake runners need no scanner or network. Tes
 simulate an isolated operator filesystem, independently test config-presence rejection,
 and forbid real process/network activity. See [ADR 0018](decisions/0018-bounded-feroxbuster.md).
 No Feroxbuster installation or live target was required or performed for this task.
+
+## Shared identity (M3-T06)
+
+Generic output participates in the [shared web identity/state contract](web-identity.md).
+Raw evidence and adapter-specific contact/profile checks remain unchanged. Existing
+web action dedup now recognizes canonical URL aliases; identity grants no authority.

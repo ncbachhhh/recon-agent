@@ -304,3 +304,11 @@ is added; trusted code selects FFUF instead of default Ferox for discover_conten
 in a fixed registry/session. Detection/invocation isolate ambient ffufrc/history/
 scraper/proxy/secret environment. See [contract](ffuf-adapter.md) for HEAD-only
 numeric contacts, bounded retry burst and unsupported modes.
+
+## Web identity (M3-T06)
+
+Web URL equivalence is a fixed versioned pure domain contract, not planner/operator
+normalization flags. No configuration fields/dependencies or authorization preferences
+change. Unsupported forms fail closed. Method/query/explicit Host differences remain;
+existing action retry limits and scope settings keep their meanings. See
+[web identity](web-identity.md).

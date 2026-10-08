@@ -142,3 +142,9 @@ cancellation. Full network/DNS-blocked and installed-wheel checks are required.
 No live target, scanner, local HTTP server or Python 3.12 test is implied.
 TLSX/M3-T02+, crawling/fuzzing, Groq/planner/loop, persistence/reporting and real CLI
 remain outside M3-T01.
+
+## Shared identity (M3-T06)
+
+Generic output participates in the [shared web identity/state contract](web-identity.md).
+Raw evidence and adapter-specific contact/profile checks remain unchanged. Existing
+web action dedup now recognizes canonical URL aliases; identity grants no authority.

@@ -142,7 +142,7 @@ for codes, context, serialization and exception/result usage.
 
 PLAN permits associated Action/ToolExecution/Finding models to be staged. M0-T04
 established the 13 required models; M1-T07 extends the public exports with state,
-lifecycle and budget records. The following ownership boundaries remain:
+lifecycle and budget records; M3-T06 adds web identity/projection records. The following ownership boundaries remain:
 
 - **Action:** ActionRequest/ActionResult plus M1-T07 ActionLifecycle/ActionTransition
   supply intent, history and outcomes. No generic Action placeholder exists;
@@ -152,7 +152,7 @@ lifecycle and budget records. The following ownership boundaries remain:
   adapter work. Current execution IDs are opaque provenance references only.
 - **Finding:** interpreted conclusion records belong with M5-T04 finding
   normalization. ReconState deliberately has no untyped findings placeholder.
-- **Session configuration/budgets, broader action policy outcomes, asset/action canonicalization, retention and
+- **Session configuration/budgets, broader action policy outcomes, full finding deduplication, retention and
   stop/resume rules:** extended by their owning policy/orchestration/storage tasks;
   no generic executable configuration or operational startup exists here.
 
@@ -419,3 +419,15 @@ HEAD words/lines are omitted as meaningless body counts. Candidate hostnames nev
 create contacted hostname subjects. Evidence keeps caller time/execution/subject,
 capability/tool/version, memory snapshot/catalog hashes; partial/unreported/error
 status survives atomic state ingestion. See [FFUF contract](ffuf-adapter.md).
+
+## Canonical web contact data (M3-T06)
+
+`WebAssetIdentity` is a frozen web-v1 URL/method/optional explicit Host-variant
+record with full canonical JSON key. `WebAssetDiscovery` holds that identity plus
+sorted endpoint/observation/evidence/reported-contact observation references.
+`Endpoint.web_identity` and `ReconState.web_assets`/`find_web_asset` derive these
+without rewriting stored URLs, source facts or evidence. Unsupported candidates
+fail lookup closed. They are ordinary properties, absent from raw state dumps;
+projections rebuild deterministically after Python/JSON reconstruction. Asset seed
+labels are not substituted for actual endpoint identities. Exact URL/method/query/
+encoding/contact semantics: [web identity](web-identity.md).

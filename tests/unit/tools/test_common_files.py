@@ -4,6 +4,7 @@ import asyncio
 import base64
 import socket
 import subprocess
+from dataclasses import replace
 from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
@@ -800,3 +801,25 @@ def test_native_transport_composes_with_real_adapter_and_fixed_requests(monkeypa
         assert writer.data.startswith(b"GET " + path.encode() + b" HTTP/1.1\r\n")
         assert writer.closed
         writer.transport.abort.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "target", ["https://EXAMPLE.test", "HTTPS://example.test:00443/"]
+)
+def test_shared_web_identity_denies_equivalent_action_before_contact(target):
+    c = compose()
+    first = request(target="https://example.test/")
+    assert isinstance(c[4].record_action_requested(first, recorded_at=WHEN), Success)
+    calls = len(c[1].calls)
+    budget = c[3].state
+    repeated = request(id="equivalent", target=target)
+    denied = c[2].validate(repeated)
+    assert isinstance(denied, Failure)
+    assert (
+        denied.error.message == "Equivalent action is not eligible for another attempt"
+    )
+    outcome = execute(c, repeated)
+    assert isinstance(outcome, Failure)
+    assert outcome.error.code == ErrorCode.PLANNER_VALIDATION_FAILED
+    assert len(c[1].calls) == calls
+    assert replace(c[3].state, remaining_seconds=budget.remaining_seconds) == budget

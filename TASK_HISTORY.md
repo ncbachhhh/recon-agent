@@ -2519,3 +2519,99 @@ Commit reference: the single focused commit containing this entry, titled
 `git log -1 --format=%H --grep="^feat(web): add FFUF specialized fuzzing adapter$"`.
 Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
 task commit or push. Stop after M3-T05.
+
+
+## 2026-10-08 — M3-T06 — Web asset deduplication and URL canonicalization
+
+Status: DONE. Objective: deterministic shared web contact identity and deduplication
+without changing authorization or adding scanner/runtime capabilities. Startup verified
+HEAD 4a3844fae4e51934b115c0197bf52a8ef1215e71, clean working/staged tree,
+M0/M1/M2 and M3-T01–M3-T05 DONE, M3-T06 READY, no active task/blocker.
+Only M3-T06 transitioned IN PROGRESS and now DONE. M3 closes; M4-T01 READY only.
+
+### Changes and decisions
+
+- New domain/web.py defines pure canonical_web_url, portable WebAssetIdentity/web-v1
+  (URL, exact method, optional explicit Host variant) and WebAssetDiscovery reference
+  records. Reject malformed/unsupported authority, userinfo, authority percent escapes,
+  alternate numeric IPv4, invalid IPv6 brackets/zones/mapped forms, unsupported encoding.
+- Collapse scheme/host case, established DNS root-dot aliases, conventional numeric
+  host spelling, decimal/default ports, empty paths and validated fragments. Preserve
+  exact nonempty paths/slashes/dot segments, nondefault ports, query order/duplicates/
+  bare keys/empty values/explicit empty query, and percent escape spelling/case/octets.
+  No decoding, query sorting, browser navigation repair, DNS or authorization.
+- New domain/web_state.py and opt-in Endpoint.web_identity / ReconState.web_assets /
+  find_web_asset derive sorted provenance-preserving identities over actual existing
+  M3 generic outputs. No raw record deletion/rewriting, second index/ledger, ownership
+  change, contact inference from discovery alone, or loss of conflicting source facts.
+  Known source response fields support reported contact; sitemap discoveries and
+  endpoints alone remain seen. FFUF candidate Host and HEAD/GET/case distinctions survive.
+- Existing policy/dedup.py reuses shared URL identity for primary and declared secondary
+  URL fields of probe_http, inspect_common_files, crawl_web and discover_content only.
+  Original scope/schema checks precede normalization; original strings preserve empty
+  query markers. All non-web target semantics and M1-T08 capability/schema/default/
+  array/scalar/lifecycle/retry/atomic admission rules remain unchanged. Adapter-specific
+  scanner profiles/contact checks and finite internal queues are unchanged.
+- New offline URL/method/Host/state/cross-normalizer tests; existing action tables now
+  verify intended default-port/fragment equivalence, conservative distinctions, non-web
+  parity and malformed-encoding denial. All five actual adapters reject equivalent
+  requests before fake runner/transport calls with explicit dedup diagnostic, canonical
+  error and unchanged spending counters (elapsed remaining session time accounted for).
+  Domain public-export expectation updated for the three deliberate new exports.
+- Precise normative web identity contract / ADR 0020; architecture/data/security/state/
+  dedup/tool/config/testing and five adapter docs, CHANGELOG and task lifecycle records.
+  Reconciled obsolete documentation claiming M3-T06 remained unimplemented.
+- All production source outside six task-owned domain/policy files remains byte-identical
+  to startup, including ScopeValidator, adapters/parsers/native transports, runner,
+  registry, budgets/config/dependencies, M2 orchestration, provider/CLI and future modules.
+  No scanner capability, Groq/planner/loop/persistence/reporting/real CLI or M4 source work.
+
+### Actual validation
+
+Python 3.14.6; no Python 3.12/live scanner/target/Groq run. Dependency provisioning and
+isolated build may use package-index network; canonicalization/tests perform no target
+contact. Logs/scripts outside checkout: /tmp/recon-m3t06-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Setup | Python version, editable pip install -e '.[dev]' and pip check passed |
+| Focused | URL/action/five-web-adapter/domain: 879 passed |
+| Full | pytest: 2,887 passed |
+| Network/DNS blocked | Guards before collection, Groq key absent: 2,887 passed |
+| Coverage | coverage run pytest: 2,887 passed; overall 96%, 5,619 statements / 1,924 branches; web.py 97%, web_state.py 92% |
+| Lint/format/types | Ruff check/format (168 files); strict Mypy (76 source modules) passed |
+| Build/CLI | Isolated sdist/wheel and editable/fresh-wheel inert recon-agent passed |
+| Fresh wheel | External venv/pip check, guarded cold imports/origins/empty registry/inert composition/shared identity/state reconstruction; 879 installed-wheel network-blocked tests passed |
+| Artifacts/security | Protected source parity, AST execution boundary, artifact/secrets, wheel/sdist source and unchanged runtime dependency metadata parity passed |
+| Closeout | Individual acceptance/final diff/whitespace, append-only history, Markdown links/fences and 92-task readiness passed; 27 DONE, M4-T01 alone READY, 64 NOT STARTED |
+
+Development checks exposed incorrect new budget snapshot assertions (time sampling,
+then dataclass access), required formatting and the old public-export expectation.
+Corrected assertions to verify every spending counter, and updated the expected API;
+all final checks pass. No criterion or validation gate weakened; no unresolved blocker.
+Remaining uncovered new branches are defensive unsupported composition/data forms.
+Network guards allow AF_UNIX event-loop plumbing; reviewed harmless interpreter children
+in the existing runner suite are not OS network sandboxed. Scanner compatibility and
+transport/containment limitations remain those of the previously completed adapters.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Equivalent URLs collapse deterministically | Shared canonical table/idempotence, full JSON key, cross-five-normalizer state grouping and reverse-order/reconstructed-state equality |
+| Meaningful path/query/method distinctions survive | Scheme/nondefault port/path case/slashes/dot segments/query order/duplicate/bare/empty/escape tables, exact method case and FFUF Host variants |
+| Malformed/ambiguous authority fails closed | Userinfo/encoded host/suffix/bracket/zone/mapped/alternate IPv4/port/escape cases; invalid whole projection and atomic action admission leave raw state untouched |
+| Canonicalization cannot authorize outside host | Explicit original/canonical ScopeValidator outside/suffix/IP rejection, forbidden scope calls during identity, DNS/socket/process guards and byte-identical scope implementation |
+| Repeated equivalent crawl/fuzz actions do not dispatch | Katana/Feroxbuster/FFUF (plus HTTPX/common-file) real registry/policy/state/dedup alias tests: explicit dedup Failure before fake call/spending |
+| Shared M3 integration without raw-evidence mutation | Actual five normalizers, Endpoint/Observation provenance, seen/contact separation, portable derived records and unchanged raw dumps/hashes |
+| Task boundary and closure | No new scanner/runtime capability, all baseline/wheel/security checks pass; M3 DONE, M4-T01 READY/unstarted, no active task/blocker |
+
+No added follow-up task is needed. Fixed supported grammar and advisory contact claims
+are documented; future scheduling must use current scope/policy/budgets and existing
+atomic admission. Stop after M3-T06.
+
+Commit reference: the single focused commit containing this entry, titled
+`feat(web): canonicalize and deduplicate web assets`; resolve with
+`git log -1 --format=%H --grep="^feat(web): canonicalize and deduplicate web assets$"`.
+Final response reports actual hash/clean tree. No amend/squash/history rewrite/second
+task commit or push.

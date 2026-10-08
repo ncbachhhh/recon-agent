@@ -511,6 +511,9 @@ def test_domain_public_api_is_deliberate() -> None:
         "BudgetState",
         "ReservationOutcome",
         "ReconStateMachine",
+        "WebAssetIdentity",
+        "WebAssetDiscovery",
+        "canonical_web_url",
     }
     assert not any(
         hasattr(domain, name) for name in ("Action", "ToolExecution", "Finding")

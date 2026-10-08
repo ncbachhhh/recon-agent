@@ -161,3 +161,9 @@ Reserved source-shaped fixtures and guarded fake runners exercise real policy,
 registry/budget/state/dedup contracts offline. No FFUF installation, network/scanner
 execution or live compatibility assertion is required. See
 [ADR 0019](decisions/0019-specialized-ffuf-vhosts.md) and [testing](testing-strategy.md).
+
+## Shared identity (M3-T06)
+
+Generic output participates in the [shared web identity/state contract](web-identity.md).
+Raw evidence and adapter-specific contact/profile checks remain unchanged. Existing
+web action dedup now recognizes canonical URL aliases; identity grants no authority.

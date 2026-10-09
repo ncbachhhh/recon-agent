@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- M5-T01: add a disabled Nuclei adapter foundation with strict profile inputs,
+  explicit isolated availability checks and bounded offline candidate ingestion.
+  Preserve exact untrusted stream evidence and source links; all scans remain
+  denied pending M5-T02/T03. No Finding creation, dependency or external setup.
+
 - M4-T07: offline protocol selection matrix covering documented aliases, all families,
   port independence, product/version noise, exact conflicts, unknown/malformed data
   and runtime isolation. Real adapters with fake collectors verify policy/budget/

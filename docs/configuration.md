@@ -312,3 +312,13 @@ normalization flags. No configuration fields/dependencies or authorization prefe
 change. Unsupported forms fail closed. Method/query/explicit Host differences remain;
 existing action retry limits and scope settings keep their meanings. See
 [web identity](web-identity.md).
+
+## Nuclei foundation configuration (M5-T01)
+
+No loader/settings/dependency changes. Explicit trusted composition selects an
+absolute executable and existing ExecutionConfig for an optional isolated Linux
+3.4.10 version probe; the planner only supplies a required semantic profile name.
+All names deny scanning. There is no default profile/catalog, template path, raw
+flag, update/download or approval option. Offline captures need no installation
+or credentials: SETUP REQUIRED: None. M5-T02/T03 own reviewed operator profiles
+and execution enforcement; see [foundation contract](nuclei-adapter.md).

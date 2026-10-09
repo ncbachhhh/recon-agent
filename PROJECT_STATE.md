@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M4 DONE; M5-T01 READY; M0/M1/M2/M3 DONE
+Project phase: M5-T01 DONE; M5-T02 READY; M0/M1/M2/M3/M4 DONE
 
 Completed:
 
@@ -38,14 +38,31 @@ Completed:
 - M4-T05 — SMTP metadata capability (DONE)
 - M4-T06 — Database service metadata capability (DONE)
 - M4-T07 — Protocol selection tests (DONE)
+- M5-T01 — Nuclei adapter foundation (DONE)
 
 Active task: None.
 
 Next ready task:
 
-- M5-T01 — Nuclei adapter foundation (READY; not started).
+- M5-T02 — Safe Nuclei profile policy (READY; not started).
 
 ## Implementation reality
+
+M5-T01 adds explicit NucleiAdapter/scan_templates metadata, strict required semantic
+profile input, immutable deny-only ProcessSpec gate and isolated opt-in Linux 3.4.10
+availability probing through the existing ProcessRunner. Every scan dispatch denies,
+even with accepted action policy and available registration; no budgets/contact or
+scan argv. Offline captured-result ingestion preserves unverified candidate metadata,
+generic Observation/untrusted Evidence, exact base64 stdout/stderr, hashes, source
+lines, caller UTC/execution/asset links, duplicate/conflicting claims and canonical
+malformed/non-zero/truncated/timeout/missing outcomes. Query/reported subjects/IPs
+pass centralized scope; unmatched records remain evidence without candidates.
+No earlier production/config/dependency/workflow/CLI changes or external setup.
+Finding is absent as intended (M5-T04); profile catalog/enforcement (M5-T02/T03)
+and dedup (M5-T05) remain unimplemented. Contract/ADR 0027 describe boundaries.
+Only M5-T02 READY, later tasks NOT STARTED; no active task/blocker.
+
+### Historical implementation milestones
 
 M4-T07 adds 781 independent offline protocol-selection cases: every documented
 identity/alias across standard/nonstandard ports; exact product hints and conflicts
@@ -649,6 +666,22 @@ M4-T02 SSH/M4-T03 SMB/M4-T04 FTP/M4-T05 SMTP metadata is implemented; M4-T06 dat
 - ADR 0001's explicit TOML and separate-secret choice is unchanged. Explicit IDs/times and controlled state mutation remain separate from semantic canonical identity and execution. Groq/SQLite remain planned; default tests are deterministic offline checks.
 
 ## Validation
+
+M5-T01: Python 3.14.6. Focused Nuclei/registry/action-policy/dedup: 442 passed
+(133 new Nuclei cases). Full, pre-collection network/DNS-blocked and coverage suites:
+each 4,737 passed. Ruff check/format (226 files), strict Mypy (101 source modules),
+pip check, isolated wheel/sdist build and editable/fresh-wheel inert CLI passed.
+Coverage 96% overall (7,343 statements / 2,528 branches); Nuclei adapter 96%, parser
+99%, models 100%. Fresh external wheel venv/pip check, guarded all-module imports/
+origins/inert composition and 442 copied installed-wheel blocked cases passed.
+Earlier production byte parity, probe-only runner AST, artifact/secret, wheel/sdist
+source/dependency parity, append-only history and final dependency/Markdown/diff
+checks passed. Logs/scripts: /tmp/recon-m5t01-validation. No live Nuclei/templates/
+network/Groq/key or Python 3.12 run. Guards precede collection, permit AF_UNIX plumbing;
+existing harmless local interpreter runner tests are not OS network sandboxed.
+SETUP REQUIRED: None. M0–M4/M5-T01 DONE; M5-T02 READY only; no active task/blocker.
+
+### Historical validation
 
 M4-T07: Python 3.14.6. Editable dev install/pip check, Ruff check/format (219 files),
 strict Mypy (98 source modules), isolated sdist/wheel build and editable/fresh-wheel

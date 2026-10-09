@@ -505,3 +505,16 @@ null with version_unavailable/partial. Exact base64/source/service/port/time/exe
 memory locator/SHA-256 keep provenance, while authentication/query/data/mutation/TLS
 flags stay false. Unsupported catalog profiles produce Failure and no invented facts.
 No domain/state wire change or vulnerability inference. See [database fields/limits](database-adapter.md).
+
+## Nuclei candidates (M5-T01)
+
+Tool-local NucleiEvent/NucleiCandidate schemas describe reported template/result
+metadata, optional missing facts, physical source line/hash, execution/observation/
+evidence links and constant unverified semantics. NucleiOutput contains generic
+metadata Observations plus exact retained base64 stdout/stderr and existing
+untrusted Evidence with hashes/time/origin/truncation. Duplicate/conflicting
+reports remain separate. Completed/partial/failed describes ingestion, never
+vulnerability verification. Runner failures remain canonical; bounded failed
+ingestion preserves evidence without observations. No Finding, confidence score,
+asset/state mutation or domain-schema change; M5-T04 still owns Finding.
+See [contract](nuclei-adapter.md).

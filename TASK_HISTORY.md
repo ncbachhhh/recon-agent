@@ -3301,3 +3301,108 @@ persistence/reporting or operational CLI work. Stop after M4-T07.
 Commit reference: the single user-authorized focused commit containing this entry,
 titled `test(protocols): harden protocol selection`; resolve through Git log. Final
 response reports actual hash and clean tree. No amend/squash/history rewrite/push.
+
+## 2026-10-09 — M5-T01 — Nuclei adapter foundation
+
+Status: DONE. Objective: controlled Nuclei adapter/parser without enabling unreviewed
+execution. Startup verified expected HEAD f101915b356fd8cfbab4c0bb20c0444d6ff78f88,
+clean working/staged tree, M0–M4 DONE, only M5-T01 READY and no active task/blocker.
+Repository PLAN explicitly separates foundation from M5-T02 profiles, M5-T03 actual
+enforcement, M5-T04 Finding normalization and M5-T05 deduplication. Finding is staged,
+not an existing model to extend. Only M5-T01 transitioned READY → IN PROGRESS → DONE;
+M5-T02 becomes READY by its dependency, with no implementation started.
+
+### Changes and decisions
+
+- Three new tool modules: strict required semantic NucleiInput and candidate/context/
+  output schemas; explicit NucleiAdapter registration and immutable deny-only profile/
+  ProcessSpec stub; bounded offline ProcessExecution ingestion. Existing capability,
+  domain/error/result, registry, ScopeValidator, action policy, budgets, state and
+  dedup contracts are reused unchanged. All earlier production files/dependencies/
+  workflow/configuration/CLI are byte-identical.
+- Current registry/adapter binding, schema/scope/risk/budget/dedup and context checks
+  precede unconditional profile/dispatch denial. Accepted policy, planner prose,
+  available registration or successful detection cannot enable a scan. No scan
+  ProcessSpec, runner call, reservation, target contact, approved catalog, dynamic
+  resolver, template read/download/update, OAST/auth/intrusive behavior or arbitrary
+  paths/flags exists. The only runner call is an explicit isolated local version
+  probe: fixed argv, complete private environment/cwd, bounded capture/timeout and
+  existing cancellation/child cleanup. Default registry/imports/CLI stay inert.
+- Synthetic v3.4.10 source-shaped ResultEvent JSONL and 133 offline new cases use
+  fake ProcessRunner with real registry/policy/scope/budgets/dedup/state. Query and
+  every reported location/IP are checked centrally; subject mismatch and unsupported
+  representations cannot attach to the caller asset. Paths/references/commands remain
+  inert text. Empty output never implies a clean target. Upstream version callback/
+  ResultEvent primary sources and explicit probe/version limits are linked in docs.
+- Unverified candidate metadata and generic Observation/untrusted Evidence retain
+  asset/caller UTC/execution, physical source lines, exact retained raw stdout/stderr
+  base64/hash/truncation and unknown/malformed fields. Required exact true match and
+  absent event error; optional absent severity/version/source facts are not invented.
+  Duplicate/conflicting lines retain distinct observations and every reported claim;
+  no Finding/confidence/merge, source authenticity or retroactive authorization claim.
+- Bounded malformed/non-zero/truncated captures produce partial/failed envelopes with
+  canonical errors and retained evidence; failed envelopes contain no observations.
+  Runner Failure/timeout/missing remains canonical with no unavailable bytes invented.
+  Byte/line/key/string/list/depth-error handling is deterministic. Normalized JSON/
+  base64 expand bounded raw capture in memory; no raw-stream-size guarantee for the
+  resulting object or session scan resource claim is made.
+- New foundation contract and ADR 0027 document the independent offline ingestion
+  choice instead of introducing an approved fake scan profile. Architecture/tool/
+  security/data/config/testing docs, CHANGELOG and lifecycle records reconciled.
+  SETUP REQUIRED: None. No external binary/template/dependency/key was installed,
+  downloaded or requested for this task; optional future local probing needs an
+  operator-provisioned supported binary, which still cannot enable scanning.
+
+### Actual validation
+
+Python 3.14.6 in the existing documented .venv; system python also 3.14.6. Focused
+checks preceded full baseline. Build/fresh-wheel provisioning can access package
+indexes; no tests use target network or credentials. Logs/scripts are outside the
+checkout at /tmp/recon-m5t01-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Focused | Nuclei/registry/action-policy/dedup: 442 passed (133 new foundation cases) |
+| Full | pytest: 4,737 passed |
+| Network/DNS blocked | Guards installed before collection, Groq key absent: 4,737 passed |
+| Coverage | 4,737 passed; 96% overall, 7,343 statements / 2,528 branches; adapter 96%, parser 99%, models 100% |
+| Lint/format/types | Ruff check/format (226 files), strict Mypy (101 source modules) passed |
+| Environment/build/CLI | Python version/pip check, isolated sdist/wheel build, editable and fresh-wheel inert CLI passed |
+| Fresh wheel | External venv/pip check; guarded all-module cold imports/origins/empty registry/inert composition; 442 copied installed-wheel blocked cases passed outside checkout |
+| Security/artifacts | Earlier production byte parity, probe-only runner/no-dispatch AST, artifact/secret checks and wheel/sdist source/unchanged runtime dependency parity passed |
+| Closeout | Individual acceptance, append-only history, Markdown links/fences, 92-task dependency/readiness gate, final working/staged diff and whitespace reviewed |
+
+Development checks initially exposed a test harness using nonexistent snapshot APIs
+(87 failures / 36 passes), alias revalidation in nested candidate models and a strict
+Mypy status annotation. Fixed the harness to existing state properties, enabled
+name-based model revalidation alongside source aliases and typed the status. Added
+composition regressions then corrected test-only lifecycle keyword/absent-asset
+fixtures. All final checks above passed on the final production/test content; no
+acceptance gate changed. Remaining new uncovered lines are defensive invalid trusted
+configuration/request, unreachable denied-dispatch fallback and non-URL query handling.
+No Python 3.12 or live engine compatibility run claimed. Network guards allow AF_UNIX
+plumbing; the existing harmless interpreter runner tests are not OS network sandboxed.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Fixtures parse template/result metadata with source references | Source-shaped JSONL; NucleiEvent/Candidate, selected metadata, caller/execution/line/hash/Observation/Evidence tests and exact raw-stream preservation |
+| Argv cannot accept raw paths/arguments | Strict required semantic input; path/flag/extra/approval rejection; scan_spec always denies; sole fixed local probe argv asserted in fake-runner and AST checks |
+| Real invocation fails closed without an approved enforced profile | No approved profiles or scan dispatch path; every tested named profile denies even after actual policy accepts and registration is AVAILABLE; runner/budget/state remain untouched |
+| Missing binary/timeout/parser failure structured | Canonical probe/runner Failure tests; malformed/partial/non-zero/truncated bounded ingestion envelopes preserve errors/evidence without verified findings |
+| Task boundary/security | Earlier production/contracts unchanged; no profile catalog/enforcement/Findings/dedup or M5-T02+ implementation; no scans/template updates/OAST/credentials/shell/remote modification |
+| Complete baseline and lifecycle | All recorded validation passed; 35 DONE, only M5-T02 READY, 56 NOT STARTED; no active task/blocker |
+
+Files: src/recon_agent/tools/nuclei.py, nuclei_models.py, nuclei_parser.py;
+tests/unit/tools/test_nuclei.py; tests/fixtures/nuclei/candidates.jsonl and README.md;
+docs/nuclei-adapter.md, decisions/0027-denied-nuclei-foundation.md, architecture.md,
+tool-contracts.md, security-model.md, data-model.md, configuration.md,
+testing-strategy.md; CHANGELOG.md, PLAN.md, PROJECT_STATE.md, CURRENT_TASK.md and this
+append-only history. No blocker or new follow-up beyond existing M5-T02–M5-T05.
+Stop after M5-T01.
+
+Commit reference: the single user-authorized focused commit containing this entry,
+titled `feat(nuclei): add disabled adapter foundation`; resolve through Git log.
+Final response reports actual full hash and clean tree. No second task commit,
+amend/squash/history rewrite or push.

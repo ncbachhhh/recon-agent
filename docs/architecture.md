@@ -80,7 +80,7 @@ The planner selects capabilities, never command strings. Adapters map validated 
 | crawl_web | Implemented bounded numeric Katana crawling (M3-T03) |
 | discover_content | Default bounded recursive numeric Feroxbuster paths (M3-T04); explicitly selected specialized FFUF vhost_names HEAD (M3-T05) |
 | inspect_protocol | Implemented SSH identification (M4-T02), SMB2 negotiation (M4-T03), FTP greeting/FEAT (M4-T04), SMTP greeting/EHLO (M4-T05) or reviewed MySQL/MariaDB/PostgreSQL metadata (M4-T06) through explicit selected adapters |
-| scan_templates | nuclei with named policy profiles |
+| scan_templates | Nuclei foundation (M5-T01); every profile/scan denied; offline candidate ingestion only |
 
 Except for implemented resolve_dns, verify_dns, enumerate_subdomains, probe_http, discover_ports, fingerprint_services, inspect_common_files, inspect_tls, crawl_web, discover_content and inspect_protocol (SSH/SMB/FTP/SMTP/database selected profiles), these are candidates and future integrations. Tool-specific nested behavior must obey scope/budgets, including subprocess-internal traffic. See [tool contracts](tool-contracts.md).
 
@@ -326,3 +326,12 @@ budgets and immutable observed-service bindings gate dialect/signing/GUID metada
 No session setup/authentication/share/file/command operation exists. SSH remains an
 explicit composition alternative; no router or registry cardinality change. See
 [SMB contract](smb-adapter.md) and [ADR 0023](decisions/0023-negotiate-only-smb-metadata.md).
+
+## Nuclei foundation (M5-T01)
+
+NucleiAdapter adds explicit metadata/availability and offline ResultEvent ingestion
+under scan_templates. Strict named-profile inputs feed a deny-only ProcessSpec
+stub; accepted policy and binary availability cannot enable scans. Existing
+Observation/Evidence contracts retain unverified candidate metadata and raw stream
+provenance. There is no Finding model yet (M5-T04), approved profile catalog
+(M5-T02) or enforced scan dispatch (M5-T03). See [contract](nuclei-adapter.md).

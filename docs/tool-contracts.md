@@ -151,7 +151,7 @@ changes. Native DNS and passive Subfinder have capability-specific execution; HT
 
 ## Normalized outputs
 
-Outputs should include source adapter/version, target, timestamp, execution reference, evidence reference, and typed facts. Service observations include port, transport, service/protocol, and optional product/version. DNS observations include name/type/value and resolution context. HTTP observations include URL, status, title, server, content type, redirect destination, and technology hints with provenance. TLS observations include certificate fields and SAN names; discovered names remain unactionable until validated. Web outputs include canonical endpoints and bounded metadata. Template results become findings with supporting evidence.
+Outputs should include source adapter/version, target, timestamp, execution reference, evidence reference, and typed facts. Service observations include port, transport, service/protocol, and optional product/version. DNS observations include name/type/value and resolution context. HTTP observations include URL, status, title, server, content type, redirect destination, and technology hints with provenance. TLS observations include certificate fields and SAN names; discovered names remain unactionable until validated. Web outputs include canonical endpoints and bounded metadata. M5-T01 template results remain unverified candidates; M5-T04 will create interpreted findings with supporting evidence.
 
 Conceptual observation:
 
@@ -543,3 +543,15 @@ original Service and canonical errors retain provenance and field limits. No
 credentials/authentication/queries/data/schema/user/document/mutation/command API,
 DB client/dependency/default registration/router or later task. See the exact
 [database contract](database-adapter.md).
+
+## Nuclei foundation (M5-T01)
+
+Explicit NucleiAdapter implements scan_templates metadata, strict required named
+profile input, isolated opt-in local availability probing and bounded offline
+ProcessExecution ingestion. All scan profiles/argv/dispatch deny before reservation
+or runner contact, including when registry availability and action policy pass.
+Candidates remain unverified generic metadata with exact stdout/stderr evidence,
+line hashes and execution/source links; duplicates/conflicts remain separate.
+M5-T02/T03 own approved profile policy/enforcement and M5-T04/T05 own Finding
+normalization/deduplication. No default registration or CLI/workflow/config change.
+See [contract](nuclei-adapter.md) and [ADR 0027](decisions/0027-denied-nuclei-foundation.md).

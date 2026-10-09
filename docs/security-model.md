@@ -560,3 +560,16 @@ access, reads/writes, Redis/MongoDB command, files, mutation or exploitation exi
 Remote version/opaque offers remain bounded untrusted metadata with original Service/
 caller provenance; unsupported/auth-required/partial behavior cannot escalate, add
 contacts or infer vulnerabilities. See [database contract](database-adapter.md).
+
+## Nuclei foundation boundary (M5-T01)
+
+Every scan profile is denied, regardless of planner prose, binary availability or
+action-policy acceptance. Strict semantic inputs cannot carry paths/flags/templates
+or approval overrides. No scan ProcessSpec/runner call, template download/update,
+OAST interaction or target contact exists. The only opt-in runner call is the
+isolated bounded local version probe. Offline ingestion validates query and each
+reported network location/IP centrally, rejects unmatched subjects and preserves
+untrusted exact stream evidence; source references/paths/commands are never used.
+Candidate verification stays unverified; no Finding or exploit conclusion exists.
+Scope checks after capture cannot retroactively authorize scanner contact.
+See [contract](nuclei-adapter.md) for limits and later-task enforcement ownership.

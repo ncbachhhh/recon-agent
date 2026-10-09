@@ -1390,7 +1390,7 @@ docs/smtp-adapter.md and ADR 0025.
 
 - **ID:** `M5-T01`
 - **Title:** Nuclei adapter foundation
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Dependencies:** `M4-T07`
 
@@ -1428,7 +1428,7 @@ docs/smtp-adapter.md and ADR 0025.
 
 - **ID:** `M5-T02`
 - **Title:** Safe Nuclei profile policy
-- **Status:** NOT STARTED
+- **Status:** READY
 - **Priority:** P1
 - **Dependencies:** `M5-T01`
 

@@ -514,3 +514,19 @@ runner/credential use; full blocked-suite guards precede collection and allow AF
 event-loop plumbing. Existing harmless local interpreter runner tests remain the
 full-suite exception for subprocesses and are not OS network sandboxed. No live
 server/scanner/Groq or M5 implementation. See [selection contract](protocol-capabilities.md).
+
+## Nuclei foundation regressions (M5-T01)
+
+Run `.venv/bin/python -m pytest tests/unit/tools/test_nuclei.py tests/unit/tools/test_registry.py tests/unit/policy/test_action_policy.py tests/unit/policy/test_dedup.py -q`,
+then the complete baseline, pre-collection network/DNS-blocked suite, coverage,
+build/fresh-wheel guarded imports/copied focused tests/CLI and artifact/secret/
+source-parity/final diff checks. Synthetic v3.4.10 ResultEvent JSONL uses reserved
+names and a fake ProcessRunner. Actual policy/registry/budgets/state/dedup verify
+all named profiles deny with no scan dispatch/spend, even with accepted policy;
+raw path/flag/approval/extra fields, scope and composition denials also stay inert.
+Tests cover explicit availability/missing/version/non-zero/timeout/cancel cleanup,
+hostile/malformed/partial/truncated/empty records, independent location/IP scope,
+provenance/hash/raw bytes, duplicate/conflicting records and canonical failures.
+No real binary/templates, new dependency, key or live target. Completed ingestion
+is not a verified scan; Finding/profile enforcement remain later tasks.
+See [contract](nuclei-adapter.md).

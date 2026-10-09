@@ -318,7 +318,17 @@ existing action retry limits and scope settings keep their meanings. See
 No loader/settings/dependency changes. Explicit trusted composition selects an
 absolute executable and existing ExecutionConfig for an optional isolated Linux
 3.4.10 version probe; the planner only supplies a required semantic profile name.
-All names deny scanning. There is no default profile/catalog, template path, raw
-flag, update/download or approval option. Offline captures need no installation
+All names deny scanning. There is no executable default/enforced catalog, template
+path, raw flag, update/download or approval option. Offline captures need no installation
 or credentials: SETUP REQUIRED: None. M5-T02/T03 own reviewed operator profiles
 and execution enforcement; see [foundation contract](nuclei-adapter.md).
+
+## Nuclei profile review composition (M5-T02)
+
+Trusted application/operator composition may construct NucleiProfileCatalog from a
+bounded explicit tuple of pinned manual TemplateReview records. Profiles/classes
+are repository-owned and cannot be overridden by configuration; the catalog has
+zero concrete template reviews by default. No TOML/env loader/settings change, raw
+path/URL/flags, refresh/download or scanner enablement is introduced. safe is the
+named policy default; existing NucleiInput still requires an explicit name and
+all scans deny. SETUP REQUIRED: None. See [policy/update contract](nuclei-profile-policy.md).

@@ -530,3 +530,19 @@ provenance/hash/raw bytes, duplicate/conflicting records and canonical failures.
 No real binary/templates, new dependency, key or live target. Completed ingestion
 is not a verified scan; Finding/profile enforcement remain later tasks.
 See [contract](nuclei-adapter.md).
+
+## Safe Nuclei profile regressions (M5-T02)
+
+Run `.venv/bin/python -m pytest tests/unit/policy/test_nuclei_profiles.py tests/unit/tools/test_nuclei.py tests/unit/tools/test_registry.py tests/unit/policy/test_action_policy.py tests/unit/policy/test_dedup.py -q`,
+then the full baseline, pre-collection network/DNS-blocked suite, coverage/build/
+fresh-wheel guarded imports/copied focused tests/inert CLI and artifact/secret/
+source-parity/diff checks. Independent finite class/profile tables cross every
+prohibited/unreviewed/unknown class and permitted subset with the exact HEAD/root/
+response envelope. Extra features, omitted/malformed metadata, provenance/version/
+content drift, mutable snapshot attempts and explicit new reviews are checked.
+Synthetic JSON manifests are not templates or real approvals; default reviews are
+empty. All old foundation tests remain unchanged. New policy tests prohibit source
+lookup/network/process/runtime side effects; pre-await adapter denials need no
+event loop/socket and cannot spend even after an eligible assessment. No source
+byte/YAML enforcement, scanner/template execution or M5-T03 implementation.
+See [policy contract](nuclei-profile-policy.md).

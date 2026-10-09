@@ -555,3 +555,16 @@ line hashes and execution/source links; duplicates/conflicts remain separate.
 M5-T02/T03 own approved profile policy/enforcement and M5-T04/T05 own Finding
 normalization/deduplication. No default registration or CLI/workflow/config change.
 See [contract](nuclei-adapter.md) and [ADR 0027](decisions/0027-denied-nuclei-foundation.md).
+
+## Safe Nuclei profile metadata (M5-T02)
+
+The standalone pure class/profile catalog permits only explicitly reviewed one-root-
+HEAD status/header behavior under safe, http_metadata or http_headers. Operator
+reviews pin a coherent repository revision, package/engine version, content hash
+and complete behavior. Unknown/excluded classes, additional features and drift
+reject deterministically. Zero concrete templates are reviewed by default.
+Assessments preserve review provenance and explicitly authorize no execution.
+Existing NucleiInput and adapter/registry/action-policy contracts are unchanged:
+all scan dispatch still denies. M5-T03 owns integration and content/contact/budget
+enforcement. See [policy contract](nuclei-profile-policy.md) /
+[ADR 0028](decisions/0028-nuclei-profile-policy.md).

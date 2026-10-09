@@ -518,3 +518,15 @@ vulnerability verification. Runner failures remain canonical; bounded failed
 ingestion preserves evidence without observations. No Finding, confidence score,
 asset/state mutation or domain-schema change; M5-T04 still owns Finding.
 See [contract](nuclei-adapter.md).
+
+## Nuclei review/profile data (M5-T02)
+
+New pure domain.nuclei_policy contracts describe full TemplateBehavior, finite class
+rule/profile metadata, exact TemplateIdentity pins, operator TemplateReview and
+non-authorizing TemplatePolicyAssessment. Required fields/immutable tuples exclude
+ambiguous safety defaults. Review provenance/time and exact source/version/hash are
+retained; the matching policy performs no execution/evidence/state processing.
+Scanner NucleiCandidate remains unverified, with unchanged Observation/Evidence/
+ActionResult models. Finding still belongs to M5-T04. See
+[policy contract](nuclei-profile-policy.md) for trusted-review versus presented-data
+semantics; an identity record does not verify source bytes or authenticity.

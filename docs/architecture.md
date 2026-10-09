@@ -333,5 +333,15 @@ NucleiAdapter adds explicit metadata/availability and offline ResultEvent ingest
 under scan_templates. Strict named-profile inputs feed a deny-only ProcessSpec
 stub; accepted policy and binary availability cannot enable scans. Existing
 Observation/Evidence contracts retain unverified candidate metadata and raw stream
-provenance. There is no Finding model yet (M5-T04), approved profile catalog
-(M5-T02) or enforced scan dispatch (M5-T03). See [contract](nuclei-adapter.md).
+provenance. There is no Finding model yet (M5-T04) or enforced scan dispatch
+(M5-T03). M5-T02 now supplies a separate inert profile/review catalog; it does
+not enable this adapter. See [contract](nuclei-adapter.md).
+
+## Safe Nuclei profile policy (M5-T02)
+
+Pure domain review records and a standalone policy catalog add finite safe/default
+class/profile metadata with exact behavior/provenance/version/content pins. There
+is no integration with action policy, registry, adapter or runner; every scan remains
+denied. Assessments authorize no execution. Operator review composition needs no
+new config loader/dependency or template package. M5-T03 owns actual source-byte,
+contact and budget enforcement. See [policy contract](nuclei-profile-policy.md).

@@ -7,13 +7,16 @@ runner call, reservation, target contact, template read/download/update or autom
 selection exists. Registry availability and a successful action-policy decision
 cannot bypass this gate. M5-T02 owns reviewed profile policy; M5-T03 owns actual
 profile/argv/destination/resource enforcement; M5-T04 owns Finding normalization;
-M5-T05 owns finding deduplication. Those tasks are unimplemented here.
+M5-T05 owns finding deduplication. M5-T02 now implements the separate
+[inert profile policy](nuclei-profile-policy.md); M5-T03+ remain unimplemented.
+The deny-only adapter stub is unchanged and does not consume that catalog.
 
 ## Inputs, registration and runner boundary
 
 `NucleiInput` is strict/extra-forbid with one required ASCII semantic `profile` name
 (lowercase letter then up to 63 lowercase letters/digits/underscores/hyphens).
-There is no default profile. Paths, URLs, flags, templates, environment, approval
+There is no implicit input/execution default. The separate M5-T02 catalog names
+safe as its policy default. Paths, URLs, flags, templates, environment, approval
 booleans and executable parameters cannot be supplied. `NucleiProfilePolicy.resolve`
 is an immutable deny-only interface stub with no catalog, plugin or override.
 `scan_spec` returns existing `OperationResult[ProcessSpec]`, always Failure.

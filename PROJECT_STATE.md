@@ -1,6 +1,6 @@
 # Project state
 
-Project phase: M5-T01 DONE; M5-T02 READY; M0/M1/M2/M3/M4 DONE
+Project phase: M0–M4 and M5-T01–M5-T02 DONE; M5-T03 READY
 
 Completed:
 
@@ -39,14 +39,31 @@ Completed:
 - M4-T06 — Database service metadata capability (DONE)
 - M4-T07 — Protocol selection tests (DONE)
 - M5-T01 — Nuclei adapter foundation (DONE)
+- M5-T02 — Safe Nuclei profile policy (DONE)
 
 Active task: None.
 
-Next ready task:
-
-- M5-T02 — Safe Nuclei profile policy (READY; not started).
+Next ready task: M5-T03 — Template policy enforcement (unstarted).
 
 ## Implementation reality
+
+M5-T02 adds pure typed reviewed behavior/class/profile contracts and an immutable
+operator-review catalog. Only one HTTP root HEAD inspecting headers/status, with
+no additional features, qualifies for two ACTIVE_SAFE classes. Three finite named
+profiles (safe default, http_metadata, http_headers) cannot override exclusions.
+Unknown/intrusive classes and behavior, ambiguous/mixed/duplicate reviews and drift
+in repository/revision/package/engine/content/class/behavior fail closed. Each
+assessment preserves pinned identity and review provenance; execution_authorized
+remains false. Default catalog contains zero concrete template reviews; fixtures
+are synthetic metadata, never executable templates or production approvals.
+All M0–M4/M5-T01 production/dependencies/configuration/CLI remain byte-identical.
+The existing Nuclei adapter still denies every scan; no template/source loading,
+byte authenticity, resolver, dispatch, contact, scope/budget/state integration or
+Finding implementation is added. These remain their existing M5-T03+ tasks.
+See docs/nuclei-profile-policy.md and ADR 0028. SETUP REQUIRED: None.
+M5-T03 is the only READY task; later tasks NOT STARTED; no active task/blocker.
+
+### Historical implementation milestones
 
 M5-T01 adds explicit NucleiAdapter/scan_templates metadata, strict required semantic
 profile input, immutable deny-only ProcessSpec gate and isolated opt-in Linux 3.4.10
@@ -61,8 +78,6 @@ No earlier production/config/dependency/workflow/CLI changes or external setup.
 Finding is absent as intended (M5-T04); profile catalog/enforcement (M5-T02/T03)
 and dedup (M5-T05) remain unimplemented. Contract/ADR 0027 describe boundaries.
 Only M5-T02 READY, later tasks NOT STARTED; no active task/blocker.
-
-### Historical implementation milestones
 
 M4-T07 adds 781 independent offline protocol-selection cases: every documented
 identity/alias across standard/nonstandard ports; exact product hints and conflicts
@@ -667,6 +682,25 @@ M4-T02 SSH/M4-T03 SMB/M4-T04 FTP/M4-T05 SMTP metadata is implemented; M4-T06 dat
 
 ## Validation
 
+M5-T02: Python 3.14.6. Focused policy/foundation/registry/action-policy/dedup:
+686 passed (244 new policy cases). Full, pre-collection network/DNS-blocked and
+coverage suites each: 4,981 passed. Editable dev install/pip check, Ruff check/format
+(232 files), strict Mypy (103 source modules), isolated wheel/sdist build and
+editable/fresh-wheel inert CLI passed. Coverage 97% overall: 7,460 statements,
+201 missed, 2,560 branches, 149 partial; both new modules 100%. Fresh external
+wheel venv/pip check, guarded all-module cold imports/origins/empty registry/inert
+policy composition and 686 copied installed-wheel blocked cases passed outside
+checkout, preserving the existing stricter policy socket-construction guard.
+Earlier production byte parity, no operational imports/scan-dispatch AST, artifact/
+secret checks, wheel/sdist source/unchanged dependency parity, append-only history,
+dependency/readiness/Markdown/final diff checks passed. Logs/scripts:
+/tmp/recon-m5t02-validation. No live scanner/templates/Groq or Python 3.12 run.
+Network guards precede collection and permit AF_UNIX plumbing; existing harmless
+interpreter runner tests are not OS network sandboxed. SETUP REQUIRED: None.
+M0–M4/M5-T01–M5-T02 DONE; only M5-T03 READY/unstarted; no active task/blocker.
+
+### Historical validation
+
 M5-T01: Python 3.14.6. Focused Nuclei/registry/action-policy/dedup: 442 passed
 (133 new Nuclei cases). Full, pre-collection network/DNS-blocked and coverage suites:
 each 4,737 passed. Ruff check/format (226 files), strict Mypy (101 source modules),
@@ -680,8 +714,6 @@ checks passed. Logs/scripts: /tmp/recon-m5t01-validation. No live Nuclei/templat
 network/Groq/key or Python 3.12 run. Guards precede collection, permit AF_UNIX plumbing;
 existing harmless local interpreter runner tests are not OS network sandboxed.
 SETUP REQUIRED: None. M0–M4/M5-T01 DONE; M5-T02 READY only; no active task/blocker.
-
-### Historical validation
 
 M4-T07: Python 3.14.6. Editable dev install/pip check, Ruff check/format (219 files),
 strict Mypy (98 source modules), isolated sdist/wheel build and editable/fresh-wheel

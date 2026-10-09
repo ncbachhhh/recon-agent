@@ -573,3 +573,16 @@ untrusted exact stream evidence; source references/paths/commands are never used
 Candidate verification stays unverified; no Finding or exploit conclusion exists.
 Scope checks after capture cannot retroactively authorize scanner contact.
 See [contract](nuclei-adapter.md) for limits and later-task enforcement ownership.
+
+## Nuclei profile policy boundary (M5-T02)
+
+Finite named profiles share global exclusions; class names/tags/severity/signatures
+cannot override a complete effective-behavior review. The initial allowed envelope
+is one root HEAD inspecting status/headers with no extra feature, credentials,
+payload, mutation, code, redirects or secondary/OAST contact. Exact source/version/
+content pins and immutable operator review snapshots reject unknowns/updates; no
+automatic template download or mutation exists. Zero concrete templates default.
+Policy assessment is pure metadata with execution_authorized=false; it does not
+verify loaded bytes, authorize scope or dispatch. M5-T01 stays unchanged and denies
+every scan; M5-T03 must inspect content and prove contact/budget containment first.
+See [policy contract](nuclei-profile-policy.md).

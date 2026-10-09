@@ -3406,3 +3406,106 @@ Commit reference: the single user-authorized focused commit containing this entr
 titled `feat(nuclei): add disabled adapter foundation`; resolve through Git log.
 Final response reports actual full hash and clean tree. No second task commit,
 amend/squash/history rewrite or push.
+
+## 2026-10-10 — M5-T02 — Safe Nuclei profile policy
+
+Status: DONE. Startup verified expected HEAD
+a7cd2bca7f0ec2b341e4f56498f646e775bd9059, clean working/staged tree, M0–M4 and
+M5-T01 DONE, only M5-T02 READY and no active task/blocker. Followed AGENTS and the
+project-maintenance skill; repository PLAN separates this pure policy task from
+M5-T03 runtime enforcement and M5-T04/T05 Findings/dedup. M5-T02 transitioned
+READY → IN PROGRESS → DONE. Only dependency-satisfied M5-T03 becomes READY;
+no future implementation started. User's Continue resumed the same task.
+
+### Changes and decisions
+
+- Two pure modules reuse frozen strict domain Record, UTC timestamps, ACTIVE_SAFE
+  risk, shared ConfigurationError/PlannerValidationError and Success/Failure.
+  Required explicit behavior metadata defines one HTTP root HEAD, one request,
+  response headers/status and no extra features. Only http_response_metadata and
+  http_security_header_presence classes qualify; presence/absence is unverified.
+  Finite safe/default, http_metadata and http_headers profiles are repository-owned
+  subsets and cannot relax exclusions. Prohibited/unreviewed/unknown classes,
+  altered behavior, unknown names, raw flags/paths/URLs/options deny.
+- Immutable bounded operator-review catalogs require unique template IDs and one
+  coherent upstream repository/revision/package/engine snapshot. Exact lowercase
+  revision/content pins, supported engine 3.4.10, class/behavior and aware review
+  reference/time preserve provenance. Metadata drift requires an explicit new
+  trusted review/catalog; no automatic update, alias fallback or broader profile.
+  Default catalog contains zero concrete approved templates. Synthetic fixtures
+  describe fictional metadata only, never upstream templates/production approval.
+- Class review used official ProjectDiscovery HTTP, payload, OOB and signing docs
+  linked in the contract/ADR. Broad tags/severity/signatures do not establish safe
+  behavior or contact containment. Actual bytes/authenticity/complete effective
+  behavior are not verified by self-reported metadata; source resolution/content
+  verification and runtime gates belong to M5-T03. Every policy assessment explicitly
+  carries execution_authorized=false and is neither ApprovedAction nor ProcessSpec.
+- Every earlier production Python file and dependencies/configuration/CLI remain
+  byte-identical, including M5-T01 scan denial, bounded untrusted parsing, centralized
+  scope validation, candidate/evidence relationships, registry/policy/budgets/state.
+  No adapter integration, process/network/source-read/provider operation or new
+  findings/authorization exists. Existing accepted policy still cannot execute or
+  spend; outside-scope requests remain rejected by the unchanged centralized guard.
+- 244 new deterministic offline cases cover complete class/profile/behavior tables,
+  malformed/missing metadata, prohibitions/features, injection, coherent reviews,
+  duplicate/conflicting identities, every pin's drift, explicit reviewed updates,
+  immutable/canonical/repeated JSON behavior, preserved provenance and no operational
+  side effects. Existing foundation regressions remain unchanged. New contract and
+  ADR 0028 plus implementation/security/data/config/testing docs reflect boundaries.
+  SETUP REQUIRED: None. No new dependency, scanner binary, template package, system
+  requirement or credential was introduced, installed, downloaded or requested.
+
+### Actual validation
+
+Python 3.14.6 (system and documented .venv). Focused checks preceded full baseline.
+Dependency/build/fresh-wheel provisioning may access package indexes; tests require
+no scanner, API credentials, DNS or target network. Logs/scripts are outside checkout
+at /tmp/recon-m5t02-validation.
+
+| Check | Actual result |
+| --- | --- |
+| Focused | Policy/Nuclei/registry/action-policy/dedup: 686 passed, including 244 new policy cases |
+| Full | pytest: 4,981 passed |
+| Network/DNS blocked | Pre-collection guards and absent Groq key: 4,981 passed |
+| Coverage | 4,981 passed; 97% overall, 7,460 statements, 201 missed, 2,560 branches, 149 partial; both new modules 100% |
+| Lint/format/types | Ruff check/format (232 files), strict Mypy (103 source modules) passed |
+| Environment/build/CLI | Editable dev install/pip check, Python version, isolated sdist/wheel build and editable/fresh-wheel inert CLI passed |
+| Fresh wheel | External venv/pip check; guarded all-module cold imports/origins/empty registry/inert policy; 686 copied installed-wheel blocked cases passed outside checkout, including unchanged strict policy conftest guard |
+| Security/artifacts | Protected old production/dependency byte parity, pure/no source-read/operational imports and retained probe-only/no-scan AST, secret/artifact checks, wheel/sdist source/dependency parity passed |
+| Closeout | Final acceptance/diff/whitespace, append-only history, Markdown links/fences and 92-task readiness/dependency checks passed; 36 DONE, only M5-T03 READY, 55 NOT STARTED |
+
+Initial focused development checks exposed test-only malformed input construction
+(2 failures/66 passes); changed tests to send malformed copied values through the
+revalidation boundary. Later the unchanged policy conftest socket-construction guard
+blocked asyncio loop setup (3 failures/233 passes); tests now drive the adapter's
+pre-await denial coroutine without constructing an event loop. Guard remains intact,
+and no production change or acceptance weakening was needed. All recorded final
+checks passed on final source/tests. No live Nuclei compatibility or Python 3.12 run
+claimed; supported engine pin retains M5-T01's review version only. Network guards
+permit AF_UNIX test plumbing; harmless existing interpreter runner children are not
+OS network sandboxed. Trusted review metadata cannot prove local bytes or hidden
+contacts; all scans remain disabled until future enforcement establishes safety.
+
+### Acceptance mapping and handoff
+
+| Criterion | Evidence |
+| --- | --- |
+| Allowed classes/profiles explicit and reviewable | Frozen risk/behavior/class/profile models, independent complete policy tables, exact finite profile catalog, contract and ADR 0028 |
+| Potentially intrusive or unknown excluded from default | Two narrow root-HEAD classes only; all prohibited/unreviewed/unknown classes and nonempty/unknown features or changed methods/protocol/destination/count/parts deny |
+| Profile selection cannot override exclusions | Fixed profile subsets, unknown/alias/override rejection; classification required before review/profile matching; execution_authorized=false; old adapter still denies dispatch |
+| Updates cannot silently broaden behavior | Immutable coherent explicit operator review, exact repository/revision/package/engine/hash/class/behavior equality; every drift rejected until separately re-reviewed; no loader/updater/download |
+| Existing security/provenance preserved | Byte parity plus unchanged foundation parsing/evidence/scope/registry/policy/budget regression tests; non-authorizing assessment preserves exact identity/reference/UTC |
+| Task boundary and complete baseline | All executed checks above; M5-T03 enforcement/dispatch and M5-T04/T05 findings/dedup not implemented; no provider/loop/storage/reporting/real CLI |
+
+Files: src/recon_agent/domain/nuclei_policy.py; src/recon_agent/policy/nuclei_profiles.py;
+tests/unit/policy/test_nuclei_profiles.py; tests/fixtures/nuclei_policy/reviews.json
+and README.md; docs/nuclei-profile-policy.md, decisions/0028-nuclei-profile-policy.md,
+nuclei-adapter.md, architecture.md, tool-contracts.md, security-model.md, data-model.md,
+configuration.md, testing-strategy.md; CHANGELOG.md, PLAN.md, PROJECT_STATE.md,
+CURRENT_TASK.md and this append-only history. No blocker or new follow-up beyond
+existing M5-T03–M5-T05. Stop after M5-T02.
+
+Commit reference: the single user-authorized focused commit containing this entry,
+titled `feat(nuclei): define safe profile review policy`; resolve through Git log.
+Final response reports actual full hash and clean tree. No second task commit,
+amend/squash/history rewrite or push.

@@ -1,0 +1,50 @@
+[
+  {
+    "identity": {
+      "template_id": "synthetic-response-metadata",
+      "source_repository": "projectdiscovery/nuclei-templates",
+      "source_revision": "0000000000000000000000000000000000000000",
+      "package_version": "0.0.0",
+      "engine_version": "3.4.10",
+      "content_sha256": "28a24002bdcdbce5d925deafa81e8b94f01c557f2670f18c3332a9cc69d49215"
+    },
+    "template_class": "http_response_metadata",
+    "behavior": {
+      "protocol": "http",
+      "method": "HEAD",
+      "destination": "target_root",
+      "request_count": 1,
+      "response_parts": [
+        "headers",
+        "status"
+      ],
+      "features": []
+    },
+    "review_reference": "synthetic-review-m5t02",
+    "reviewed_at": "2026-10-10T00:00:00Z"
+  },
+  {
+    "identity": {
+      "template_id": "synthetic-security-headers",
+      "source_repository": "projectdiscovery/nuclei-templates",
+      "source_revision": "0000000000000000000000000000000000000000",
+      "package_version": "0.0.0",
+      "engine_version": "3.4.10",
+      "content_sha256": "8d2db0247f98184883ac04d28f29373d2da28b52f23c44ebafc1cdd672be41d5"
+    },
+    "template_class": "http_security_header_presence",
+    "behavior": {
+      "protocol": "http",
+      "method": "HEAD",
+      "destination": "target_root",
+      "request_count": 1,
+      "response_parts": [
+        "headers",
+        "status"
+      ],
+      "features": []
+    },
+    "review_reference": "synthetic-review-m5t02",
+    "reviewed_at": "2026-10-10T00:00:00Z"
+  }
+]

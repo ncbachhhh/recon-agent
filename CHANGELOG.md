@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- M5-T02: add finite safe Nuclei class/profile metadata and immutable operator review
+  catalogs with exact behavior/provenance/version/content pins. Unknown, intrusive
+  and changed templates deny; all scanner execution stays disabled. No external setup.
+
 - M5-T01: add a disabled Nuclei adapter foundation with strict profile inputs,
   explicit isolated availability checks and bounded offline candidate ingestion.
   Preserve exact untrusted stream evidence and source links; all scans remain
